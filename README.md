@@ -1,10 +1,15 @@
 Abiquo Infrastructure Management (AIM)
-====================================================
+======================================
 
 The Abiquo Infrastructure Management (AIM) is a collection of services that manage the deployment of virtual machines, the local event system and the vlan management. AIM must be installed in each node machine that works with the following hypervisors:
 
 * KVM
 * XEN
+
+Building
+--------
+
+Go [here](http://wiki.abiquo.com/display/Abiquo/Building+thrift+based+AIM+on+CentOS5)
 
 Architecture
 ------------
