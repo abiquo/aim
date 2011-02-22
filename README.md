@@ -9,7 +9,7 @@ The Abiquo Infrastructure Management (AIM) is a collection of services that mana
 Building
 --------
 
-Go [here](http://wiki.abiquo.com/display/Abiquo/Building+thrift+based+AIM+on+CentOS5)
+Go [here](http://wiki.abiquo.com/display/ABI17/Building+thrift+based+AIM+on+CentOS5)
 
 Architecture
 ------------
