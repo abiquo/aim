@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     printConfiguration(configuration);
 
     // Aim server initialization
-    LOG("Initializing server");
+    LOG("Initializing AIM v%s", AIM_VERSION);
     shared_ptr<TProcessor> processor(new AimProcessor(aimHandler));
     shared_ptr<TServerTransport> serverTransport(new TServerSocket(getIntProperty(configuration, serverPort)));
     shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());

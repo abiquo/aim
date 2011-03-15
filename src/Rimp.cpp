@@ -68,42 +68,10 @@ bool Rimp::initialize(dictionary * configuration)
         datastore_default = datastore_default.append("/");
     }
 
-    bool initialized = true;
-
-    /***
-     * LOCAL REPOSITORY
-     * */
-
-    // check ''local repository'' exist or create it
-    if (access(LOCAL_REPOSITORY.c_str(), F_OK) == -1)
-    {
-        int err = mkdir(LOCAL_REPOSITORY.c_str(), S_IRWXU | S_IRWXG);
-
-        if (err == -1)
-        {
-            LOG("[ERROR] [RIMP] Initialization fails :\n"
-                    "\tCan not create ''local repository'' folder at [%s]\n"
-                    "\tCaused by: %s",LOCAL_REPOSITORY.c_str(), strerror(errno));
-
-            initialized = false;
-        }
-    }// ''local repository'' exist
-    else if (access(LOCAL_REPOSITORY.c_str(), W_OK | R_OK) == -1)
-    {
-        LOG("[ERROR] [RIMP] Initialization fails :\n"
-                "''local repository'' folder at [%s] exist but can not be R/W",LOCAL_REPOSITORY.c_str());
-
-        initialized = false;
-
-    }// ''local repository'' exist
-
-
     bool initDatastore = checkDatastore(datastore_default);
     bool initRepository = checkRepository(repository);
 
-    initialized = initialized && initDatastore && initRepository;
-
-    return initialized;
+    return initDatastore && initRepository;
 }
 
 void Rimp::checkRimpConfiguration()
@@ -201,12 +169,8 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
         throw rexecption;
     }
 
-    LOG("[DEBUG] [RIMP] Instantiating virtual image [%s] for virtual machien [%s]",
+    LOG("[DEBUG] [RIMP] Instantiating virtual image [%s] for virtual machine [%s]",
             virtualImageRepositoryPath.c_str(), virtualMachineUUID.c_str());
-
-    /**
-     * 1.- copy form ''Repository'' to ''Local Repository''.
-     * **/
 
     string viRepositoryPath(repository);
     viRepositoryPath = viRepositoryPath.append(virtualImageRepositoryPath);
@@ -223,52 +187,7 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
 
     unsigned long int viSize = getFileSize(viRepositoryPath);
 
-    string viLocalRepoPath(LOCAL_REPOSITORY);
-    viLocalRepoPath = viLocalRepoPath.append(virtualImageRepositoryPath);
-
-    // Check if the image is already on the local repository
-    if (access(viLocalRepoPath.c_str(), F_OK | R_OK) == -1)
-    {
-        // Checking there are enough free space to copy
-        unsigned long int localRepositoryFreeSize = getFreeSpaceOn(LOCAL_REPOSITORY);
-
-        if (localRepositoryFreeSize < viSize)
-        {
-            error = error.append("There is no enough size to copy the file :");
-            error = error.append(viRepositoryPath).append(" to :").append(LOCAL_REPOSITORY);
-
-            LOG("[ERROR] [RIMP] %s", error.c_str());
-            rexecption.description = error;
-            throw rexecption;
-        }
-
-        string copyError1 = fileCopy(viRepositoryPath, viLocalRepoPath);
-        if (!copyError1.empty())
-        {
-            error = error.append("Can not copy to :").append(viLocalRepoPath);
-            error = error.append("\nCaused by :").append(copyError1);
-
-            LOG("[ERROR] [RIMP] %s", error.c_str());
-            rexecption.description = error;
-            throw rexecption;
-        }
-
-        // check it was successfully copied
-        if (access(viLocalRepoPath.c_str(), F_OK) == -1)
-        {
-            error = error.append("The destination file can not be created at :").append(viLocalRepoPath);
-
-            LOG("[ERROR] [RIMP] %s", error.c_str());
-            rexecption.description = error;
-            throw rexecption;
-        }
-    }// copy to local repository
-
-
-    /**
-     * 2.- copy form ''Local Repository'' to ''Datastore''.
-     * **/
-
+    /** Copy from ''Local Repository'' to ''Datastore''. */
     string viDatastorePath(datastore);
     viDatastorePath = viDatastorePath.append(virtualMachineUUID);
 
@@ -282,40 +201,24 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
         // TODO also remove ORIGINAL and LINKS (¿ delete using UUID ?)
     }
 
-    // XXX viSize is the same on the repositroy and on the local repository
+    // XXX viSize is the same on the repository and on the local repository
     unsigned long int datastoreFreeSize = getFreeSpaceOn(datastore);
 
     if (datastoreFreeSize < viSize)
     {
         error = error.append("There is no enough size to copy the file :");
-        error = error.append(viLocalRepoPath).append(" to :").append(datastore);
+        error = error.append(viRepositoryPath).append(" to :").append(datastore);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
         rexecption.description = error;
         throw rexecption;
     }
 
-    string copyError2 = fileCopy(viLocalRepoPath, viDatastorePath);
+    string copyError2 = fileCopy(viRepositoryPath, viDatastorePath);
+
     if (!copyError2.empty())
     {
         error = error.append("Can not copy to :").append(viDatastorePath).append("\nCaused by :").append(copyError2);
-
-        LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
-    }
-
-    /**
-     * 3.- create the links to relate ''datastore'' <-> ''local repository''
-     * */
-
-    string errorLink = createLinkFormClonedToLocal(viLocalRepoPath, viDatastorePath, virtualMachineUUID);
-    if (!errorLink.empty())
-    {
-        remove(viDatastorePath.c_str());
-
-        error = error.append("Can not create virtual image relations for virtual machine:");
-        error = error.append(virtualMachineUUID).append("\nCaused by :").append(errorLink);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
         rexecption.description = error;
@@ -368,29 +271,7 @@ void Rimp::deleteVirtualImageFromDatastore(std::string& datastore, const std::st
         throw rexecption;
     }
 
-    string viLocalRepoPath = followLinkToLocalRepository(viDatastorePath);
-    if (viLocalRepoPath.empty())
-    {
-        error = error.append("Can not locate the original file on the ''local repositroy'' for :");
-        error = error.append(viDatastorePath);
-
-        LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
-    }
-
     remove(viDatastorePath.c_str());
-
-    string errorLinks = deleteLinkToClonedAndCheckUsedLocal(viLocalRepoPath, virtualMachineUUID);
-    if (!errorLinks.empty())
-    {
-        error = error.append("Can not delete the relations for the virtual machine:");
-        error = error.append(virtualMachineUUID).append("Caused by :").append(errorLinks);
-
-        LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
-    }
 
     LOG("[INFO] [RIMP] Deleted virtual machine [%s]", virtualMachineUUID.c_str());
 }

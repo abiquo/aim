@@ -73,66 +73,15 @@ using namespace std;
 /** Identify a file present on the ''repository'' in order to validate as an ''abiquo'' repository. */
 const string REPOSITORY_MARK = ".abiquo_repository";
 
-/** Images from the remote repositories are copied there before cloning.*/
-const string LOCAL_REPOSITORY = "/opt/localRepository/";
-
-/** Used to create the folder containing the soft links to cloned images. From ''datastore'' to ''LOCAL_REPO''. */
-const string LINKS = ".links/";
-
-/** Used to create a soft link to the local image. From ''LOCAL_REPO'' to ''datastore''*/
-const string ORIGINAL = ".source";
-
 /**
  * @return true if the configured ''datastore'' path exist and can be read/write.
- * */
+ */
 bool checkDatastore(const string& datastore);
 
 /**
  * @return true if the configured ''repository'' path is mounted on the host and can be read/write and exist the ''REPOSITORY_MARK''.
- * */
+ */
 bool checkRepository(const string& repository);
-
-/******************************************************************************
- *                              SOFT LINKS
- * Functions related to how the cloned image and the image on the local
- * repository are pointing among themselves.
- * ***************************************************************************/
-
-/**
- * Create a link two soft links to associate the image on the ''local repository''
- * to the ''datastore''.
- * 1) ''localrepo_ImagePath''+LINKS+''imageUid'' --> ''datastore_ImagePath''
- * 2) ''datastore_ImagePath''+ORIGINAL           --> ''localrepo_ImagePath''
- *
- * @param localrepo_ImagePath, the virtual image path on the ''local repository''.
- * @param datastore_ImagePath, the virtual image path on the ''datastore''.
- * @param imageUid, the UUID of the virtual machine using the virtual image (final segment of the ''datastore_ImagePath'').
- *
- * @return error message or NULL on success.
- * */
-string createLinkFormClonedToLocal(const string& localrepo_ImagePath, const string& datastore_ImagePath,
-        const string& imageUid);
-
-/**
- * Follow the link of the virtual image on the ''datastore'' to obtain its path on the ''local repository''.
- *
- * Also delete the link from to ''local repository''.
- *
- * @param datastore_ImagePath, the virtual image path on the ''datastore''.
- *
- * @return null if the link do not exist
- * */
-string followLinkToLocalRepository(const string& datastore_ImagePath);
-
-/**
- * Deletes the link to ''datastore'' and check if there are more images using ''local repository'' as source, if any also deletes the virtual image from the ''local repository''.
- *
- * @param localrepo_ImagePath, the virtual image path on the ''local repository''.
- * @param imageUid, the UUID of the virtual machine using the virtual image.
- *
- * @return error message or NULL on success.
- * */
-string deleteLinkToClonedAndCheckUsedLocal(const string& localrepo_ImagePath, const string& imageUid);
 
 /******************************************************************************
  *                              COLLECTING INFORMATION
@@ -141,17 +90,17 @@ string deleteLinkToClonedAndCheckUsedLocal(const string& localrepo_ImagePath, co
 
 /**
  * @return the available free space (in KiloBytes) on the provided directory or -1 if do not exist.
- * */
+ */
 unsigned long int getFreeSpaceOn(const string& dir);
 
 /**
  * @return the total size of the partition (in KiloBytes) of the provided directory or -1 if do not exist.
- * */
+ */
 unsigned long int getTotalSpaceOn(const string& dir);
 
 /**
  * @return the size of the provided file (in KiloBytes) or -1 if do not exist.
- * */
+ */
 unsigned long int getFileSize(const string& filename);
 
 /**
@@ -159,17 +108,17 @@ unsigned long int getFileSize(const string& filename);
  * If ''target'' path exist it returns.
  *
  * @return error message or NULL on success.
- * */
+ */
 string fileCopy(const string& source, const string& target);
 
 /**
  * TODO TBD
- * */
+ */
 vector<Datastore> getDatastoresFromMtab();
 
 /**
  * TODO TBD
- * */
+ */
 vector<NetInterface> getNetInterfacesFromXXX();
 
 #endif
