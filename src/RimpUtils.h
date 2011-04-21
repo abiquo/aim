@@ -53,6 +53,13 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 
+//#include <boost/uuid/uuid.hpp>
+//#include <boost/uuid/uuid_serialize.hpp>
+//#include <boost/uuid/uuid_generators.hpp>
+
+#include <uuid/uuid.h>
+
+
 // net interfaces
 #include <sys/ioctl.h>
 #include <net/if.h>
@@ -68,10 +75,15 @@ typedef unsigned char u8;
 #include <linux/sockios.h>
 
 using namespace boost::filesystem;
+//using namespace boost::uuids;
+
 using namespace std;
 
 /** Identify a file present on the ''repository'' in order to validate as an ''abiquo'' repository. */
 const string REPOSITORY_MARK = ".abiquo_repository";
+
+/** Datastore folder mark perfix*/
+const string DATASTORE_MARK = "datastoreuuid.";
 
 /**
  * @return true if the configured ''datastore'' path exist and can be read/write.
@@ -115,6 +127,16 @@ string fileCopy(const string& source, const string& target);
  * TODO TBD
  */
 vector<Datastore> getDatastoresFromMtab();
+
+
+/**
+ * find the folder mark ''datastoreuuid.XXXX'' or create it. On the top of the datastore filesystem (the mount point)
+ *
+ * @return the datastore UUID
+ * */
+string getDatastoreUuidFolderMark(const string& rootMountPoint);
+
+
 
 /**
  * TODO TBD

@@ -8,6 +8,7 @@
 
 Rimp::Rimp() : Service("Rimp")
 {
+	getDatastoresFromMtab(); // TODO remove me
 }
 
 Rimp::~Rimp()

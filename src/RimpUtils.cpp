@@ -40,6 +40,77 @@ vector<string> createInvalidTypeVector()
 
 static vector<string> invalidtypes = createInvalidTypeVector();
 
+
+
+/**
+ *
+ * @param rootMountPoint, top level datastore folder (is accessible).
+ *
+ * */
+// http://www.boost.org/doc/libs/1_33_1/libs/filesystem/doc/index.htm
+string getDatastoreUuidFolderMark(const string& rootMountPoint)
+{
+	const char* markPrefix = DATASTORE_MARK.c_str();
+	path p = rootMountPoint;
+	const char* uuid = NULL;
+
+	// iterate over the datastore root folder
+	for (directory_iterator itr(p); itr!=directory_iterator(); ++itr)
+	{
+		//LOG("a file there [%s]", itr->leaf().c_str());
+
+	    if ( is_directory(*itr) )
+	    {
+			const char* str = itr->leaf().c_str();
+
+			if(strncmp(str, markPrefix, strlen(markPrefix))==0)
+			{
+				//LOG("[RIMP] datastore folder mark exist [%s]", str);
+
+				string filestr = str;
+				string uuidchar = filestr.substr(strlen(markPrefix), strlen(str)-1);//.c_str();
+				//LOG("uuidchar is %s", uuidchar);
+
+				uuid = uuidchar.c_str();
+				LOG("[DEBUG] the uuid found is %s", uuidchar.c_str());
+			}
+	    }
+	}
+
+	if(uuid != NULL)
+	{
+		// folder mark found
+
+		return string(uuid);
+	}
+	else
+	{
+		// create the folder mark
+
+		//XXX Boost 1.42 uuid uuid = random_generator(); string uuidstr = to_string(uuid);
+
+		char uuidBuff[36];
+		uuid_t uuidGenerated;
+		uuid_generate_random(uuidGenerated);
+		uuid_unparse(uuidGenerated, uuidBuff);
+
+		string uuidstr = string(uuidBuff);
+
+		string datastoreFolderMark = string(rootMountPoint.c_str());
+		datastoreFolderMark.append(DATASTORE_MARK).append(uuidstr);
+
+		LOG("TEST UUID is %s", datastoreFolderMark.c_str());
+
+		create_directory(datastoreFolderMark);
+
+		LOG("[RIM] Created Datastore folder [%s] mark [%s]", rootMountPoint.c_str(), datastoreFolderMark.c_str());
+
+
+		return uuidstr;
+	}
+}
+
+
 vector<Datastore> getDatastoresFromMtab()
 {
     vector<Datastore> datastores;
@@ -69,13 +140,31 @@ vector<Datastore> getDatastoresFromMtab()
             unsigned long int totalSize = getTotalSpaceOn(path);
             unsigned long int usableSize = getFreeSpaceOn(path);
 
-            datastore.device = string(device);
-            datastore.path = string(path);
-            datastore.type = type;
-            datastore.totalSize = totalSize;
-            datastore.usableSize = usableSize;
 
-            datastores.push_back(datastore);
+            if(is_directory(path))
+			{
+            	// TODO check is accessible
+
+	            datastore.device = string(device);
+	            datastore.path = string(path);
+
+	            LOG("[XXXXXXXXXXXXXX] datastore path [%s]", path);
+	            string dsUuid = getDatastoreUuidFolderMark(path);
+	            // TODO set at datastore ?type¿
+	            LOG("[XXXXXXXXXXXXXXXx] datastore uuid [%s]", dsUuid.c_str());
+
+
+	            datastore.type = type;
+	            datastore.totalSize = totalSize;
+	            datastore.usableSize = usableSize;
+
+	            datastores.push_back(datastore);
+			}
+            else
+            {
+            	LOG("[RIMP] [ERROR] the current mount point is not a directory [%s]", path);
+            }
+
         }
     }
 
