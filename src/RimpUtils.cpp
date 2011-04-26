@@ -43,13 +43,11 @@ static vector<string> invalidtypes = createInvalidTypeVector();
 
 
 /**
- *
  * @param rootMountPoint, top level datastore folder (is accessible).
- *
  * */
-// http://www.boost.org/doc/libs/1_33_1/libs/filesystem/doc/index.htm
 string getDatastoreUuidFolderMark(const string& rootMountPoint)
 {
+// http://www.boost.org/doc/libs/1_33_1/libs/filesystem/doc/index.htm
 	const char* markPrefix = DATASTORE_MARK.c_str();
 	path p = rootMountPoint;
 	const char* uuid = NULL;
@@ -57,8 +55,6 @@ string getDatastoreUuidFolderMark(const string& rootMountPoint)
 	// iterate over the datastore root folder
 	for (directory_iterator itr(p); itr!=directory_iterator(); ++itr)
 	{
-		//LOG("a file there [%s]", itr->leaf().c_str());
-
 	    if ( is_directory(*itr) )
 	    {
 			const char* str = itr->leaf().c_str();
@@ -72,7 +68,7 @@ string getDatastoreUuidFolderMark(const string& rootMountPoint)
 				//LOG("uuidchar is %s", uuidchar);
 
 				uuid = uuidchar.c_str();
-				LOG("[DEBUG] the uuid found is %s", uuidchar.c_str());
+				LOG("[RIMP] [DEBUG] Datastore UUID found: %s", uuidchar.c_str());
 			}
 	    }
 	}
@@ -80,7 +76,6 @@ string getDatastoreUuidFolderMark(const string& rootMountPoint)
 	if(uuid != NULL)
 	{
 		// folder mark found
-
 		return string(uuid);
 	}
 	else
@@ -99,12 +94,9 @@ string getDatastoreUuidFolderMark(const string& rootMountPoint)
 		string datastoreFolderMark = string(rootMountPoint.c_str());
 		datastoreFolderMark.append(DATASTORE_MARK).append(uuidstr);
 
-		LOG("TEST UUID is %s", datastoreFolderMark.c_str());
-
 		create_directory(datastoreFolderMark);
 
-		LOG("[RIM] Created Datastore folder [%s] mark [%s]", rootMountPoint.c_str(), datastoreFolderMark.c_str());
-
+		LOG("[RIMP] [DEBUG] Created Datastore [%s] UUID folder mark [%s]", rootMountPoint.c_str(), datastoreFolderMark.c_str());
 
 		return uuidstr;
 	}
@@ -141,24 +133,29 @@ vector<Datastore> getDatastoresFromMtab()
             unsigned long int usableSize = getFreeSpaceOn(path);
 
 
+            // its an accessible directory (can r/w)
             if(is_directory(path))
 			{
-            	// TODO check is accessible
+                // check ''repository'' exist and can be r/w
+                if (access(path, F_OK | R_OK | W_OK) == -1)
+                {
+                    LOG("[RIMP] [WARN] the current datastore mount point [%s] "
+                    		"is not accessible", path);
+                }
+                else
+                {
+					string dsUuid = getDatastoreUuidFolderMark(path);
 
-	            datastore.device = string(device);
-	            datastore.path = string(path);
+					datastore.device = string(device);
+					datastore.path = string(path);
+					// XXX unused type
+					datastore.type = dsUuid;
 
-	            LOG("[XXXXXXXXXXXXXX] datastore path [%s]", path);
-	            string dsUuid = getDatastoreUuidFolderMark(path);
-	            // TODO set at datastore ?type¿
-	            LOG("[XXXXXXXXXXXXXXXx] datastore uuid [%s]", dsUuid.c_str());
+					datastore.totalSize = totalSize;
+					datastore.usableSize = usableSize;
 
-
-	            datastore.type = type;
-	            datastore.totalSize = totalSize;
-	            datastore.usableSize = usableSize;
-
-	            datastores.push_back(datastore);
+					datastores.push_back(datastore);
+                }
 			}
             else
             {
