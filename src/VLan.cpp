@@ -21,7 +21,7 @@ bool VLan::initialize(dictionary * configuration)
     brctl = getStringProperty(configuration, vlanBrctlCmd);
 
     bool ok = true;
-    
+
     ok &= commandExist(ifconfig);
     ok &= commandExist(vconfig);
     ok &= commandExist(brctl);
@@ -60,258 +60,212 @@ void VLan::throwError(const string& message)
 
 void VLan::createVLAN(int vlan, const string& vlanInterface, const string& bridgeInterface)
 {
-    ostringstream oss;
-    int status;
-
-    // Check the existence of the vlan tag and interface
-    if (existsVlan(vlan, vlanInterface))
+    if (!createVLANInterface(vlan, vlanInterface, bridgeInterface))
     {
-        LOG("VLAN with tag %d and interface %s already exists.", vlan, vlanInterface.c_str());
-    }
-    else
-    {
-        // Create the VLAN and interface
-        oss.str("");
-        oss.flush();
-        oss << ifconfig << " " << vlanInterface << " up; " << vconfig << " add " << vlanInterface << " " << vlan <<  " >/dev/null 2>/dev/null ; " << ifconfig << " " << vlanInterface << "." << vlan << " up"; 
-        oss.flush();
+        ostringstream error;
+        error << "Error creating VLAN with tag " << vlan << " and interface " << vlanInterface;
+        error.flush();
 
-        status = executeCommand(oss.str());
-        oss.str("");
-        oss.flush();
-
-        switch (status)
-        {
-            case 127:
-                oss << "Error creating VLAN with tag " << vlan << " and interface " << vlanInterface << ".";
-                oss.flush();
-  
-                LOG("%s", oss.str().c_str());
-                throwError(oss.str());
-                break;
-
-        case 0:
-            LOG("VLAN created with tag %d and interface %s", vlan, vlanInterface.c_str());
-            break;
-
-        case 1:
-            LOG("VLAN interface %s probably already exists. We return OK", vlanInterface.c_str());
-            break;
-
-        default:
-            oss << "Error creating VLAN with tag " << vlan << " and interface " << vlanInterface << ".";
-            oss.flush();
-
-            LOG("%s", oss.str().c_str());
-            throwError(oss.str());
-            break;
-        }
+        LOG("%s", error.str().c_str());
+        throwError(error.str());
     }
 
-    // Check the existence of the bridge interface
-    if (existsBridge(bridgeInterface))
+    if (!createBridgeInterface(bridgeInterface))
     {
-        LOG("Bridge interface %s already exists.", bridgeInterface.c_str());
-    }
-    else
-    {
-    // Create the bridge interface
-    oss.str("");
-    oss.flush();
+        ostringstream error;
+        error << "Error creating bridge interface " << bridgeInterface;
+        error.flush();
 
-    oss << brctl << " addbr " << bridgeInterface << " >/dev/null 2>/dev/null ; " << ifconfig << " " << bridgeInterface << " up";
-    oss.flush();
-
-    status = executeCommand(oss.str());
-    oss.str("");
-    oss.flush();
-
-    switch (status)
-    {
-        case 127:
-            oss << "Error creating bridge interface " << bridgeInterface  << ". Unable to create.";
-            oss.flush();
-
-            LOG("%s", oss.str().c_str());
-            throwError(oss.str());
-            break;
-
-        case 0:
-            LOG("Bridge interface %s created.", bridgeInterface.c_str());
-            break;
-
-        case 1:
-            LOG("Bridge interface %s probably already exists. We return OK.", bridgeInterface.c_str());
-            break;
-
-        default:
-            oss << "Error creating bridge interface " << bridgeInterface  << ". Unable to create.";
-            oss.flush();
-
-            LOG("%s", oss.str().c_str());
-            throwError(oss.str());
-            break;
-        }
-    }
-
-    // Add interface
-    oss.str("");
-    oss.flush();
-
-    oss << brctl << " addif " << bridgeInterface << " " << vlanInterface << "." << vlan;
-    oss.flush();
-
-    status = executeCommand(oss.str());
-    oss.str();
-    oss.flush();
-
-    switch (status)
-    {
-        case 127:
-            oss << "Error adding interface (" << bridgeInterface << ", " << vlanInterface << "." << vlan << "). Unable to create.";
-            oss.flush();
-
-            LOG("%s", oss.str().c_str());
-            throwError(oss.str());
-            break;
-
-        case 0:
-            LOG("Interface added (%s, %s.%d)", bridgeInterface.c_str(), vlanInterface.c_str(), vlan);
-            break;
-
-        case 1:
-            LOG("Interface is already added (%s, %s.%d)", bridgeInterface.c_str(), vlanInterface.c_str(), vlan);
-            break;
-
-        default:
-            oss << "Error adding interface (" << bridgeInterface << ", " << vlanInterface << "." << vlan << "). Unable to create.";
-            oss.flush();
-
-            LOG("%s", oss.str().c_str());
-            throwError(oss.str());
-            break;
+        LOG("%s", error.str().c_str());
+        throwError(error.str());
     }
 
     LOG("VLan created, tag=%d, interface=%s, bridge=%s", vlan, vlanInterface.c_str(), bridgeInterface.c_str());
 }
 
-void VLan::deleteVLAN(int vlan, const string& vlanInterface, const string& bridgeInterface)
+bool VLan::createVLANInterface(int vlan, const string& vlanIf, const string& bridgeIf)
+{
+    if (!existsVlan(vlan, vlanIf))
+    {
+        string filename = buildVLANFilename(vlanIf);
+
+        if (!writeVLANConfiguration(vlanIf, bridgeIf, NETWORK_SCRIPTS_FOLDER, filename))
+        {
+            return false;
+        }
+
+        if (!ifUp(filename))
+        {
+            LOG("Unable to tear up the VLAN interface %s", vlanIf.c_str());
+            return false;
+        }
+    }
+    else
+    {
+        LOG("VLAN with tag %d and interface %s already exists.", vlan, vlanIf.c_str());
+    }
+
+    return true;
+}
+
+bool VLan::createBridgeInterface(const string& bridgeIf)
+{
+    if (!existsBridge(bridgeIf))
+    {
+        string filename = buildBridgeFilename(bridgeIf);
+
+        if (!writeBridgeConfiguration(bridgeIf, NETWORK_SCRIPTS_FOLDER, filename))
+        {
+            return false;
+        }
+
+        if (!ifUp(filename))
+        {
+            LOG("Unable to tear up the bridge %s", bridgeIf.c_str());
+            return false;
+        }
+    }
+    else
+    {
+        LOG("Bridge interface %s already exists.", bridgeIf.c_str());
+    }
+
+    return true;
+}
+
+bool VLan::ifUp(string& filename)
+{
+    ostringstream command;
+    command << "ifup " << filename;
+    command.flush();
+
+    return (executeCommand(command.str()) == 0);
+}
+
+bool VLan::ifDown(string& filename)
+{
+    ostringstream command;
+    command << "ifdown " << filename;
+    command.flush();
+
+    return (executeCommand(command.str()) == 0);
+}
+
+string VLan::buildVLANFilename(const string& vlanIf)
 {
     ostringstream oss;
-    int status;
+    oss << "abiquo_" << vlanIf;
+    oss.flush();
 
-    if (!existsBridge(bridgeInterface))
+    return oss.str();
+}
+
+string VLan::buildBridgeFilename(const string& bridgeIf)
+{
+    return string(bridgeIf);
+}
+
+void VLan::deleteVLAN(int vlan, const string& vlanInterface, const string& bridgeInterface)
+{
+    if(!deleteBridgeInterface(bridgeInterface))
     {
-        LOG("Bridge interface %s does not exist.", bridgeInterface.c_str());
-    }
-    else
-    {
-    int numInterfaces = countBridgeInterfaces(bridgeInterface);
+        ostringstream error;
+        error << "Error deleting bridge interface " << bridgeInterface;
+        error.flush();
 
-    if (numInterfaces < 1)
-    {
-        oss.str("");
-        oss.flush();
-        oss << "Unable to get the number of bridge interfaces (" << bridgeInterface << ").";
-        oss.flush();
+        LOG("%s", error.str().c_str());
+        throwError(error.str());
 
-        LOG("%s", oss.str().c_str());
-        throwError(oss.str());
-    }
-
-    if (numInterfaces != 1)
-    {
-        oss.str("");
-        oss.flush();
-        oss << "There are more than one interface for " << bridgeInterface << ". The vlan will not be deleted.";
-        oss.flush();
-
-        LOG("%s", oss.str().c_str());
-        throwError(oss.str());
     }
 
-    oss.str("");
-    oss.flush();
-    oss << ifconfig << " " << bridgeInterface << " down ; " << brctl << " delbr " << bridgeInterface << " >/dev/null 2>/dev/null";
-    oss.flush();
-
-    status = executeCommand(oss.str());
-    oss.str("");
-    oss.flush();
-
-    switch (status)
+    if (!deleteVLANInterface(vlan, vlanInterface))
     {
-        case 127:
-            oss << "Error deleting bridge interface " << bridgeInterface << ".";
-            oss.flush();
+        ostringstream error;
+        error << "Error deleting VLAN interface " << vlanInterface;
+        error.flush();
 
-            LOG("%s", oss.str().c_str());
-            throwError(oss.str());
-            break;
-
-        case 0:
-            LOG("Bridge interface %s deleted.", bridgeInterface.c_str());
-            break;
-
-        case 1:
-            LOG("Could not delete bridge interface %s. It probably does not exist.", bridgeInterface.c_str());
-            break;
-
-        default:
-            oss << "Error deleting bridge interface " << bridgeInterface << ".";
-            oss.flush();
-
-            LOG("%s", oss.str().c_str());
-            throwError(oss.str());
-            break;
-        }
-    }
-
-    if (!existsVlan(vlan, vlanInterface))
-    {
-        LOG("VLAN with tag %d and interface %s does not exist.", vlan, vlanInterface.c_str());
-    }
-    else
-    {
-    oss.str("");
-    oss.flush();
-
-    oss << ifconfig << " " << vlanInterface << "." << vlan << "; " << vconfig << " rem " << vlanInterface << "." << vlan << " >/dev/null 2>/dev/null";
-    oss.flush();
-
-    status = executeCommand(oss.str());
-    oss.str("");
-    oss.flush();
-
-    switch (status)
-    {
-        case 127:
-            oss << "Error deleting vlan interface " << vlanInterface << ".";
-            oss.flush();
-
-            LOG("%s", oss.str().c_str());
-            throwError(oss.str());
-            break;
-
-        case 0:
-            LOG("Vlan interface %s deleted.", vlanInterface.c_str());
-            break;
-
-        case 1:
-            LOG("Could not delete vlan interface %s. It probably does not exist.", vlanInterface.c_str());
-            break;
-
-        default:
-            oss << "Error deleting vlan interface " << vlanInterface << ".";
-            oss.flush();
-
-            LOG("%s", oss.str().c_str());
-            throwError(oss.str()); 
-            break;
-        }
+        LOG("%s", error.str().c_str());
+        throwError(error.str());
     }
 
     LOG("VLan deleted, tag=%d, interface=%s, bridge=%s", vlan, vlanInterface.c_str(), bridgeInterface.c_str());
+}
+
+bool VLan::deleteBridgeInterface(const string& bridgeIf)
+{
+    if (existsBridge(bridgeIf))
+    {
+        int numInterfaces = countBridgeInterfaces(bridgeIf);
+
+        if (numInterfaces < 1)
+        {
+            ostringstream error;
+            error << "Unable to get the number of bridge interfaces (" << bridgeIf << ").";
+            error.flush();
+
+            LOG("%s", error.str().c_str());
+            return false;
+        }
+
+        if (numInterfaces != 1)
+        {
+            ostringstream error;
+            error << "There are more than one interface for " << bridgeIf << ". The vlan will not be deleted.";
+
+            LOG("%s", error.str().c_str());
+            return false;
+        }
+
+        string filename = buildBridgeFilename(bridgeIf);
+
+        if (!ifDown(filename))
+        {
+            LOG("Unable to tear down the bridge %s", bridgeIf.c_str());
+            return false;
+        }
+
+        if (!removeFile(NETWORK_SCRIPTS_FOLDER, filename))
+        {
+            // TODO try to do an up?
+            ifUp(filename);
+
+            return false;
+        }
+    }
+    else
+    {
+        LOG("Bridge interface %s does not exist.", bridgeIf.c_str());
+    }
+
+    return true;
+}
+
+bool VLan::deleteVLANInterface(int vlan, const string& vlanIf)
+{
+    if (existsVlan(vlan, vlanIf))
+    {
+        string filename = buildVLANFilename(vlanIf);
+
+        if (!ifDown(filename))
+        {
+            LOG("Unable to tear down the VLAN interface %s", vlanIf.c_str());
+            return false;
+        }
+
+        if (!removeFile(NETWORK_SCRIPTS_FOLDER, filename))
+        {
+            // TODO try to do an up?
+            ifUp(filename);
+
+            return false;
+        }
+    }
+    else
+    {
+        LOG("VLAN with tag %d and interface %s does not exist.", vlan, vlanIf.c_str());
+    }
+    
+    return true;
 }
 
 int VLan::countBridgeInterfaces(const string& bridgeInterface)
@@ -479,3 +433,91 @@ void VLan::checkVLANConfiguration()
         throwError(error);
     }
 }
+
+bool VLan::writeVLANConfiguration(const string& device, const string& bridgeName, const string& folder, const string& filename)
+{
+    if (isAccessible(folder))
+    {
+        // Compose filename
+        ostringstream filepath; 
+        filepath << folder << "/" << filename;
+
+        // Write config file
+        ofstream config;
+
+        config.open(filepath.str().c_str(), ios_base::trunc);
+        config << "# Autogenerated by Abiquo AIM" << endl << endl;
+        config << "VLAN=yes" << endl;
+        config << "DEVICE=" << device << endl;
+        config << "BOOTPROTO=none" << endl;
+        config << "ONBOOT=yes" << endl;
+        config << "BRIDGE=" << bridgeName << endl;
+        config.close();
+
+        LOG("The VLAN configuration has been written in '%s'", filepath.str().c_str());
+        return true;
+    }
+
+    LOG("Unable to write the VLAN configuration '%s' is not accessible", folder.c_str());
+    return false;
+}
+
+bool VLan::writeBridgeConfiguration(const string& device, const string& folder, const string& filename)
+{
+    if (isAccessible(folder))
+    {
+        // Compose filename
+        ostringstream filepath;
+        filepath << folder << "/" << filename;
+
+        // Write config file
+        ofstream config;
+
+        config.open(filepath.str().c_str(), ios_base::trunc);
+        config << "# Autogenerated by Abiquo AIM" << endl << endl;
+        config << "DEVICE=" << device << endl;
+        config << "TYPE=Bridge" << endl;
+        config << "BOOTPROTO=dhcp" << endl;
+        config << "ONBOOT=yes" << endl;
+        config.close();
+
+        LOG("The bridge configuration configuration has been written in '%s'", filepath.str().c_str());
+        return true;
+    }
+
+    LOG("Unable to write the bridge configuration '%s' is not accessible", folder.c_str());
+    return false;
+}
+
+bool VLan::isAccessible(const string& path)
+{
+    if (access(path.c_str(), F_OK | R_OK | W_OK) == -1)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool VLan::removeFile(const string& folder, const string& filename)
+{
+    ostringstream oss;
+    oss << folder << "/" << filename;
+
+    string filepath = oss.str();
+
+    if (!isAccessible(folder))
+    {
+        LOG("Unable to remove %s, folder %s is no accessible", filepath.c_str(), folder.c_str());
+        return false;
+    }
+
+    if (unlink(filepath.c_str()) != 0)
+    {
+        LOG("Unable to remove %s", filepath.c_str());
+        return false;
+    }
+
+    return true;
+}
+

@@ -23,8 +23,12 @@
 #define VLAN_H
 
 #include <Service.h>
-
 #include <string>
+#include <iostream>
+#include <fstream>
+#include <unistd.h>
+
+#define NETWORK_SCRIPTS_FOLDER "/etc/sysconfig/network-scripts\0"
 
 using namespace std;
 
@@ -36,32 +40,39 @@ class VLan: public Service
         string brctl;
 
         bool commandExist(string& command);
-        int executeCommand(string command, bool redirect = false);
-
+        
         void throwError(const string& message);
 
         void checkVlanRange(const int vlan);
         
-        /*
-         * Checks wether a VLAN interface exists
-         */
         bool existsVlan(const int vlan, const string& vlanInterface);
         
-        /*
-         * Checks wether an interface exists
-         */
         bool existsInterface(const string& interface);
 
-
-        /*
-         * Checks wether a bridge interface exists
-         */
         bool existsBridge(const string& interface);
 
-        /*
-         * Returns 1 if there are 0 or 1 interfaces. Else it returns the number of interfaces.
-         */
         int countBridgeInterfaces(const string& bridgeInterface);
+
+        /** VLAN related methods */
+        bool createVLANInterface(int vlan, const string& vlanIf, const string& bridgeIf);
+        bool deleteVLANInterface(int vlan, const string& vlanIf);
+        bool writeVLANConfiguration(const string& device, const string& bridgeName, const string& folder, const string& filename);
+        string buildVLANFilename(const string& vlanIf);
+
+        /** Bridge related methods */
+        bool createBridgeInterface(const string& bridgeIf);
+        bool deleteBridgeInterface(const string& bridgeIf);
+        bool writeBridgeConfiguration(const string& device, const string& folder, const string& filename);
+        string buildBridgeFilename(const string& bridgeIf);
+
+        /** Filesystem helper methods */
+        bool isAccessible(const string& path);
+        bool removeFile(const string& folder, const string& filename);
+
+        /** Execute command related */
+        int executeCommand(string command, bool redirect = false);
+        bool ifUp(string& filename);
+        bool ifDown(string& filename);
 
     public:
         VLan();
