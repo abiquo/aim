@@ -56,8 +56,8 @@ class VLan: public Service
         /** VLAN related methods */
         bool createVLANInterface(int vlan, const string& vlanIf, const string& bridgeIf);
         bool deleteVLANInterface(int vlan, const string& vlanIf);
-        bool writeVLANConfiguration(const string& device, const string& bridgeName, const string& folder, const string& filename);
-        string buildVLANFilename(const string& vlanIf);
+        bool writeVLANConfiguration(const string& device, int vlan, const string& bridgeName, const string& folder, const string& filename);
+        string buildVLANFilename(int vlan, const string& vlanIf);
 
         /** Bridge related methods */
         bool createBridgeInterface(const string& bridgeIf);
