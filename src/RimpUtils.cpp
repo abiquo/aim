@@ -144,10 +144,16 @@ vector<Datastore> getDatastoresFromMtab()
                 }
                 else
                 {
-					string dsUuid = getDatastoreUuidFolderMark(path);
+                	string strPath = string(path);
+                	if (strPath.at(strPath.size() - 1) != '/')
+					{
+                		strPath = strPath.append("/");
+					}
+
+					string dsUuid = getDatastoreUuidFolderMark(strPath.c_str());
 
 					datastore.device = string(device);
-					datastore.path = string(path);
+					datastore.path = string(strPath.c_str());
 					// XXX unused type
 					datastore.type = dsUuid;
 
