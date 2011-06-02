@@ -8,7 +8,7 @@ bool checkDatastore(const string& datastore)
     if (access(datastore.c_str(), F_OK | R_OK | W_OK) == -1)
     {
         LOG("[ERROR] [RIMP] Initialization fails :\n"
-                "''datastore'' [%s] do not exist or can not be r/w", datastore.c_str());
+                "''datastore'' [%s] does not exist or is not r/w", datastore.c_str());
 
         success = false;
     } // ''datastore'' exist
@@ -434,7 +434,7 @@ bool checkRepository(const string& repository)
     if (access(repository.c_str(), F_OK | R_OK | W_OK) == -1)
     {
         LOG("[ERROR] [RIMP] Initialization fails :\n"
-                "''repository'' [%s] do not exist or can not be r/w", repository.c_str());
+                "''repository'' [%s] does not exist or is not r/w", repository.c_str());
 
         return false;
     } // ''repository'' exist
@@ -447,7 +447,7 @@ bool checkRepository(const string& repository)
     if (access(repositoryFileMark.c_str(), F_OK) == -1)
     {
         LOG("[ERROR] [RIMP] Initialization fails :\n"
-                "''repository'' [%s] do not contains the abiquo repository file mark [%s]",
+                "''repository'' [%s] does not contain the abiquo repository marker file [%s]",
                 repository.c_str(), REPOSITORY_MARK.c_str());
 
         return false;

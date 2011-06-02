@@ -40,7 +40,7 @@ bool Rimp::initialize(dictionary * configuration)
     if (repository_c == NULL || strlen(repository_c) < 2)
     {
         LOG("[ERROR] [RIMP] Initialization fails :\n"
-                "\tcan not be read the ''repository'' configuration element "
+                "\tcan not read the ''repository'' configuration element "
                 "\tset [rimp]\nrepository = XXXX ");
 
         return false;
@@ -49,7 +49,7 @@ bool Rimp::initialize(dictionary * configuration)
     if (datastore_c == NULL || strlen(datastore_c) < 2)
     {
         LOG("[ERROR] [RIMP] Initialization fails :\n"
-                "\tcan not be read the ''datastore'' configuration element "
+                "\tcan not read the ''datastore'' configuration element "
                 "\tset [rimp]\ndatastore = XXXX ");
 
         return false;
@@ -129,7 +129,7 @@ int64_t Rimp::getDiskFileSize(const std::string& virtualImageDatastorePath)
      if (access(virtualImageDatastorePath.c_str(), F_OK | R_OK) == -1)
      {
          RimpException rexecption;
-         string error ("File do not exist at [");
+         string error ("File does not exist at [");
          error = error.append(virtualImageDatastorePath).append("]");
 
          LOG("[ERROR] [RIMP] %s", error.c_str());
@@ -178,7 +178,7 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
     // Check the source file (on the repository) exist and can be read
     if (access(viRepositoryPath.c_str(), F_OK | R_OK) == -1)
     {
-        error = error.append("Source file do not exist at [").append(viRepositoryPath).append("]");
+        error = error.append("Source file does not exist at [").append(viRepositoryPath).append("]");
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
         rexecption.description = error;
@@ -206,7 +206,7 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
 
     if (datastoreFreeSize < viSize)
     {
-        error = error.append("There is no enough size to copy the file :");
+        error = error.append("There is no enough space left to copy the file :");
         error = error.append(viRepositoryPath).append(" to :").append(datastore);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
@@ -263,7 +263,7 @@ void Rimp::deleteVirtualImageFromDatastore(std::string& datastore, const std::st
     // check the file exist on the datastore
     if (access(viDatastorePath.c_str(), F_OK) == -1)
     {
-        error = error.append("Virtual image file do not exist on the ''datastore'' :");
+        error = error.append("Virtual image file does not exist on the ''datastore'' :");
         error = error.append(viDatastorePath);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
@@ -328,7 +328,7 @@ void Rimp::copyFromDatastoreToRepository(const std::string& virtualMachineUUID, 
     // Check source file exist and can be read
     if (access(viDatastoreSource.c_str(), F_OK | R_OK) == -1)
     {
-        error = error.append("Source file do not exist or can not be read: ");
+        error = error.append("Source file does not exist or can not be read: ");
         error = error.append(viDatastoreSource);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
@@ -342,7 +342,7 @@ void Rimp::copyFromDatastoreToRepository(const std::string& virtualMachineUUID, 
     // Check target path do not exist
     if (access(viRepositoryDestination.c_str(), F_OK) == 0)
     {
-        error = error.append("Snapshot already exist on the repository: ");
+        error = error.append("Snapshot already exists on the repository: ");
         error = error.append(viRepositoryDestination);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
@@ -356,7 +356,7 @@ void Rimp::copyFromDatastoreToRepository(const std::string& virtualMachineUUID, 
 
     if (repositoryFreeSize < viSize)
     {
-        error = error.append("There is no enough size to copy the file :");
+        error = error.append("There is no enough space left to copy the file :");
         error = error.append(viDatastoreSource).append(" to :").append(viRepositoryDestination);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());

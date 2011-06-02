@@ -2,3 +2,4 @@
 .project
 src/*.o
 src/aim
+*~
