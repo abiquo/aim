@@ -63,13 +63,13 @@ string getDatastoreUuidFolderMark(const string& rootMountPoint)
         
             if (lea.at(lea.size() - 1) == '/')
             {
-                LOG("[RIMP] ERROR - folder mark ends with / [%s]", lea);   
+                LOG("[RIMP] ERROR - folder mark ends with / [%s]", lea.c_str());   
                 lea = lea.substr(0, lea.length() -2);
             }
 
             if (lea.at(0) == '/')
             {
-                LOG("[RIMP] ERROR - folder mark starts with / [%s]", lea);
+                LOG("[RIMP] ERROR - folder mark starts with / [%s]", lea.c_str());
                 lea = lea.substr(1, lea.length() -1);
             }
 
