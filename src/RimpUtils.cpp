@@ -53,11 +53,29 @@ string getDatastoreUuidFolderMark(const string& rootMountPoint)
 	const char* uuid = NULL;
 
 	// iterate over the datastore root folder
-	for (directory_iterator itr(p); itr!=directory_iterator(); ++itr)
+	for (directory_iterator itr(p); itr!=directory_iterator() && uuid == NULL; ++itr)
 	{
 	    if ( is_directory(*itr) )
 	    {
-			const char* str = itr->leaf().c_str();
+
+
+            string lea = itr->leaf();
+        
+            if (lea.at(lea.size() - 1) == '/')
+            {
+                LOG("[RIMP] ERROR - folder mark ends with / [%s]", lea);   
+                lea = lea.substr(0, strlen(lea) -2);
+            }
+
+            if (lea.at(0) == '/')
+            {
+                LOG("[RIMP] ERROR - folder mark starts with / [%s]", lea);
+                lea = lea.substr(1, strlen(lea) -1);
+            }
+
+
+            const char* str =lea.c_str(); //itr->leaf().c_str();
+
 
 			if(strncmp(str, markPrefix, strlen(markPrefix))==0)
 			{
