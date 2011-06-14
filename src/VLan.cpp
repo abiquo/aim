@@ -87,8 +87,6 @@ bool VLan::createVLANInterface(int vlan, const string& vlanIf, const string& bri
 {
     if (!existsVlan(vlan, vlanIf))
     {
-        LOG("lkasdjslakdjslajdslajdslakdjsalkdjaslkdjsalkfjsdñlfjsdañlgkjañlkgjdfañlkj");
-
         string filename = buildVLANFilename(vlan, vlanIf);
 
         if (!writeVLANConfiguration(vlanIf, vlan, bridgeIf, NETWORK_SCRIPTS_FOLDER, filename))
