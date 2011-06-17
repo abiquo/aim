@@ -60,20 +60,20 @@ void VLan::throwError(const string& message)
 
 void VLan::createVLAN(int vlan, const string& vlanInterface, const string& bridgeInterface)
 {
-    if (!createVLANInterface(vlan, vlanInterface, bridgeInterface))
+    if (!createBridgeInterface(bridgeInterface))
     {
         ostringstream error;
-        error << "Error creating VLAN with tag " << vlan << " and interface " << vlanInterface;
+        error << "Error creating bridge interface " << bridgeInterface;
         error.flush();
 
         LOG("%s", error.str().c_str());
         throwError(error.str());
     }
 
-    if (!createBridgeInterface(bridgeInterface))
+    if (!createVLANInterface(vlan, vlanInterface, bridgeInterface))
     {
         ostringstream error;
-        error << "Error creating bridge interface " << bridgeInterface;
+        error << "Error creating VLAN with tag " << vlan << " and interface " << vlanInterface;
         error.flush();
 
         LOG("%s", error.str().c_str());
@@ -171,16 +171,6 @@ string VLan::buildBridgeFilename(const string& bridgeIf)
 
 void VLan::deleteVLAN(int vlan, const string& vlanInterface, const string& bridgeInterface)
 {
-    if (!deleteVLANInterface(vlan, vlanInterface))
-    {
-        ostringstream error;
-        error << "Error deleting VLAN interface " << vlanInterface;
-        error.flush();
-
-        LOG("%s", error.str().c_str());
-        throwError(error.str());
-    }
-
     if(!deleteBridgeInterface(bridgeInterface))
     {
         ostringstream error;
@@ -190,6 +180,16 @@ void VLan::deleteVLAN(int vlan, const string& vlanInterface, const string& bridg
         LOG("%s", error.str().c_str());
         throwError(error.str());
 
+    }
+
+    if (!deleteVLANInterface(vlan, vlanInterface))
+    {   
+        ostringstream error;
+        error << "Error deleting VLAN interface " << vlanInterface;
+        error.flush();
+
+        LOG("%s", error.str().c_str());
+        throwError(error.str());
     }
 
     LOG("VLan deleted, tag=%d, interface=%s, bridge=%s", vlan, vlanInterface.c_str(), bridgeInterface.c_str());
