@@ -171,6 +171,16 @@ string VLan::buildBridgeFilename(const string& bridgeIf)
 
 void VLan::deleteVLAN(int vlan, const string& vlanInterface, const string& bridgeInterface)
 {
+    if (!deleteVLANInterface(vlan, vlanInterface))
+    {
+        ostringstream error;
+        error << "Error deleting VLAN interface " << vlanInterface;
+        error.flush();
+
+        LOG("%s", error.str().c_str());
+        throwError(error.str());
+    }
+
     if(!deleteBridgeInterface(bridgeInterface))
     {
         ostringstream error;
@@ -180,16 +190,6 @@ void VLan::deleteVLAN(int vlan, const string& vlanInterface, const string& bridg
         LOG("%s", error.str().c_str());
         throwError(error.str());
 
-    }
-
-    if (!deleteVLANInterface(vlan, vlanInterface))
-    {
-        ostringstream error;
-        error << "Error deleting VLAN interface " << vlanInterface;
-        error.flush();
-
-        LOG("%s", error.str().c_str());
-        throwError(error.str());
     }
 
     LOG("VLan deleted, tag=%d, interface=%s, bridge=%s", vlan, vlanInterface.c_str(), bridgeInterface.c_str());
@@ -268,7 +268,7 @@ bool VLan::deleteVLANInterface(int vlan, const string& vlanIf)
     {
         LOG("VLAN with tag %d and interface %s does not exist.", vlan, vlanIf.c_str());
     }
-    
+
     return true;
 }
 
