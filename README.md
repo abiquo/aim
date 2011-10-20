@@ -53,6 +53,8 @@ Configuration
     [rimp]
     repository = /opt/nfs-devel
     datastore = /var/lib/virt
+    autoBackup = false
+    autoRestore = false
     
     [vlan]
     ifconfigCmd = /sbin/ifconfig
