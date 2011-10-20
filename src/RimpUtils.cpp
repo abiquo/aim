@@ -607,3 +607,32 @@ string fileCopy(const string& source, const string& target)
     return string();
 }
 
+string fileRename(const string& source, const string& target)
+{
+    string targetCopy(target);
+
+    int iPath = targetCopy.find_last_of('/');
+    string parentDir = targetCopy.substr(0, iPath + 1);
+    string error = createTargetDirectory(parentDir);
+
+    if (!error.empty())
+    {
+        return error;
+    }
+
+    try
+    {
+    	path psource (source.c_str(), native);
+    	path ptarget (target.c_str(), native);
+
+        rename(psource, ptarget);
+
+    } catch (exception& e)
+    {
+        string error(e.what());
+        return error;
+    }
+
+    return string();
+}
+

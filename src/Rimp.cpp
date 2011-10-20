@@ -6,6 +6,9 @@
 
 #include <aim_types.h>
 
+#define TRUE_CHAR "TRUE\0"
+#define holdsTrueValue(propChar) (propChar != NULL && strcasecmp(propChar, TRUE_CHAR) == 0)
+
 Rimp::Rimp() : Service("Rimp")
 {
 }
@@ -36,6 +39,8 @@ bool Rimp::initialize(dictionary * configuration)
 {
     const char* repository_c = getStringProperty(configuration, rimpRepository);
     const char* datastore_c = getStringProperty(configuration, rimpDatastore);
+    const char* autobackup_c = getStringProperty(configuration, rimpAutoBackup);
+    const char* autorestore_c = getStringProperty(configuration, rimpAutoRestore);
 
     if (repository_c == NULL || strlen(repository_c) < 2)
     {
@@ -55,6 +60,8 @@ bool Rimp::initialize(dictionary * configuration)
         return false;
     }
 
+    autobackup = holdsTrueValue(autobackup_c);
+    autorestore = holdsTrueValue(autorestore_c);
     repository = string(repository_c);
     datastore_default = string(datastore_c);
 
@@ -126,18 +133,18 @@ int64_t Rimp::getDiskFileSize(const std::string& virtualImageDatastorePath)
     LOG("[DEBUG] [RIMP] Get Disk File Size [%s]", virtualImageDatastorePath.c_str());
 
     // Check the file exist and can be read
-     if (access(virtualImageDatastorePath.c_str(), F_OK | R_OK) == -1)
-     {
-         RimpException rexecption;
-         string error ("File does not exist at [");
-         error = error.append(virtualImageDatastorePath).append("]");
+    if (access(virtualImageDatastorePath.c_str(), F_OK | R_OK) == -1)
+    {
+        RimpException rexecption;
+        string error ("File does not exist at [");
+        error = error.append(virtualImageDatastorePath).append("]");
 
-         LOG("[ERROR] [RIMP] %s", error.c_str());
-         rexecption.description = error;
-         throw rexecption;
-     }
+        LOG("[ERROR] [RIMP] %s", error.c_str());
+        rexecption.description = error;
+        throw rexecption;
+    }
 
-     return getFileSize(virtualImageDatastorePath);
+    return getFileSize(virtualImageDatastorePath);
 }
 
 
@@ -194,11 +201,43 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
     // if the file exist on the datastore delete it
     if (access(viDatastorePath.c_str(), F_OK) == 0)
     {
+        if (autorestore && autobackup)
+        {
+            // Sometimes an undeploy fails and the origional image does not get re/moved so we don't want to delete it and we don't need to try to recover so there is nothing to do.
+            // NOTE: You really do want this, don't over think it.
+
+            LOG("[INFO] [RIMP] Not checking for backup; existing virtual image instance found for virtual machine [%s]", virtualMachineUUID.c_str());
+            return;
+        }
+
         LOG("[WARNING] [RIMP] File with the same UUID already present on the ''datastore'' [%s], removing it.",
                 viDatastorePath.c_str());
 
         remove(viDatastorePath.c_str());
-        // TODO also remove ORIGINAL and LINKS (¿ delete using UUID ?)
+    }
+
+    if (autorestore)
+    {
+        string viDatastorePathBackup(datastore);
+        viDatastorePathBackup = viDatastorePathBackup.append("backup/");
+        viDatastorePathBackup = viDatastorePathBackup.append(virtualMachineUUID);
+        if (access(viDatastorePathBackup.c_str(), F_OK | R_OK) == 0)
+        {
+            // Then perform a recovery rather then a full deploy.
+            string renameError2 = fileRename(viDatastorePathBackup, viDatastorePath);
+
+            if (!renameError2.empty())
+            {
+                error = error.append("Can not move :").append(viDatastorePathBackup).append(" to :").append(viDatastorePath).append("\nCaused by :").append(renameError2);
+
+                LOG("[ERROR] [RIMP] %s", error.c_str());
+                rexecption.description = error;
+                throw rexecption;
+            }
+
+            LOG("[INFO] [RIMP] Recovered virtual image instance for virtual machine [%s]", virtualMachineUUID.c_str());
+            return;
+        }
     }
 
     // XXX viSize is the same on the repository and on the local repository
@@ -269,6 +308,36 @@ void Rimp::deleteVirtualImageFromDatastore(std::string& datastore, const std::st
         LOG("[ERROR] [RIMP] %s", error.c_str());
         rexecption.description = error;
         throw rexecption;
+    }
+
+    if (autobackup)
+    {
+        // Then backup the file rather than deleting it.
+
+        string viDatastorePathBackup(datastore);
+        viDatastorePathBackup = viDatastorePathBackup.append("backup/");
+        viDatastorePathBackup = viDatastorePathBackup.append(virtualMachineUUID);
+
+        if (access(viDatastorePathBackup.c_str(), F_OK) == 0)
+        {
+            // Then a backup already exists, delete it.
+            remove(viDatastorePathBackup.c_str());
+        }
+
+        // Then perform a recovery rather then a full deploy.
+        string renameError2 = fileRename( viDatastorePath, viDatastorePathBackup);
+
+        if (!renameError2.empty())
+        {
+            error = error.append("Can not move :").append(viDatastorePath).append(" to :").append(viDatastorePathBackup).append("\nCaused by :").append(renameError2);
+
+            LOG("[ERROR] [RIMP] %s", error.c_str());
+            rexecption.description = error;
+            throw rexecption;
+        }
+
+        LOG("[INFO] [RIMP] Backedup virtual machine [%s]", virtualMachineUUID.c_str());
+        return;
     }
 
     remove(viDatastorePath.c_str());

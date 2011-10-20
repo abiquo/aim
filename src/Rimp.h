@@ -36,6 +36,12 @@ protected:
     /** Path on the cloud node file system where the virtual images are instantiated in order to start a virtual machine. */
     string datastore_default;
 
+	/** Wether to automatically backup VirtualImages on delete **/
+	bool autobackup;
+
+	/** Wether to automatically restore VirtualImages on create **/
+	bool autorestore;
+
 public:
     Rimp();
     ~Rimp();

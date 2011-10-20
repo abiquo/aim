@@ -124,6 +124,14 @@ unsigned long int getFileSize(const string& filename);
 string fileCopy(const string& source, const string& target);
 
 /**
+ * Rename (move) ''source'' file into the ''target'' path.
+ * If ''target'' path directory doesn't exist it will be created.
+ *
+ * @return error message or NULL on success.
+ */
+string fileRename(const string& source, const string& target);
+
+/**
  * TODO TBD
  */
 vector<Datastore> getDatastoresFromMtab();

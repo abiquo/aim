@@ -1,6 +1,6 @@
 #include <Aim.h>
 #include <protocol/TBinaryProtocol.h>
-#include <server/TSimpleServer.h>
+#include <server/TThreadedServer.h>
 #include <transport/TServerSocket.h>
 #include <transport/TBufferTransports.h>
 
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 
     // Main loop
     LOG("Aim listening at port %d", getIntProperty(configuration, serverPort));
-    TSimpleServer server(processor, serverTransport, transportFactory, protocolFactory);
+    TThreadedServer server(processor, serverTransport, transportFactory, protocolFactory);
     server.serve();
 
     exit(EXIT_FAILURE);
