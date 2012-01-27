@@ -72,6 +72,8 @@ Rimp properties
 
 * repository, repository mount point
 * datastore, local file system path
+* autoBackup, on undeploy if autoBackup=true, then disk is backed up rather than deleted from the datastore .
+* autoRestore, on deploy if autoRestore=true, then disk is restored from a previous backed up disk rather than copied from repository.
 
 Vlan properties
 ---------------
