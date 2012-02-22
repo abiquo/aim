@@ -81,10 +81,10 @@ using namespace boost::filesystem;
 using namespace std;
 
 /** Identify a file present on the ''repository'' in order to validate as an ''abiquo'' repository. */
-const string REPOSITORY_MARK = ".abiquo_repository";
+const string REPOSITORY_MARK = ".abiquo_repository\0";
 
 /** Datastore folder mark perfix*/
-const string DATASTORE_MARK = "datastoreuuid.";
+const string DATASTORE_MARK = "datastoreuuid.\0";
 
 /**
  * @return true if the configured ''datastore'' path exist and can be read/write.

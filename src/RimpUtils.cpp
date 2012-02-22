@@ -69,10 +69,8 @@ string getDatastoreUuidFolderMark(const string& rootMountPoint)
   // iterate over the datastore root folder
   for (directory_iterator itr(p); itr!=directory_iterator() && uuid == NULL; ++itr)
   {
-    if ( is_directory(*itr) )
+    if (is_directory(*itr))
     {
-
-
       string lea = itr->leaf();
 
       if (lea.at(lea.size() - 1) == '/')
@@ -87,17 +85,12 @@ string getDatastoreUuidFolderMark(const string& rootMountPoint)
         lea = lea.substr(1, lea.length() -1);
       }
 
-
-      const char* str =lea.c_str(); //itr->leaf().c_str();
-
+      const char* str = lea.c_str(); //itr->leaf().c_str();
 
       if(strncmp(str, markPrefix, strlen(markPrefix))==0)
       {
-        //LOG("[RIMP] datastore folder mark exist [%s]", str);
-
         string filestr = str;
-        string uuidchar = filestr.substr(strlen(markPrefix), strlen(str)-1);//.c_str();
-        //LOG("uuidchar is %s", uuidchar);
+        string uuidchar = filestr.substr(strlen(markPrefix), strlen(str)-1);
 
         uuid = uuidchar.c_str();
         LOG("[RIMP] [DEBUG] Datastore UUID found: %s", uuidchar.c_str());
