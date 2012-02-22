@@ -64,10 +64,10 @@ string getDatastoreUuidFolderMark(const string& rootMountPoint)
   // http://www.boost.org/doc/libs/1_33_1/libs/filesystem/doc/index.htm
   const char* markPrefix = DATASTORE_MARK.c_str();
   path p = rootMountPoint;
-  const char* uuid = NULL;
+  string uuid;
 
   // iterate over the datastore root folder
-  for (directory_iterator itr(p); itr!=directory_iterator() && uuid == NULL; ++itr)
+  for (directory_iterator itr(p); itr!=directory_iterator() && uuid.empty(); ++itr)
   {
     if (is_directory(*itr))
     {
@@ -90,18 +90,16 @@ string getDatastoreUuidFolderMark(const string& rootMountPoint)
       if(strncmp(str, markPrefix, strlen(markPrefix))==0)
       {
         string filestr = str;
-        string uuidchar = filestr.substr(strlen(markPrefix), strlen(str)-1);
-
-        uuid = uuidchar.c_str();
-        LOG("[RIMP] [DEBUG] Datastore UUID found: %s", uuidchar.c_str());
+        uuid = filestr.substr(strlen(markPrefix), strlen(str)-1);
+        LOG("[RIMP] [DEBUG] Datastore UUID found: %s", uuid.c_str());
       }
     }
   }
 
-  if(uuid != NULL)
+  if(!uuid.empty())
   {
     // folder mark found
-    return string(uuid);
+    return uuid;
   }
   else
   {
