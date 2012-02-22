@@ -75,6 +75,7 @@ typedef unsigned char u8;
 #include <linux/sockios.h>
 
 using namespace boost::filesystem;
+
 //using namespace boost::uuids;
 
 using namespace std;

@@ -114,8 +114,9 @@ int64_t Rimp::getDatastoreSize()
 
 vector<Datastore> Rimp::getDatastores()
 {
-    LOG("[DEBUG] [RIMP] Get Datastores");
+    boost::mutex::scoped_lock lock(get_datastores_mutex);
 
+    LOG("[DEBUG] [RIMP] Get Datastores");
     return getDatastoresFromMtab();
 }
 

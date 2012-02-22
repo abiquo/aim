@@ -25,6 +25,7 @@
 #include <Service.h>
 #include <vector>
 #include <aim_types.h>
+#include <boost/thread/mutex.hpp>
 
 class Rimp: public Service
 {
@@ -36,11 +37,14 @@ protected:
     /** Path on the cloud node file system where the virtual images are instantiated in order to start a virtual machine. */
     string datastore_default;
 
-	/** Wether to automatically backup VirtualImages on delete **/
-	bool autobackup;
+    /** Wether to automatically backup VirtualImages on delete **/
+    bool autobackup;
 
-	/** Wether to automatically restore VirtualImages on create **/
-	bool autorestore;
+    /** Wether to automatically restore VirtualImages on create **/
+    bool autorestore;
+
+    /** Mutex for sync the getDatastores method access **/
+    boost::mutex get_datastores_mutex;
 
 public:
     Rimp();
