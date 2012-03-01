@@ -171,6 +171,8 @@ string VLan::buildBridgeFilename(const string& bridgeIf)
 
 void VLan::deleteVLAN(int vlan, const string& vlanInterface, const string& bridgeInterface)
 {
+    boost::mutex::scoped_lock lock(delete_vlan_mutex);
+
     if(!deleteBridgeInterface(bridgeInterface))
     {
         ostringstream error;
@@ -179,7 +181,6 @@ void VLan::deleteVLAN(int vlan, const string& vlanInterface, const string& bridg
 
         LOG("%s", error.str().c_str());
         throwError(error.str());
-
     }
 
     if (!deleteVLANInterface(vlan, vlanInterface))
@@ -199,27 +200,6 @@ bool VLan::deleteBridgeInterface(const string& bridgeIf)
 {
     if (existsBridge(bridgeIf))
     {
-        int numInterfaces = countBridgeInterfaces(bridgeIf);
-
-        if (numInterfaces < 1)
-        {
-            ostringstream error;
-            error << "Unable to get the number of bridge interfaces (" << bridgeIf << ").";
-            error.flush();
-
-            LOG("%s", error.str().c_str());
-            return false;
-        }
-
-        if (numInterfaces != 1)
-        {
-            ostringstream error;
-            error << "There are more than one interface for " << bridgeIf << ". The vlan will not be deleted.";
-
-            LOG("%s", error.str().c_str());
-            return false;
-        }
-
         string filename = buildBridgeFilename(bridgeIf);
 
         if (!ifDown(filename))
@@ -232,7 +212,6 @@ bool VLan::deleteBridgeInterface(const string& bridgeIf)
         {
             // TODO try to do an up?
             ifUp(filename);
-
             return false;
         }
     }
@@ -270,82 +249,6 @@ bool VLan::deleteVLANInterface(int vlan, const string& vlanIf)
     }
 
     return true;
-}
-
-int VLan::countBridgeInterfaces(const string& bridgeInterface)
-{
-    char command[250];
-    int status;
-    int pfd[2];
-    pid_t cpid;
-    char buf[10000];      //Optimitzar
-    int found, len, point, interfaces, buflen;
-
-    if (pipe(pfd) == -1)
-    {
-        return -1;
-    }
-
-    cpid = fork();
-
-    if (cpid == -1)
-    {
-        return -1;
-    }
-
-    if (cpid == 0)
-    {
-        close(1);
-        close(pfd[0]);
-        dup(pfd[1]);
-        snprintf (command, 250, "%s show 2>/dev/null", brctl.c_str());
-        status = system (command);
-        exit (0);
-    }
-    else
-    {
-        close (pfd[1]);
-        status = 1;
-        point = 0;
-
-        while (status != 0)
-        {
-            status = read (pfd[0], buf + point, 10000);
-            if (status < 0)
-                return 2;
-            point += status;
-        }
-
-        buflen = point;
-        buf[buflen] = 0;
-        close (pfd[0]);
-        waitpid (cpid, &status, 0);
-
-        sprintf (command, "%s", bridgeInterface.c_str());
-        len = strlen (command);
-        found = 0;
-        point = 0;
-        interfaces = 0;
-
-        while (point < buflen) {
-            if (found == 0 && strncmp (&buf[point], command, len) == 0) {
-                interfaces = 1;
-                found = 1;
-            }
-            //Go to next line
-            while (buf[point] != '\n' && point < buflen)
-                point++;
-            if (point == buflen)
-                break;
-            point++;
-            if (found == 1 && buf[point] != '\t')
-                break;
-            if (found == 1)
-                interfaces = interfaces + 1;
-        }
-        LOG("Interfaces: %d", interfaces);
-        return interfaces;
-    }
 }
 
 void VLan::checkVlanRange(const int vlan)

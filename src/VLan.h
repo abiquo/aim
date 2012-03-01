@@ -27,6 +27,7 @@
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
+#include <boost/thread/mutex.hpp>
 
 #define NETWORK_SCRIPTS_FOLDER "/etc/sysconfig/network-scripts\0"
 
@@ -51,8 +52,6 @@ class VLan: public Service
 
         bool existsBridge(const string& interface);
 
-        int countBridgeInterfaces(const string& bridgeInterface);
-
         /** VLAN related methods */
         bool createVLANInterface(int vlan, const string& vlanIf, const string& bridgeIf);
         bool deleteVLANInterface(int vlan, const string& vlanIf);
@@ -73,6 +72,8 @@ class VLan: public Service
         int executeCommand(string command, bool redirect = false);
         bool ifUp(string& filename);
         bool ifDown(string& filename);
+
+        boost::mutex delete_vlan_mutex;
 
     public:
         VLan();
