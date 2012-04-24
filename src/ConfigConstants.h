@@ -33,7 +33,6 @@
 
 // Rimp properties
 #define rimpRepository (char*)"rimp:repository\0"
-#define rimpDatastore (char*)"rimp:datastore\0"
 #define rimpAutoBackup (char*)"rimp:autoBackup\0"
 #define rimpAutoRestore (char*)"rimp:autoRestore\0"
 

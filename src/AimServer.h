@@ -42,7 +42,6 @@ const struct option long_opt[] =
     { "uri",         1, NULL, 'u' },
     { "daemon",      0, NULL, 'd' },
     { "repository",  1, NULL, 'r' },
-    { "datastore",   1, NULL, 's' },
     { "version",     0, NULL, 'v' },
     { NULL,          0, NULL, 0   }
 };

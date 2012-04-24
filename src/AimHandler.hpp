@@ -68,11 +68,6 @@ public:
         rimp->checkRimpConfiguration();
     }
 
-    int64_t getDatastoreSize()
-    {
-        return rimp->getDatastoreSize();
-    }
-
     int64_t getDiskFileSize(const std::string& virtualImageDatastorePath)
     {
         return rimp->getDiskFileSize(virtualImageDatastorePath);

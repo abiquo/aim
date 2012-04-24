@@ -34,9 +34,6 @@ protected:
     /** Mount point of the shared repository used to distribute the virtual images along all the cloud nodes on a datacenter. */
     string repository;
 
-    /** Path on the cloud node file system where the virtual images are instantiated in order to start a virtual machine. */
-    string datastore_default;
-
     /** Wether to automatically backup VirtualImages on delete **/
     bool autobackup;
 
@@ -62,18 +59,10 @@ public:
     /**
      * Check for configuration consistency:
      * 1) the ''repository'' is actually mounted (present on /etc/mtab).
-     * 2) the ''datastore'' path exist and can be written.
      *
      * @throws RimpException with the description cause if some of the preconditions fails.
      * */
     virtual void checkRimpConfiguration();
-
-    /**
-     * Returns the available size on the configured ''datastore''
-     *
-     * @return availabele size in Kb.
-     * */
-    virtual int64_t getDatastoreSize();
 
     /**
      * Returns the size of the virtual disk file located on the specified path
@@ -85,13 +74,17 @@ public:
     virtual int64_t getDiskFileSize(const std::string& virtualImageDatastorePath);
 
     /**
-     * TODO TBD
-     * */
+    * Get all the disk devices
+    * 
+    * @return the list fo configured disk devices (mount point, size, uuid)
+    */
     virtual vector<Datastore> getDatastores();
 
     /**
-     * TODO TBD
-     * */
+    * Get all the network device
+    *
+    * @return the list of configured network interfaces (ip and mac address)
+    */
     virtual vector<NetInterface> getNetInterfaces();
 
     /**

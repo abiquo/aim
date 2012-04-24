@@ -52,7 +52,6 @@ Configuration
     
     [rimp]
     repository = /opt/nfs-devel
-    datastore = /var/lib/virt
     autoBackup = false
     autoRestore = false
     
@@ -71,7 +70,6 @@ Rimp properties
 ---------------
 
 * repository, repository mount point
-* datastore, local file system path
 * autoBackup, on undeploy if autoBackup=true, then disk is backed up rather than deleted from the datastore .
 * autoRestore, on deploy if autoRestore=true, then disk is restored from a previous backed up disk rather than copied from repository.
 
@@ -95,7 +93,6 @@ Command line arguments
     -d --daemon                     Run as daemon
     -u --uri=<uri>                  Hypervisor URI
     -r --repository=<repository>    Repository mount point
-    -s --datastore=<datastore>      Local file system path
     -v --version                    Show AIM server version
 
 Defaults

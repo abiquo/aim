@@ -174,10 +174,6 @@ const char * parseArguments(int argc, char **argv, dictionary *d)
                 ret = iniparser_setstring(d, rimpRepository, optarg);
                 break;
 
-            case 's':
-                ret = iniparser_setstring(d, rimpDatastore, optarg);
-                break;
-
             case 'd':
                 ret = iniparser_setstring(d, daemonizeServer, daemonizeServer);
                 break;
@@ -204,7 +200,6 @@ void printUsage(const char* program)
             "    -d --daemon                     Run as daemon\n"
             "    -u --uri=<uri>                  Hypervisor URI\n"
             "    -r --repository=<repository>    Repository export location\n"
-            "    -s --datastore=<datastore>      Local file system path\n" 
             "    -v --version                    Show AIM server version\n" );
 }
 
@@ -225,7 +220,6 @@ bool checkConfiguration(dictionary * d)
 
     // Rimp
     checkProperty(d, rimpRepository);
-    checkProperty(d, rimpDatastore);
 
     // VLan
     checkProperty(d, vlanIfConfigCmd);

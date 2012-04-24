@@ -87,7 +87,7 @@ const string REPOSITORY_MARK = ".abiquo_repository\0";
 const string DATASTORE_MARK = "datastoreuuid.\0";
 
 /**
- * @return true if the configured ''datastore'' path exist and can be read/write.
+ * @return true if the provided ''datastore'' path exist and can be read/write.
  */
 bool checkDatastore(const string& datastore);
 
@@ -133,10 +133,11 @@ string fileCopy(const string& source, const string& target);
 string fileRename(const string& source, const string& target);
 
 /**
- * TODO TBD
+ * Get all the disk devices from ''/opt/mtab''
+ * 
+ * @return the list fo configured disk devices (mount point, size, uuid)
  */
 vector<Datastore> getDatastoresFromMtab();
-
 
 /**
  * find the folder mark ''datastoreuuid.XXXX'' or create it. On the top of the datastore filesystem (the mount point)
@@ -145,11 +146,11 @@ vector<Datastore> getDatastoresFromMtab();
  * */
 string getDatastoreUuidFolderMark(const string& rootMountPoint);
 
-
-
 /**
- * TODO TBD
+ * Get all the network device names from the ''/pro/net/dev''
+ *
+ * @return the list of configured network interfaces (ip and mac address)
  */
-vector<NetInterface> getNetInterfacesFromXXX();
+vector<NetInterface> getNetInterfacesFromProcNetDev();
 
 #endif

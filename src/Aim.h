@@ -35,8 +35,7 @@
 class AimIf {
  public:
   virtual ~AimIf() {}
-  virtual void checkRimpConfiguration() = 0;
-  virtual int64_t getDatastoreSize() = 0;
+  virtual void checkRimpConfiguration() = 0;  
   virtual int64_t getDiskFileSize(const std::string& virtualImageDatastorePath) = 0;
   virtual void getDatastores(std::vector<Datastore> & _return) = 0;
   virtual void getNetInterfaces(std::vector<NetInterface> & _return) = 0;
@@ -54,11 +53,7 @@ class AimNull : virtual public AimIf {
   virtual ~AimNull() {}
   void checkRimpConfiguration() {
     return;
-  }
-  int64_t getDatastoreSize() {
-    int64_t _return = 0;
-    return _return;
-  }
+  }  
   int64_t getDiskFileSize(const std::string& /* virtualImageDatastorePath */) {
     int64_t _return = 0;
     return _return;
@@ -169,96 +164,6 @@ class Aim_checkRimpConfiguration_presult {
 
   struct __isset {
     __isset() : re(false) {}
-    bool re;
-  } __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
-class Aim_getDatastoreSize_args {
- public:
-
-  Aim_getDatastoreSize_args() {
-  }
-
-  virtual ~Aim_getDatastoreSize_args() throw() {}
-
-
-  bool operator == (const Aim_getDatastoreSize_args & /* rhs */) const
-  {
-    return true;
-  }
-  bool operator != (const Aim_getDatastoreSize_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const Aim_getDatastoreSize_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-class Aim_getDatastoreSize_pargs {
- public:
-
-
-  virtual ~Aim_getDatastoreSize_pargs() throw() {}
-
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-class Aim_getDatastoreSize_result {
- public:
-
-  Aim_getDatastoreSize_result() : success(0) {
-  }
-
-  virtual ~Aim_getDatastoreSize_result() throw() {}
-
-  int64_t success;
-  RimpException re;
-
-  struct __isset {
-    __isset() : success(false), re(false) {}
-    bool success;
-    bool re;
-  } __isset;
-
-  bool operator == (const Aim_getDatastoreSize_result & rhs) const
-  {
-    if (!(success == rhs.success))
-      return false;
-    if (!(re == rhs.re))
-      return false;
-    return true;
-  }
-  bool operator != (const Aim_getDatastoreSize_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const Aim_getDatastoreSize_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-class Aim_getDatastoreSize_presult {
- public:
-
-
-  virtual ~Aim_getDatastoreSize_presult() throw() {}
-
-  int64_t* success;
-  RimpException re;
-
-  struct __isset {
-    __isset() : success(false), re(false) {}
-    bool success;
     bool re;
   } __isset;
 
@@ -1251,9 +1156,6 @@ class AimClient : virtual public AimIf {
   void checkRimpConfiguration();
   void send_checkRimpConfiguration();
   void recv_checkRimpConfiguration();
-  int64_t getDatastoreSize();
-  void send_getDatastoreSize();
-  int64_t recv_getDatastoreSize();
   int64_t getDiskFileSize(const std::string& virtualImageDatastorePath);
   void send_getDiskFileSize(const std::string& virtualImageDatastorePath);
   int64_t recv_getDiskFileSize();
@@ -1297,8 +1199,7 @@ class AimProcessor : virtual public ::apache::thrift::TProcessor {
   virtual bool process_fn(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, std::string& fname, int32_t seqid);
  private:
   std::map<std::string, void (AimProcessor::*)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*)> processMap_;
-  void process_checkRimpConfiguration(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_getDatastoreSize(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
+  void process_checkRimpConfiguration(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);  
   void process_getDiskFileSize(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
   void process_getDatastores(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
   void process_getNetInterfaces(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
@@ -1312,8 +1213,7 @@ class AimProcessor : virtual public ::apache::thrift::TProcessor {
  public:
   AimProcessor(boost::shared_ptr<AimIf> iface) :
     iface_(iface) {
-    processMap_["checkRimpConfiguration"] = &AimProcessor::process_checkRimpConfiguration;
-    processMap_["getDatastoreSize"] = &AimProcessor::process_getDatastoreSize;
+    processMap_["checkRimpConfiguration"] = &AimProcessor::process_checkRimpConfiguration;    
     processMap_["getDiskFileSize"] = &AimProcessor::process_getDiskFileSize;
     processMap_["getDatastores"] = &AimProcessor::process_getDatastores;
     processMap_["getNetInterfaces"] = &AimProcessor::process_getNetInterfaces;
@@ -1346,17 +1246,6 @@ class AimMultiface : virtual public AimIf {
     uint32_t sz = ifaces_.size();
     for (uint32_t i = 0; i < sz; ++i) {
       ifaces_[i]->checkRimpConfiguration();
-    }
-  }
-
-  int64_t getDatastoreSize() {
-    uint32_t sz = ifaces_.size();
-    for (uint32_t i = 0; i < sz; ++i) {
-      if (i == sz - 1) {
-        return ifaces_[i]->getDatastoreSize();
-      } else {
-        ifaces_[i]->getDatastoreSize();
-      }
     }
   }
 

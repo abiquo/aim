@@ -38,7 +38,6 @@ bool Rimp::cleanup()
 bool Rimp::initialize(dictionary * configuration)
 {
     const char* repository_c = getStringProperty(configuration, rimpRepository);
-    const char* datastore_c = getStringProperty(configuration, rimpDatastore);
     const char* autobackup_c = getStringProperty(configuration, rimpAutoBackup);
     const char* autorestore_c = getStringProperty(configuration, rimpAutoRestore);
 
@@ -51,72 +50,41 @@ bool Rimp::initialize(dictionary * configuration)
         return false;
     }
 
-    if (datastore_c == NULL || strlen(datastore_c) < 2)
-    {
-        LOG("[ERROR] [RIMP] Initialization fails :\n"
-                "\tcan not read the ''datastore'' configuration element "
-                "\tset [rimp]\ndatastore = XXXX ");
-
-        return false;
-    }
-
     autobackup = holdsTrueValue(autobackup_c);
     autorestore = holdsTrueValue(autorestore_c);
     repository = string(repository_c);
-    datastore_default = string(datastore_c);
-
+    
     // check ends with '/'
     if (repository.at(repository.size() - 1) != '/')
     {
         repository = repository.append("/");
     }
-    if (datastore_default.at(datastore_default.size() - 1) != '/')
-    {
-        datastore_default = datastore_default.append("/");
-    }
-
-    bool initDatastore = checkDatastore(datastore_default);
-    bool initRepository = checkRepository(repository);
-
-    return initDatastore && initRepository;
+    
+    //return checkRepository(repository); // Don't check at start
+    return true;
 }
 
 void Rimp::checkRimpConfiguration()
 {
-    string error("Invalid RIMP configuration:");
-    bool initDatastore = checkDatastore(datastore_default);
-    bool initRepository = checkRepository(repository);
-
-    if (!initDatastore)
+    if (!checkRepository(repository))
     {
-        error = error.append("\n''datastore'' :").append(datastore_default);
-    }
+        string error("Invalid ''repository'' property configuration : ");
+        error = error.append(repository);
 
-    if (!initRepository)
-    {
-        error = error.append("\n''repository'' :").append(repository);
-    }
-
-    if (!initDatastore || !initRepository)
-    {
         RimpException rexecption;
         rexecption.description = error;
         throw rexecption;
     }
 }
 
-int64_t Rimp::getDatastoreSize()
-{
-    unsigned long int space = getFreeSpaceOn(datastore_default);
-
-    return space;
-}
-
 vector<Datastore> Rimp::getDatastores()
 {
     boost::mutex::scoped_lock lock(get_datastores_mutex);
 
+    checkRimpConfiguration();
+    
     LOG("[DEBUG] [RIMP] Get Datastores");
+
     return getDatastoresFromMtab();
 }
 
@@ -124,7 +92,7 @@ vector<NetInterface> Rimp::getNetInterfaces()
 {
     LOG("[DEBUG] [RIMP] Get Network Interfaces");
 
-    return getNetInterfacesFromXXX();
+    return getNetInterfacesFromProcNetDev();
 }
 
 int64_t Rimp::getDiskFileSize(const std::string& virtualImageDatastorePath)
@@ -155,19 +123,12 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
     string error("");
     RimpException rexecption;
 
-    if (datastore.empty())
+    // check datastore path end with '/'
+    if (datastore.at(datastore.size() - 1) != '/')
     {
-        datastore = datastore_default;
+        datastore = datastore.append("/");
     }
-    else
-    {
-        // check datastore path end with '/'
-        if (datastore.at(datastore.size() - 1) != '/')
-        {
-            datastore = datastore.append("/");
-        }
-    }
-
+    
     checkRimpConfiguration();
     if (!checkDatastore(datastore))
     {
@@ -273,19 +234,12 @@ void Rimp::deleteVirtualImageFromDatastore(std::string& datastore, const std::st
     string error("");
     RimpException rexecption;
 
-    if (datastore.empty())
+    // check datastore path end with '/'
+    if (datastore.at(datastore.size() - 1) != '/')
     {
-        datastore = datastore_default;
+        datastore = datastore.append("/");
     }
-    else
-    {
-        // check datastore path end with '/'
-        if (datastore.at(datastore.size() - 1) != '/')
-        {
-            datastore = datastore.append("/");
-        }
-    }
-
+    
     checkRimpConfiguration();
     if (!checkDatastore(datastore))
     {

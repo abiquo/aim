@@ -305,7 +305,7 @@ string getHardwareAddress(const char* devname)
  * Get all the network device names from the ''/pro/net/dev''
  * Based on the code from  http://www.doctort.org/adam/ by Adam Pierce <adam@doctort.org>
  * */
-vector<NetInterface> getNetInterfacesFromXXX()
+vector<NetInterface> getNetInterfacesFromProcNetDev()
 {
   vector<NetInterface> ifaces;
   RimpException rimpexc;
@@ -363,91 +363,6 @@ vector<NetInterface> getNetInterfacesFromXXX()
 
   close(sck);
   fclose(fp);
-  return ifaces;
-}
-
-/**
- * Based on the code from  http://www.doctort.org/adam/ by Adam Pierce <adam@doctort.org>
- * */
-vector<NetInterface> getNetInterfacesFromYYY()
-{
-  vector<NetInterface> ifaces;
-
-  char buf[1024];
-  struct ifconf ifc;
-  struct ifreq *ifr;
-  int sck;
-  int nInterfaces;
-  int i;
-
-  /* Get a socket handle. */
-  sck = socket(AF_INET, SOCK_DGRAM, 0);
-  if (sck < 0)
-  {
-    RimpException rimpexc;
-    rimpexc.description = "Can not obtain the socket handler";
-    throw rimpexc;
-  }
-
-  /* Query available interfaces. */
-  ifc.ifc_len = sizeof(buf);
-  ifc.ifc_buf = buf;
-  if (ioctl(sck, SIOCGIFCONF, &ifc) < 0)
-  {
-    RimpException rimpexc;
-    rimpexc.description = "Can not query available interfaces\n.ioctl(SIOCGIFCONF)";
-    throw rimpexc;
-  }
-
-  /* Iterate through the list of interfaces. */
-  ifr = ifc.ifc_req;
-  nInterfaces = ifc.ifc_len / sizeof(struct ifreq);
-  for (i = 0; i < nInterfaces; i++)
-  {
-    struct ifreq *item = &ifr[i];
-
-    printf("*********************************\n net iface %s", item->ifr_name);
-
-    //int com = invalidtypes[i].compare(type);
-    //found = (com == 0);
-
-    string inetdevice(item->ifr_name);
-    //XXX string inetip(inet_ntoa(((struct sockaddr_in *) &item->ifr_addr)->sin_addr));
-    int faceup = netIfaceUp(sck, item->ifr_name);
-
-    printf("*********************************\n net iface %s \t %d \n*********************************\n",
-        inetdevice.c_str(), faceup);
-
-    if (inetdevice.compare(string("lo")) != 0 && faceup == 0)
-    {
-      // Get the MAC address
-      // http://cboard.cprogramming.com/linux-programming/43261-ioctl-request-get-hw-address.html
-      if (ioctl(sck, SIOCGIFHWADDR, item) < 0)
-      {
-        RimpException rimpexc;
-        rimpexc.description = string("Can not obtain the Hardware address of network device ").append(
-            inetdevice);
-        throw rimpexc;
-      }
-
-      char macBuffer[17];
-      sprintf(macBuffer, "%02x:%02x:%02x:%02x:%02x:%02x", (unsigned char) item->ifr_hwaddr.sa_data[0],
-          (unsigned char) item->ifr_hwaddr.sa_data[1], (unsigned char) item->ifr_hwaddr.sa_data[2],
-          (unsigned char) item->ifr_hwaddr.sa_data[3], (unsigned char) item->ifr_hwaddr.sa_data[4],
-          (unsigned char) item->ifr_hwaddr.sa_data[5]);
-
-      NetInterface netiface;
-      netiface.name = inetdevice;
-      // XXX netiface.address = inetip;
-      netiface.physicalAddress = string(macBuffer);
-      ifaces.push_back(netiface);
-
-    }// link up and not loopback
-
-  }
-
-  close(sck);
-
   return ifaces;
 }
 
