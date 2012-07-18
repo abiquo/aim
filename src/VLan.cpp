@@ -214,6 +214,16 @@ bool VLan::deleteBridgeInterface(const string& bridgeIf)
             ifUp(filename);
             return false;
         }
+
+        // Ensure the bridge is correctly destroyed
+        if (existsBridge(bridgeIf))
+        {
+            if (!removeBridge(bridgeIf)) 
+            {
+              LOG("The %s cannot be destroyed. This can create consistency problems", bridgeIf.c_str());
+              return false;
+            }
+        }
     }
     else
     {
@@ -281,7 +291,7 @@ bool VLan::existsInterface(const string& interface)
 {
     ostringstream oss;
 
-    oss << ifconfig << " " << interface << " > /dev/null 2>/dev/null";
+    oss << ifconfig << " -a " << interface << " > /dev/null 2>/dev/null";
     oss.flush();
 
     return (executeCommand(oss.str()) == 0);
@@ -426,5 +436,15 @@ bool VLan::removeFile(const string& folder, const string& filename)
     }
 
     return true;
+}
+
+bool VLan::removeBridge(const string& bridgeIf)
+{
+
+    ostringstream command;
+    command << "/usr/sbin/brctl delbr " << bridgeIf;
+    command.flush();
+
+    return (executeCommand(command.str()) == 0);
 }
 

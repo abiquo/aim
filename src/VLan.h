@@ -61,6 +61,7 @@ class VLan: public Service
         /** Bridge related methods */
         bool createBridgeInterface(const string& bridgeIf);
         bool deleteBridgeInterface(const string& bridgeIf);
+	bool removeBridge(const string& bridgeIf);
         bool writeBridgeConfiguration(const string& device, const string& folder, const string& filename);
         string buildBridgeFilename(const string& bridgeIf);
 
