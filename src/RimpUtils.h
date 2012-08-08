@@ -135,9 +135,12 @@ string fileRename(const string& source, const string& target);
 /**
  * Get all the disk devices from ''/opt/mtab''
  * 
+ * @param validTypes, list of valid devices (checking agaings /etc/mtab/#mnt_type). This list can be costumiced using
+ * the CSV in ''datastoreValidTyeps'' property of the aim.init file.
+ *
  * @return the list fo configured disk devices (mount point, size, uuid)
  */
-vector<Datastore> getDatastoresFromMtab();
+vector<Datastore> getDatastoresFromMtab(const vector<string> validTypes);
 
 /**
  * find the folder mark ''datastoreuuid.XXXX'' or create it. On the top of the datastore filesystem (the mount point)

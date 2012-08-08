@@ -72,6 +72,7 @@ Rimp properties
 * repository, repository mount point
 * autoBackup, on undeploy if autoBackup=true, then disk is backed up rather than deleted from the datastore .
 * autoRestore, on deploy if autoRestore=true, then disk is restored from a previous backed up disk rather than copied from repository.
+* datastoreValidTypes, optional, default value is _ext2,ext3,ext4,nfs,nfs4,xfs,smbf_. CSV list of valid datastore devices when checking the /etc/mtab/#mnt_type.  
 
 Vlan properties
 ---------------

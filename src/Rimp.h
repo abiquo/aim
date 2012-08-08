@@ -40,6 +40,9 @@ protected:
     /** Wether to automatically restore VirtualImages on create **/
     bool autorestore;
 
+    /** list of valid devices (checking agaings /etc/mtab/#mnt_type) used in ''getDatastore'' to filter /etc/mtab devices. **/
+    vector<string> validTypes;
+
     /** Mutex for sync the getDatastores method access **/
     boost::mutex get_datastores_mutex;
 

@@ -18,44 +18,6 @@ bool checkDatastore(const string& datastore)
 
 const string MTAB_FILE("/etc/mtab");
 
-vector<string> createInvalidTypeVector()
-{
-  vector < string > types;
-  types.push_back(string("proc"));
-  types.push_back(string("sysfs"));
-  types.push_back(string("fusectl"));
-  types.push_back(string("debugfs"));
-  types.push_back(string("securityfs"));
-  types.push_back(string("tmpfs"));
-  types.push_back(string("devpts"));
-  types.push_back(string("tmpfs"));
-  types.push_back(string("rpc_pipefs"));
-  types.push_back(string("vmblock"));
-  types.push_back(string("nfsd"));
-  types.push_back(string("binfmt_misc"));
-  types.push_back(string("fuse.gvfs-fuse-daemon"));
-
-  return types;
-}
-
-vector<string> createValidTypeVector()
-{
-  vector<string> types;
-
-  types.push_back(string("ext2"));
-  types.push_back(string("ext3"));
-  types.push_back(string("ext4"));
-  types.push_back(string("nfs"));
-  types.push_back(string("nfs4"));
-  types.push_back(string("xfs"));
-  types.push_back(string("smbfs"));
-
-  return types;
-}
-
-static vector<string> invalidtypes = createInvalidTypeVector();
-static vector<string> validTypes = createValidTypeVector();
-
 /**
  * @param rootMountPoint, top level datastore folder (is accessible).
  * */
@@ -126,7 +88,7 @@ string getDatastoreUuidFolderMark(const string& rootMountPoint)
 }
 
 
-vector<Datastore> getDatastoresFromMtab()
+vector<Datastore> getDatastoresFromMtab(const vector<string> validTypes)
 {
   vector<Datastore> datastores;
 

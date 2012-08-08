@@ -3,6 +3,7 @@
 #include <ConfigConstants.h>
 #include <Debug.h>
 #include <Macros.h>
+#include <boost/algorithm/string.hpp>
 
 #include <aim_types.h>
 
@@ -35,11 +36,37 @@ bool Rimp::cleanup()
     return true;
 }
 
+void printValidTypes(const vector<string> validTypes)
+{
+    LOG("[DEBUG] [RIMP] List of valid device types to filter datastores");
+
+    for (int i = 0; (i < (int) validTypes.size()); i++)
+    {
+        LOG("- %s",  validTypes[i].c_str());
+    }
+}
+
+vector<string> defaultValidTypeVector()
+{
+  vector<string> types;
+
+  types.push_back(string("ext2"));
+  types.push_back(string("ext3"));
+  types.push_back(string("ext4"));
+  types.push_back(string("nfs"));
+  types.push_back(string("nfs4"));
+  types.push_back(string("xfs"));
+  types.push_back(string("smbfs"));
+
+  return types;
+}
+
 bool Rimp::initialize(dictionary * configuration)
 {
     const char* repository_c = getStringProperty(configuration, rimpRepository);
     const char* autobackup_c = getStringProperty(configuration, rimpAutoBackup);
     const char* autorestore_c = getStringProperty(configuration, rimpAutoRestore);
+    const char* rimpDatastoreValidTypes_c = getStringProperty(configuration, rimpDatastoreValidTypes);
 
     if (repository_c == NULL || strlen(repository_c) < 2)
     {
@@ -60,6 +87,17 @@ bool Rimp::initialize(dictionary * configuration)
         repository = repository.append("/");
     }
     
+    if(rimpDatastoreValidTypes_c == NULL)
+    {
+        validTypes = defaultValidTypeVector();
+    }
+    else
+    {
+        boost::split(validTypes, rimpDatastoreValidTypes_c, boost::is_any_of(","));
+    }
+
+    printValidTypes(validTypes);
+
     //return checkRepository(repository); // Don't check at start
     return true;
 }
@@ -85,7 +123,7 @@ vector<Datastore> Rimp::getDatastores()
     
     LOG("[DEBUG] [RIMP] Get Datastores");
 
-    return getDatastoresFromMtab();
+    return getDatastoresFromMtab(validTypes);
 }
 
 vector<NetInterface> Rimp::getNetInterfaces()
