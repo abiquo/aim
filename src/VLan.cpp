@@ -128,12 +128,6 @@ bool VLan::createBridgeInterface(const string& bridgeIf)
     else
     {
         LOG("Bridge interface %s already exists.", bridgeIf.c_str());
-
-        ostringstream oss;
-        oss << ifconfig << " " << bridgeIf << " up" << " > /dev/null 2>/dev/null";
-        oss.flush();
-        return (executeCommand(oss.str()) == 0);
-
     }
 
     return true;
@@ -226,6 +220,7 @@ bool VLan::deleteBridgeInterface(const string& bridgeIf)
         {
             if (!removeBridge(bridgeIf)) 
             {
+                LOG("The %s cannot be destroyed. This can create consistency problems", bridgeIf.c_str());
                 return false;
             }
         }
@@ -452,4 +447,5 @@ bool VLan::removeBridge(const string& bridgeIf)
 
     return (executeCommand(command.str()) == 0);
 }
+
 
