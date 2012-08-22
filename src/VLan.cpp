@@ -226,7 +226,6 @@ bool VLan::deleteBridgeInterface(const string& bridgeIf)
         {
             if (!removeBridge(bridgeIf)) 
             {
-                LOG("The %s cannot be destroyed. This can create consistency problems", bridgeIf.c_str());
                 return false;
             }
         }
