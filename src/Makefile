@@ -1,5 +1,5 @@
 # Source files
-GEN_SRC := aim_constants.cpp Aim.cpp aim_types.cpp AimServer.cpp virt_monitor.cpp EventsMonitor.cpp RimpUtils.cpp Rimp.cpp VLan.cpp StringUtils.cpp NodeConfig.cpp iniparser/dictionary.c iniparser/iniparser.c
+GEN_SRC := aim_constants.cpp Aim.cpp aim_types.cpp AimServer.cpp virt_monitor.cpp EventsMonitor.cpp RimpUtils.cpp Rimp.cpp VLan.cpp StringUtils.cpp StorageConfig.cpp ExecUtils.cpp iniparser/dictionary.c iniparser/iniparser.c
 GEN_OBJ := $(patsubst %.cpp,%.o, $(GEN_SRC))
 
 # Include directories

@@ -40,8 +40,6 @@ class VLan: public Service
         string vconfig;
         string brctl;
 
-        bool commandExist(string& command);
-        
         void throwError(const string& message);
 
         void checkVlanRange(const int vlan);
@@ -61,7 +59,7 @@ class VLan: public Service
         /** Bridge related methods */
         bool createBridgeInterface(const string& bridgeIf);
         bool deleteBridgeInterface(const string& bridgeIf);
-	bool removeBridge(const string& bridgeIf);
+        bool removeBridge(const string& bridgeIf);
         bool writeBridgeConfiguration(const string& device, const string& folder, const string& filename);
         string buildBridgeFilename(const string& bridgeIf);
 
@@ -70,7 +68,6 @@ class VLan: public Service
         bool removeFile(const string& folder, const string& filename);
 
         /** Execute command related */
-        int executeCommand(string command, bool redirect = false);
         bool ifUp(string& filename);
         bool ifDown(string& filename);
 

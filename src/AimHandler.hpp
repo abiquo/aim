@@ -26,7 +26,7 @@
 #include <EventsMonitor.h>
 #include <Rimp.h>
 #include <VLan.h>
-#include <NodeConfig.h>
+#include <StorageConfig.h>
 
 #include <vector>
 
@@ -40,7 +40,7 @@ protected:
     EventsMonitor* monitor;
     Rimp* rimp;
     VLan* vlan;
-    NodeConfig* node;
+    StorageConfig* storage;
 
 public:
     AimHandler()
@@ -48,7 +48,7 @@ public:
         monitor = EventsMonitor::getInstance();
         rimp = new Rimp();
         vlan = new VLan();
-        node = new NodeConfig();
+        storage = new StorageConfig();
     }
 
     vector<Service*> getServices()
@@ -58,7 +58,7 @@ public:
         services.push_back(monitor);
         services.push_back(rimp);
         services.push_back(vlan);
-        services.push_back(node);
+        services.push_back(storage);
 
         return services;
     }
@@ -120,8 +120,13 @@ public:
 
     void getInitiatorIQN(std::string& _return)
     {
-       node->getInitiatorIQN(_return);
+    	storage->getInitiatorIQN(_return);
     }
+
+    void rescanISCSI(const std::vector<std::string>& targets)
+    {
+    	storage->rescanISCSI(targets);
+	}
 };
 
 #endif

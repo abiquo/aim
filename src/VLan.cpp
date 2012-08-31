@@ -2,8 +2,8 @@
 #include <ConfigConstants.h>
 #include <Debug.h>
 #include <Macros.h>
+#include <ExecUtils.h>
 #include <sstream>
-#include <sys/wait.h>
 #include <aim_types.h>
 
 VLan::VLan() : Service("VLAN")
@@ -302,25 +302,6 @@ bool VLan::existsBridge(const string& interface)
     return existsInterface(interface);
 }
 
-int VLan::executeCommand(string command, bool redirect)
-{
-    if (redirect)
-    {
-        command.append(" > /dev/null");
-    }
-
-    LOG("Executing '%s'", command.c_str());
-
-    int status = system(command.c_str());
-
-    return WEXITSTATUS(status);
-}
-
-bool VLan::commandExist(string& command)
-{
-    return (executeCommand(command, true) != 127);
-}
-
 void VLan::checkVLANConfiguration()
 {
     string error = "Failed to check the command/s: ";
@@ -440,7 +421,6 @@ bool VLan::removeFile(const string& folder, const string& filename)
 
 bool VLan::removeBridge(const string& bridgeIf)
 {
-
     ostringstream command;
     command << "/usr/sbin/brctl delbr " << bridgeIf;
     command.flush();

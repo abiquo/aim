@@ -19,25 +19,28 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef NODE_CONFIG_H
-#define NODE_CONFIG_H
+#ifndef STORAGE_CONFIG_H
+#define STORAGE_CONFIG_H
 
 #include <Service.h>
 
 #include <string>
+#include <vector>
 
 using namespace std;
 
 #define ISCSI_DEFAULT_INITIATOR_NAME_FILE "/etc/iscsi/initiatorname.iscsi"
 
-class NodeConfig : public Service
+class StorageConfig : public Service
 {
     protected:
         string iscsiInitiatorNameFile;
 
     public:
-        NodeConfig();
-        ~NodeConfig();
+        StorageConfig();
+        ~StorageConfig();
+
+        void throwError(const string& message);
 
         virtual bool initialize(dictionary * configuration);
         virtual bool cleanup();
@@ -45,6 +48,7 @@ class NodeConfig : public Service
         virtual bool stop();
 
         void getInitiatorIQN(string& iqn);
+        void rescanISCSI(const vector<string>& targets);
 };
 
 #endif

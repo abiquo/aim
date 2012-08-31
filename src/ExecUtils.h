@@ -19,4 +19,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#define AIM_VERSION "1.5.0"
+#ifndef EXEC_UTILS_H
+#define EXEC_UTILS_H
+
+#include <string>
+
+using namespace std;
+
+int executeCommand(string command, bool redirect = false);
+bool commandExist(string& command);
+
+
+#endif
