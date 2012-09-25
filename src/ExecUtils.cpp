@@ -1,6 +1,7 @@
 #include <ExecUtils.h>
 #include <Debug.h>
 #include <sys/wait.h>
+#include <cstdlib>
 
 bool commandExist(string& command)
 {
