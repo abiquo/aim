@@ -60,6 +60,8 @@ void VLan::throwError(const string& message)
 
 void VLan::createVLAN(int vlan, const string& vlanInterface, const string& bridgeInterface)
 {
+    boost::mutex::scoped_lock lock(create_vlan_mutex);
+
     if (!createBridgeInterface(bridgeInterface))
     {
         ostringstream error;

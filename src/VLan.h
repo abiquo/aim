@@ -72,6 +72,7 @@ class VLan: public Service
         bool ifDown(string& filename);
 
         boost::mutex delete_vlan_mutex;
+        boost::mutex create_vlan_mutex;
 
     public:
         VLan();
