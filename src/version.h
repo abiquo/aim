@@ -19,4 +19,4 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#define AIM_VERSION "1.5.1"
+#define AIM_VERSION "1.5.2"
