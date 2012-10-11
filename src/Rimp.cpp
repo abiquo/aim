@@ -298,15 +298,13 @@ void Rimp::deleteVirtualImageFromDatastore(std::string& datastore, const std::st
         error = error.append("Virtual image file does not exist on the ''datastore'' :");
         error = error.append(viDatastorePath);
 
-        LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
+        LOG("[WARNING] [RIMP] %s", error.c_str());
+        return;
     }
 
     if (autobackup)
     {
         // Then backup the file rather than deleting it.
-
         string viDatastorePathBackup(datastore);
         viDatastorePathBackup = viDatastorePathBackup.append("backup/");
         viDatastorePathBackup = viDatastorePathBackup.append(virtualMachineUUID);
