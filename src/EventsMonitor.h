@@ -58,6 +58,16 @@ class EventsMonitor : public Service
 
         string getIP(string& address, int port);
 
+        static string getSubscriptionId(redisContext* ctx, const char* uuid);
+
+        static string getMonitorId(redisContext* ctx, const char* address);
+
+        static bool updateSubscriptionMonitor(redisContext* ctx, const char* subscriptionId, const char* monitorId);
+
+        static bool subscribedToOtherMonitor(redisContext* ctx, const char* subscriptionId, const char* monitorId);
+
+        static void publish(redisContext* ctx, const char* uuid, const char* event, const char* address);
+
     public:
         ~EventsMonitor();
 

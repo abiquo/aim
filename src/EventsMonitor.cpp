@@ -40,26 +40,144 @@ EventsMonitor* EventsMonitor::getInstance()
 
 void EventsMonitor::callback(const char* uuid, const char* event)
 {
-    LOG("Publish '%s' event on machine '%s' to redis.", event, uuid);
+    redisContext *ctx = redisConnect(EventsMonitor::host.c_str(), EventsMonitor::port);
 
-    redisContext *c = redisConnect(EventsMonitor::host.c_str(), EventsMonitor::port);
-
-    if (c->err)
+    if (ctx->err)
     {
-            LOG("Unable to connect to redis %s:%d. %s", EventsMonitor::host.c_str(), EventsMonitor::port, c->errstr);
+        LOG("Unable to connect to redis %s:%d. %s", EventsMonitor::host.c_str(), EventsMonitor::port, ctx->errstr);
+        return;
     }   
 
-    void* reply = redisCommand(c, "PUBLISH EventingChannel %s|%s|http://%s:%s/", uuid, event, EventsMonitor::machineAddress.c_str(), EventsMonitor::machinePort.c_str());
+    // Build hypervisor address
+    ostringstream uri;
+    uri << "http://" << EventsMonitor::machineAddress << ":" << EventsMonitor::machinePort << "/";
+    uri.flush();
+
+    string address = uri.str();
+
+    // Retrieve subscription and monitor id
+    string subscriptionId = getSubscriptionId(ctx, uuid);
+    string monitorId = getMonitorId(ctx, address.c_str());
+
+    if (subscriptionId.empty())
+    {
+        LOG("There is currently no subscription for %s. Ignoring %s event.", uuid, event);
+        redisFree(ctx);
+        return;
+    }
+
+    if (monitorId.empty())
+    {
+        LOG("This machine (%s) is not monitored. Ignoring %s event.", address.c_str(), event);
+        redisFree(ctx);
+        return;
+    }
+
+    // Check if the subscription for this virtual machine points to this monitor
+    bool moved = subscribedToOtherMonitor(ctx, subscriptionId.c_str(), monitorId.c_str());
+
+    if (!moved)
+    {
+        publish(ctx, uuid, event, address.c_str());
+    }
+    else if (strcmp(POWEREDON, event) == 0 || strcmp(RESUMED, event) == 0)
+    {
+        if (updateSubscriptionMonitor(ctx, subscriptionId.c_str(), monitorId.c_str()))
+        {
+            publish(ctx, uuid, MOVED, address.c_str());
+            publish(ctx, uuid, POWEREDON, address.c_str());
+        }
+    }
+
+    redisFree(ctx);
+}
+
+bool EventsMonitor::updateSubscriptionMonitor(redisContext* ctx, const char* subscriptionId, const char* monitorId)
+{
+    redisReply* reply = (redisReply*)redisCommand(ctx, "HSET VirtualMachine:%s physicalMachine_id %s", subscriptionId, monitorId);
+    bool updated = false;
+
+    if (reply != NULL)
+    {
+        LOG("Subscription %s has been updated, monitor id is now %s", subscriptionId, monitorId);
+        updated = true;
+    }
+    else
+    {
+        LOG("Unable to update monitor of subscription %s. %s", subscriptionId, ctx->errstr);
+    }
+
+    freeReplyObject(reply);
+    return updated;
+}
+
+bool EventsMonitor::subscribedToOtherMonitor(redisContext* ctx, const char* subscriptionId, const char* monitorId)
+{
+    redisReply* reply = (redisReply*)redisCommand(ctx, "HGET VirtualMachine:%s physicalMachine_id", subscriptionId);
+    string otherId = string(reply->str);
+    freeReplyObject(reply);
+
+    return strcmp(otherId.c_str(), monitorId) != 0;
+}
+
+string EventsMonitor::getSubscriptionId(redisContext* ctx, const char* uuid)
+{
+    redisReply *reply = (redisReply*)redisCommand(ctx, "SMEMBERS VirtualMachine:name:%s", uuid);
+
+    if (reply != NULL)
+    {
+        if (reply->type == REDIS_REPLY_ARRAY)
+        {
+            if (reply->elements == 0)
+            {
+                return string("");
+            }
+
+            string id = string(reply->element[0]->str);
+            freeReplyObject(reply);
+            return id;
+        }
+    }
+
+    return string("");
+}
+
+string EventsMonitor::getMonitorId(redisContext* ctx, const char* address)
+{   
+    redisReply *reply = (redisReply*)redisCommand(ctx, "SMEMBERS PhysicalMachine:address:%s", address);
+           
+    if (reply != NULL)
+    {
+        if (reply->type == REDIS_REPLY_ARRAY)
+        {
+            if (reply->elements == 0)
+            {   
+                return string("");
+            }
+
+            string id = string(reply->element[0]->str);
+            freeReplyObject(reply);
+            return id;
+        }
+    }
+                                                                                                        
+    return string();
+}
+
+void EventsMonitor::publish(redisContext* ctx, const char* uuid, const char* event, const char* address)
+{
+    LOG("Publish '%s' event on machine '%s' to redis.", event, uuid);
+
+    void* reply = redisCommand(ctx, "PUBLISH EventingChannel %s|%s|%s", uuid, event, address);
 
     if (reply != NULL)
     {
         freeReplyObject(reply);
-        redisFree(c);
     }
     else
     {
-        LOG("Unable to notify event. %s", c->errstr);
-    }   
+        LOG("Unable to notify event. %s", ctx->errstr);
+    }
 }
 
 bool EventsMonitor::initialize(dictionary * configuration)

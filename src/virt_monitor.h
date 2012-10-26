@@ -34,6 +34,7 @@
 #define SAVED       "SAVED\0"
 #define DESTROYED   "DESTROYED\0"
 #define UNKNOWN     "UNKNOWN\0"
+#define MOVED       "MOVED\0"
 
 int connect(const char * url, void (*callback_routine)(const char*, const char*));
 void * listen(void* opaque);
