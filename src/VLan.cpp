@@ -17,19 +17,17 @@ VLan::~VLan()
 bool VLan::initialize(dictionary * configuration)
 {
     ifconfig = getStringProperty(configuration, vlanIfConfigCmd);
-    vconfig = getStringProperty(configuration, vlanVconfigCmd);
     brctl = getStringProperty(configuration, vlanBrctlCmd);
 
     bool ok = true;
 
     ok &= commandExist(ifconfig);
-    ok &= commandExist(vconfig);
     ok &= commandExist(brctl);
 
     if (!ok)
     {
-        LOG("Some required command is missing, check:\n\t%s\n\t%s\n\t%s", 
-                ifconfig.c_str(), vconfig.c_str(), brctl.c_str());
+        LOG("Some required command is missing, check:\n\t%s\n\t%s", 
+                ifconfig.c_str(), brctl.c_str());
     }
 
     return ok;
@@ -180,20 +178,21 @@ void VLan::deleteVLAN(int vlan, const string& vlanInterface, const string& bridg
 {
     boost::mutex::scoped_lock lock(delete_vlan_mutex);
 
-    if(!deleteBridgeInterface(bridgeInterface))
-    {
+    // RHEL/CentOS 6 needs iface to be deleted first
+    if (!deleteVLANInterface(vlan, vlanInterface))
+    {   
         ostringstream error;
-        error << "Error deleting bridge interface " << bridgeInterface;
+        error << "Error deleting VLAN interface " << vlanInterface;
         error.flush();
 
         LOG("%s", error.str().c_str());
         throwError(error.str());
     }
 
-    if (!deleteVLANInterface(vlan, vlanInterface))
-    {   
+    if(!deleteBridgeInterface(bridgeInterface))
+    {
         ostringstream error;
-        error << "Error deleting VLAN interface " << vlanInterface;
+        error << "Error deleting bridge interface " << bridgeInterface;
         error.flush();
 
         LOG("%s", error.str().c_str());
@@ -259,6 +258,13 @@ bool VLan::deleteVLANInterface(int vlan, const string& vlanIf)
 
             return false;
         }
+
+        if(!deleteIpLink(vlan,vlanIf))
+	{
+	    LOG("Unable to delete the VLAN interface %s", vlanIf.c_str());
+            return false;
+        }
+
     }
     else
     {
@@ -311,6 +317,7 @@ bool VLan::existsBridge(const string& interface)
 
 void VLan::checkVLANConfiguration()
 {
+
     string error = "Failed to check the command/s: ";
     bool ok = true;
 
@@ -320,17 +327,13 @@ void VLan::checkVLANConfiguration()
         error.append(ifconfig).append(" ");
     }
 
-    if (executeCommand(vconfig) == 127)
-    {
-        ok = false;
-        error.append(vconfig).append(" ");
-    }   
-
     if (executeCommand(brctl) == 127)
     {
         ok = false;
         error.append(brctl).append(" ");
     }   
+
+    // TODO: add /sbin/ip
 
     if (!ok)
     {
@@ -435,3 +438,11 @@ bool VLan::removeBridge(const string& bridgeIf)
     return (executeCommand(command.str()) == 0);
 }
 
+bool VLan::deleteIpLink(const int vlan, const string& vlanIf)
+{
+    ostringstream command;
+    command << "/sbin/ip link delete " << vlanIf << "." << vlan;
+    command.flush();
+
+    return (executeCommand(command.str()) == 0);
+}

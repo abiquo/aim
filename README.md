@@ -57,7 +57,6 @@ Configuration
     
     [vlan]
     ifconfigCmd = /sbin/ifconfig
-    vconfigCmd = /sbin/vconfig
     brctlCmd = /usr/sbin/brctl
 
 EventsMonitor properties
@@ -77,10 +76,9 @@ Rimp properties
 Vlan properties
 ---------------
 
-The correct path in the system for ifconfig, vconfig and brctl commands.
+The correct path in the system for ifconfig, and brctl commands.
 
 * ifconfigCmd
-* vconfigCmd
 * brctlCmd
 
 Command line arguments

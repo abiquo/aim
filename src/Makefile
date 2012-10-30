@@ -21,7 +21,7 @@ all: aim
 	        $(CXX) -Wno-write-strings -Wall -Werror $(INC) -c $< -o $@
 
 aim: AimServer.o $(GEN_OBJ)
-	        $(CXX) -pthread -L/lib64 -lhiredis -L/usr/local/lib -lvirt -lthrift -L/usr/lib64 -lcurl -L/usr/lib64 -lboost_filesystem -luuid -lboost_thread $^ -o $@
+	        $(CXX) -pthread -L/lib64 -lhiredis -L/usr/local/lib -lvirt -lthrift -L/usr/lib64 -lcurl -L/usr/lib64 -lboost_filesystem -luuid -lboost_thread-mt $^ -o $@
 
 clean:
 	        $(RM) *.o aim

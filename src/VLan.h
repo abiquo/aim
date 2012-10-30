@@ -37,7 +37,6 @@ class VLan: public Service
 {
     protected:
         string ifconfig;
-        string vconfig;
         string brctl;
 
         void throwError(const string& message);
@@ -70,6 +69,7 @@ class VLan: public Service
         /** Execute command related */
         bool ifUp(string& filename);
         bool ifDown(string& filename);
+        bool deleteIpLink(const int vlan, const string& vlanIf);
 
         boost::mutex delete_vlan_mutex;
         boost::mutex create_vlan_mutex;

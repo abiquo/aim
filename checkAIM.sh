@@ -140,7 +140,6 @@ function check_monitor() {
 function check_vlan() {
     echo "  Checking vlan..."
     echo -n "  " && check_file ${ifconfigCmd} "ifconfigCmd"
-    echo -n "  " && check_file ${vconfigCmd} "vconfigCmd"
     echo -n "  " && check_file ${brctlCmd} "brctlCmd"
 }
 

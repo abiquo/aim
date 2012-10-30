@@ -223,7 +223,6 @@ bool checkConfiguration(dictionary * d)
 
     // VLan
     checkProperty(d, vlanIfConfigCmd);
-    checkProperty(d, vlanVconfigCmd);
     checkProperty(d, vlanBrctlCmd);
 
     return true;

@@ -39,7 +39,6 @@
 
 // Vlan properties
 #define vlanIfConfigCmd (char*)"vlan:ifconfigCmd\0"
-#define vlanVconfigCmd (char*)"vlan:vconfigCmd\0"
 #define vlanBrctlCmd (char*)"vlan:brctlCmd\0"
 
 #endif
