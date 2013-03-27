@@ -50,7 +50,7 @@ void EventsMonitor::callback(const char* uuid, const char* event)
 
     // Build hypervisor address
     ostringstream uri;
-    uri << "http://" << EventsMonitor::machineAddress << ":" << EventsMonitor::machinePort << "/";
+    uri << EventsMonitor::machineAddress;
     uri.flush();
 
     string address = uri.str();
@@ -204,7 +204,7 @@ bool EventsMonitor::initialize(dictionary * configuration)
 
     if (initialized)
     {
-        LOG("Physical machine address is http://%s:%s", EventsMonitor::machineAddress.c_str(), EventsMonitor::machinePort.c_str());
+        LOG("Physical machine address is %s", EventsMonitor::machineAddress.c_str());
     }
 
     return initialized;
