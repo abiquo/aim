@@ -1,8 +1,9 @@
 #include <Aim.h>
-#include <protocol/TBinaryProtocol.h>
-#include <server/TThreadedServer.h>
-#include <transport/TServerSocket.h>
-#include <transport/TBufferTransports.h>
+
+#include <thrift/protocol/TBinaryProtocol.h>
+#include <thrift/server/TThreadedServer.h>
+#include <thrift/transport/TServerSocket.h>
+#include <thrift/transport/TBufferTransports.h>
 
 #include <getopt.h>
 #include <iniparser.h>
