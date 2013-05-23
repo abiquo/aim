@@ -29,8 +29,6 @@
 
 using namespace std;
 
-#define LIBVIRT_LOCAL_CONN ""
-
 class LibvirtService : public Service
 {
     private:

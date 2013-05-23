@@ -62,6 +62,7 @@ class AimHandler: virtual public AimIf
             services.push_back(rimp);
             services.push_back(vlan);
             services.push_back(storage);
+            services.push_back(libvirt);
 
             return services;
         }
