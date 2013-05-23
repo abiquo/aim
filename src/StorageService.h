@@ -19,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef STORAGE_CONFIG_H
-#define STORAGE_CONFIG_H
+#ifndef STORAGE_SERVICE_H
+#define STORAGE_SERVICE_H
 
 #include <Service.h>
 
@@ -31,14 +31,14 @@ using namespace std;
 
 #define ISCSI_DEFAULT_INITIATOR_NAME_FILE "/etc/iscsi/initiatorname.iscsi"
 
-class StorageConfig : public Service
+class StorageService : public Service
 {
     protected:
         string iscsiInitiatorNameFile;
 
     public:
-        StorageConfig();
-        ~StorageConfig();
+        StorageService();
+        ~StorageService();
 
         void throwError(const string& message);
 
