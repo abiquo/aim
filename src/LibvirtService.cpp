@@ -57,6 +57,8 @@ DomainInfo LibvirtService::getDomainInfo(const virConnectPtr conn, const virDoma
     domainInfo.state           = info.state;        // the running state, one of virDomainState
     domainInfo.numberVirtCpu   = info.nrVirtCpu;    // the number of virtual CPUs for the domain 
     domainInfo.memory          = info.memory;       // the memory in KBytes used by the domain
+
+    free((char*) name);
     return domainInfo;
 }
 

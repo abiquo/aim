@@ -137,9 +137,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("getNodeInfo\n");
-
+                libvirt->getNodeInfo(_return, conn);
                 libvirt->disconnect(conn);
             }
             catch (...)
@@ -153,9 +151,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("getDomains\n");
-
+                libvirt->getDomains(_return, conn);
                 libvirt->disconnect(conn);
             }
             catch (...)
@@ -169,9 +165,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("defineDomain\n");
-
+                libvirt->defineDomain(conn, xmlDesc);
                 libvirt->disconnect(conn);
             }
             catch (...)
@@ -185,9 +179,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("undefineDomain\n");
-
+                libvirt->undefineDomain(conn, domainName);
                 libvirt->disconnect(conn);
             }
             catch (...)
@@ -201,11 +193,9 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("existDomain\n");
-
+                bool exist = libvirt->existDomain(conn, domainName);
                 libvirt->disconnect(conn);
-                return 0;
+                return exist;
             }
             catch (...)
             {
@@ -219,9 +209,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("getDomainState\n");
-
+                libvirt->getDomainState(_return, conn, domainName);
                 libvirt->disconnect(conn);
             }
             catch (...)
@@ -235,9 +223,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("getDomainInfo\n");
-
+                libvirt->getDomainInfo(_return, conn, domainName);
                 libvirt->disconnect(conn);
             }
             catch (...)
@@ -251,9 +237,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("powerOn\n");
-
+                libvirt->powerOn(conn, domainName);
                 libvirt->disconnect(conn);
             }
             catch (...)
@@ -267,9 +251,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("powerOff\n");
-
+                libvirt->powerOff(conn, domainName);
                 libvirt->disconnect(conn);
             }
             catch (...)
@@ -283,9 +265,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("reset\n");
-
+                libvirt->reset(conn, domainName);
                 libvirt->disconnect(conn);
             }
             catch (...)
@@ -299,9 +279,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("pause\n");
-
+                libvirt->pause(conn, domainName);
                 libvirt->disconnect(conn);
             }
             catch (...)
@@ -315,9 +293,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("resume\n");
-
+                libvirt->resume(conn, domainName);
                 libvirt->disconnect(conn);
             }
             catch (...)
@@ -331,9 +307,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("createStoragePool\n");
-
+                libvirt->createStoragePool(conn, xmlDesc);
                 libvirt->disconnect(conn);
             }
             catch (...)
