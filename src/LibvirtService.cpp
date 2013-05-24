@@ -32,6 +32,34 @@ virDomainPtr LibvirtService::getDomainByName(virConnectPtr conn, const string& n
     return dom;
 }
 
+DomainInfo LibvirtService::getDomainInfo(const virConnectPtr conn, const virDomainPtr domain) throw (LibvirtException)
+{
+    if (domain == NULL)
+    {
+        throwError(""); // TODO
+    }
+
+    virDomainInfo info;
+    if (virDomainGetInfo(domain, &info) < 0)
+    {
+        throwError(""); // TODO
+    }
+
+    const char *name = virDomainGetName(domain);
+    if (name == NULL)
+    {
+        throwError(""); // TODO
+    }
+
+    DomainInfo domainInfo;
+    domainInfo.name            = string(name);
+    domainInfo.uuid            = "";                // TODO
+    domainInfo.state           = info.state;        // the running state, one of virDomainState
+    domainInfo.numberVirtCpu   = info.nrVirtCpu;    // the number of virtual CPUs for the domain 
+    domainInfo.memory          = info.memory;       // the memory in KBytes used by the domain
+    return domainInfo;
+}
+
 // Public methods
 
 bool LibvirtService::initialize(dictionary* configuration)
@@ -82,6 +110,229 @@ void LibvirtService::disconnect(virConnectPtr conn)
     {
         LOG(("Error closing connection: " + LibvirtService::connectionUrl).c_str());
     }
+}
+
+void LibvirtService::getNodeInfo(NodeInfo& _return, virConnectPtr conn) throw (LibvirtException)
+{
+    virNodeInfo info;
+
+    if (virNodeGetInfo(conn, &info) < 0)
+    {
+        throwError(""); // TODO
+    }
+
+    _return.cores   = info.cores;    // number of cores per socket
+    _return.sockets = info.sockets;  // number of CPU sockets per node
+    _return.memory  = info.memory;   // memory size in kilobytes
+}
+
+// Adapted from http://builder.virt-tools.org/artifacts/libvirt-appdev-guide/html/Application_Development_Guide-Guest_Domains-Listing.html
+void LibvirtService::getDomains(std::vector<DomainInfo> & _return, virConnectPtr conn) throw (LibvirtException)
+{
+    int numActiveDomains = virConnectNumOfDomains(conn);
+    if (numActiveDomains > 0)
+    {
+        int *activeDomains = (int*) malloc(sizeof(int) * numActiveDomains);
+        numActiveDomains = virConnectListDomains(conn, activeDomains, numActiveDomains);
+
+        for (int i = 0; i < numActiveDomains; i++)
+        {
+            virDomainPtr domain = virDomainLookupByID(conn, activeDomains[i]);
+                
+            if (domain != NULL)
+            {
+                try
+                {
+                    _return.push_back(getDomainInfo(conn, domain));
+                    virDomainFree(domain);
+                }
+                catch (...)
+                {
+                    virDomainFree(domain);
+                }
+            }
+        }
+
+        free(activeDomains);
+    }
+    // TODO else => throwError?
+
+    int numInactiveDomains = virConnectNumOfDefinedDomains(conn);
+    if (numInactiveDomains > 0)
+    {
+        char **inactiveDomains = (char**) malloc(sizeof(char *) * numInactiveDomains);
+        numInactiveDomains = virConnectListDefinedDomains(conn, inactiveDomains, numInactiveDomains);
+
+        for (int i = 0; i < numInactiveDomains; i++)
+        {
+            virDomainPtr domain = virDomainLookupByName(conn, inactiveDomains[i]);
+        
+            if (domain != NULL)
+            {
+                try
+                {
+                    _return.push_back(getDomainInfo(conn, domain));
+                    virDomainFree(domain);
+                }
+                catch (...)
+                {
+                    virDomainFree(domain);
+                }
+            }
+
+            free(inactiveDomains[i]);
+        }
+
+        free(inactiveDomains);
+    }
+    // TODO else => throwError?
+}
+
+void LibvirtService::defineDomain(virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
+{
+    virDomainPtr domain = virDomainDefineXML(conn, xmlDesc.c_str());
+
+    if (domain == NULL)
+    {
+        throwError(""); // TODO
+    }
+
+    virDomainFree(domain);
+}
+
+void LibvirtService::undefineDomain(virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+{
+    virDomainPtr domain = getDomainByName(conn, domainName);
+
+    int ret = virDomainUndefine(domain);
+    virDomainFree(domain);
+
+    if (ret < 0)
+    {
+        throwError(""); // TODO
+    }
+}
+
+bool LibvirtService::existDomain(virConnectPtr conn, const std::string& domainName)
+{
+    try
+    {
+        virDomainPtr domain = getDomainByName(conn, domainName);
+        virDomainFree(domain);
+        return true;
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
+void LibvirtService::getDomainState(std::string& _return, virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+{
+    virDomainPtr domain = getDomainByName(conn, domainName);
+    virDomainInfo info;
+
+    if (virDomainGetInfo(domain, &info) < 0)
+    {
+        virDomainFree(domain);
+        throwError(""); // TODO
+    }
+
+    _return = info.state; // the running state, one of virDomainState
+
+    virDomainFree(domain);
+}
+
+void LibvirtService::getDomainInfo(DomainInfo& _return, virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+{
+    virDomainPtr domain = getDomainByName(conn, domainName);
+    
+    try
+    {
+        _return = getDomainInfo(conn, domain);
+        virDomainFree(domain);
+    }
+    catch (LibvirtException exception)
+    {
+        virDomainFree(domain);
+        throw exception;
+    }
+}
+
+void LibvirtService::powerOn(virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+{
+    virDomainPtr domain = getDomainByName(conn, domainName);
+
+    int ret = virDomainCreate(domain);
+    virDomainFree(domain);
+    
+    if (ret < 0)
+    {
+        throwError(""); // TODO
+    }   
+}
+
+void LibvirtService::powerOff(virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+{
+    virDomainPtr domain = getDomainByName(conn, domainName);
+
+    int ret = virDomainDestroy(domain);
+    virDomainFree(domain);
+    
+    if (ret < 0)
+    {
+        throwError(""); // TODO
+    }
+}
+
+void LibvirtService::reset(virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+{
+    virDomainPtr domain = getDomainByName(conn, domainName);
+
+    int ret = virDomainReboot(domain, 0);
+    virDomainFree(domain);
+    
+    if (ret < 0)
+    {
+        throwError(""); // TODO
+    }
+}
+
+void LibvirtService::pause(virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+{
+    virDomainPtr domain = getDomainByName(conn, domainName);
+
+    int ret = virDomainSuspend(domain);
+    virDomainFree(domain);
+    
+    if (ret < 0)
+    {
+        throwError(""); // TODO
+    }
+}
+
+void LibvirtService::resume(virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+{
+    virDomainPtr domain = getDomainByName(conn, domainName);
+
+    int ret = virDomainResume(domain);
+    virDomainFree(domain);
+    
+    if (ret < 0)
+    {
+        throwError(""); // TODO
+    }
+}
+
+void LibvirtService::createStoragePool(virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
+{
+    virStoragePoolPtr storagePool = virStoragePoolCreateXML(conn, xmlDesc.c_str(), 0);
+    if (storagePool == NULL)
+    {
+        throwError(""); // TODO
+    }
+
+    virStoragePoolFree(storagePool);
 }
 
 void LibvirtService::resizeDisk(virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException)

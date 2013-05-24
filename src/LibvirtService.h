@@ -35,6 +35,7 @@ class LibvirtService : public Service
         static string connectionUrl;
 
         virDomainPtr getDomainByName(virConnectPtr conn, const string& name) throw (LibvirtException);
+        DomainInfo getDomainInfo(const virConnectPtr conn, const virDomainPtr domain) throw (LibvirtException);
 
     public:
         LibvirtService();
@@ -51,6 +52,20 @@ class LibvirtService : public Service
         virConnectPtr connect() throw (LibvirtException);       // Open a LOCAL connection
         void disconnect(virConnectPtr conn);                    // Closes the given connection
 
+        // Libvirt facade methods
+        void getNodeInfo(NodeInfo& _return, virConnectPtr conn) throw (LibvirtException);
+        void getDomains(std::vector<DomainInfo> & _return, virConnectPtr conn) throw (LibvirtException);
+        void defineDomain(virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
+        void undefineDomain(virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        bool existDomain(virConnectPtr conn, const std::string& domainName);
+        void getDomainState(std::string& _return, virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void getDomainInfo(DomainInfo& _return, virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void powerOn(virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void powerOff(virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void reset(virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void pause(virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void resume(virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void createStoragePool(virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
         void resizeDisk(virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException);
 };
 
