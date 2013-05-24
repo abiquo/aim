@@ -143,6 +143,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 
@@ -157,6 +158,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 
@@ -171,6 +173,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 
@@ -185,6 +188,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 
@@ -215,6 +219,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 
@@ -229,6 +234,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 
@@ -243,6 +249,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 
@@ -257,6 +264,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 
@@ -271,6 +279,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 
@@ -285,6 +294,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 
@@ -299,6 +309,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 
@@ -313,6 +324,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 
@@ -327,6 +339,7 @@ class AimHandler: virtual public AimIf
             catch (...)
             {
                 libvirt->disconnect(conn);
+                throw;
             }
         }
 };
