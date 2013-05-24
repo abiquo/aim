@@ -14,13 +14,15 @@ Go [here](http://wiki.abiquo.com/display/ABI17/Building+thrift+based+AIM+on+Cent
 Architecture
 ------------
 
-There are three services available:
+There are five three services available:
 
 * Rimp (repository importer) enables the creation of virtual image instances from the shared repository into the local file system datastore, and cloning it from the datastore back to the repository.
 * EventsMonitor manages the subscription, unsubscription and notification of the events produced by the virtual machines on the XEN and KVM hypervisors. The plugin uses libvirt to detect the events.
 * VLAN service Manages the creation and deletion of VLAN and Bridge on the XEN, KVM and VirtualBox hypervisors. The network 
 configuration is persistent using Cent OS network configuration files under _/etc/sysconfig/network-
-scripts_. 
+scripts_.
+* Storage service manages the iSCSI storage configuration.
+* Libvirt service provides access to the libvirt API.
 
 'ifcfg-abiquo_3' bridge configuration file
 ------------------------------------------

@@ -347,9 +347,7 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // Your implementation goes here
-                printf("resizeDisk\n");
-
+                libvirt->resizeDisk(conn, domainName, diskPath, diskSizeInKb);
                 libvirt->disconnect(conn);
             }
             catch (...)

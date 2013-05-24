@@ -34,6 +34,8 @@ class LibvirtService : public Service
     private:
         static string connectionUrl;
 
+        virDomainPtr getDomainByName(virConnectPtr conn, const string& name) throw (LibvirtException);
+
     public:
         LibvirtService();
         ~LibvirtService();
@@ -46,8 +48,10 @@ class LibvirtService : public Service
         virtual bool stop();
 
         // Connection
-        virConnectPtr connect() throw (LibvirtException);    // Open a LOCAL connection
-        void disconnect(virConnectPtr conn);                // Closes the given connection
+        virConnectPtr connect() throw (LibvirtException);       // Open a LOCAL connection
+        void disconnect(virConnectPtr conn);                    // Closes the given connection
+
+        void resizeDisk(virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException);
 };
 
 #endif
