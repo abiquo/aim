@@ -83,7 +83,7 @@ LibvirtException LibvirtService::fromLibvirtError(const virErrorPtr error)
     LibvirtException exception;
     exception.code = error->code;
     exception.domain = error->domain;
-    exception.message = error->message == NULL? "" : string(error->message);
+    exception.msg = error->message == NULL? "" : string(error->message);
     exception.level = error->level;
     exception.str1 = error->str1 == NULL? "" : string(error->str1);
     exception.str2 = error->str2 == NULL? "" : string(error->str2);
@@ -133,7 +133,7 @@ virConnectPtr LibvirtService::connect() throw (LibvirtException)
     {
         LibvirtException exception;
         exception.code = -1; // Connection error code
-        exception.message = "Could not connect to " + LibvirtService::connectionUrl;
+        exception.msg = "Could not connect to " + LibvirtService::connectionUrl;
         throw exception;
     }
     return conn;
