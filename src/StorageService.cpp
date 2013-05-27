@@ -9,7 +9,7 @@
 
 #include <sstream>
 
-StorageService::StorageService() : Service("Storage service")
+StorageService::StorageService() : Service("Storage")
 {
     iscsiInitiatorNameFile = ISCSI_DEFAULT_INITIATOR_NAME_FILE;
 }

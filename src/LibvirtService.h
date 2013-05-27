@@ -26,6 +26,7 @@
 #include <Service.h>
 #include <aim_types.h>
 #include <libvirt/libvirt.h>
+#include <libvirt/virterror.h>
 
 using namespace std;
 
@@ -41,7 +42,9 @@ class LibvirtService : public Service
         LibvirtService();
         ~LibvirtService();
 
-        void throwError(const string& message);
+        void throwError(const string& message);                 // Populate a generic error
+        void throwError(const virErrorPtr error);               // Populate a libvirt error. Does not call virFreeError!
+        void throwLastKnownError(const virConnectPtr conn);     // Populate the last known libvirt error and call virFreeError
 
         virtual bool initialize(dictionary * configuration);
         virtual bool cleanup();

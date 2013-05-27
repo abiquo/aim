@@ -12,7 +12,7 @@
 
 string LibvirtService::connectionUrl = "";
 
-LibvirtService::LibvirtService() : Service("Libvirt service")
+LibvirtService::LibvirtService() : Service("Libvirt")
 {
 }
 
@@ -93,6 +93,33 @@ void LibvirtService::throwError(const string& message)
 {
     LibvirtException exception;
     exception.description = message;
+    throw exception;
+}
+
+void LibvirtService::throwError(const virErrorPtr error)
+{
+    LibvirtException exception;
+    stringstream msg;
+    
+    msg << "Resize operation failed. Error code [" << error->code << "] Message [" << error->message << "]";
+    exception.description = msg.str();
+    // TODO: Populate the error code and message in LibvirtException fields
+
+    throw exception;
+}
+
+void LibvirtService::throwLastKnownError(const virConnectPtr conn)
+{
+    LibvirtException exception;
+    stringstream msg;
+    virErrorPtr error = virConnGetLastError(conn);
+    
+    msg << "Resize operation failed. Error code [" << error->code << "] Message [" << error->message << "]";
+    exception.description = msg.str();
+    // TODO: Populate the error code and message in LibvirtException fields
+
+    virFreeError(error);
+
     throw exception;
 }
 
@@ -344,10 +371,7 @@ void LibvirtService::resizeDisk(virConnectPtr conn, const string& domainName, co
     int result = virDomainBlockResize(dom, diskPath.c_str(), diskSizeInKb, 0);
     if (result < 0)
     {
-        stringstream msg;
-        virErrorPtr error = virConnGetLastError(conn);
-        msg << "Resize operation failed. Error code [" << error->code << "] Message [" << error->message << "]";
-        throwError(msg.str());
+        throwLastKnownError(conn);
     }
 
     virDomainFree(dom);
