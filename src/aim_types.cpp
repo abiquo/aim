@@ -226,8 +226,8 @@ void swap(NetInterface &a, NetInterface &b) {
   swap(a.__isset, b.__isset);
 }
 
-const char* NodeInfo::ascii_fingerprint = "E323F5883186E322C59D09CD4FD1545B";
-const uint8_t NodeInfo::binary_fingerprint[16] = {0xE3,0x23,0xF5,0x88,0x31,0x86,0xE3,0x22,0xC5,0x9D,0x09,0xCD,0x4F,0xD1,0x54,0x5B};
+const char* NodeInfo::ascii_fingerprint = "996F8E61E9CD3215A74A626B695C616B";
+const uint8_t NodeInfo::binary_fingerprint[16] = {0x99,0x6F,0x8E,0x61,0xE9,0xCD,0x32,0x15,0xA7,0x4A,0x62,0x6B,0x69,0x5C,0x61,0x6B};
 
 uint32_t NodeInfo::read(::apache::thrift::protocol::TProtocol* iprot) {
 
@@ -258,8 +258,8 @@ uint32_t NodeInfo::read(::apache::thrift::protocol::TProtocol* iprot) {
         }
         break;
       case 2:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->version);
+        if (ftype == ::apache::thrift::protocol::T_I64) {
+          xfer += iprot->readI64(this->version);
           this->__isset.version = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -309,8 +309,8 @@ uint32_t NodeInfo::write(::apache::thrift::protocol::TProtocol* oprot) const {
   xfer += oprot->writeString(this->name);
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("version", ::apache::thrift::protocol::T_STRING, 2);
-  xfer += oprot->writeString(this->version);
+  xfer += oprot->writeFieldBegin("version", ::apache::thrift::protocol::T_I64, 2);
+  xfer += oprot->writeI64(this->version);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldBegin("cores", ::apache::thrift::protocol::T_I32, 3);
@@ -696,8 +696,8 @@ uint32_t LibvirtException::read(::apache::thrift::protocol::TProtocol* iprot) {
         break;
       case 3:
         if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->message);
-          this->__isset.message = true;
+          xfer += iprot->readString(this->msg);
+          this->__isset.msg = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -774,8 +774,8 @@ uint32_t LibvirtException::write(::apache::thrift::protocol::TProtocol* oprot) c
   xfer += oprot->writeI32(this->domain);
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("message", ::apache::thrift::protocol::T_STRING, 3);
-  xfer += oprot->writeString(this->message);
+  xfer += oprot->writeFieldBegin("msg", ::apache::thrift::protocol::T_STRING, 3);
+  xfer += oprot->writeString(this->msg);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldBegin("level", ::apache::thrift::protocol::T_I32, 4);
@@ -811,7 +811,7 @@ void swap(LibvirtException &a, LibvirtException &b) {
   using ::std::swap;
   swap(a.code, b.code);
   swap(a.domain, b.domain);
-  swap(a.message, b.message);
+  swap(a.msg, b.msg);
   swap(a.level, b.level);
   swap(a.str1, b.str1);
   swap(a.str2, b.str2);

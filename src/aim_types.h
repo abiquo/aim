@@ -173,16 +173,16 @@ typedef struct _NodeInfo__isset {
 class NodeInfo {
  public:
 
-  static const char* ascii_fingerprint; // = "E323F5883186E322C59D09CD4FD1545B";
-  static const uint8_t binary_fingerprint[16]; // = {0xE3,0x23,0xF5,0x88,0x31,0x86,0xE3,0x22,0xC5,0x9D,0x09,0xCD,0x4F,0xD1,0x54,0x5B};
+  static const char* ascii_fingerprint; // = "996F8E61E9CD3215A74A626B695C616B";
+  static const uint8_t binary_fingerprint[16]; // = {0x99,0x6F,0x8E,0x61,0xE9,0xCD,0x32,0x15,0xA7,0x4A,0x62,0x6B,0x69,0x5C,0x61,0x6B};
 
-  NodeInfo() : name(), version(), cores(0), sockets(0), memory(0) {
+  NodeInfo() : name(), version(0), cores(0), sockets(0), memory(0) {
   }
 
   virtual ~NodeInfo() throw() {}
 
   std::string name;
-  std::string version;
+  int64_t version;
   int32_t cores;
   int32_t sockets;
   double memory;
@@ -193,7 +193,7 @@ class NodeInfo {
     name = val;
   }
 
-  void __set_version(const std::string& val) {
+  void __set_version(const int64_t val) {
     version = val;
   }
 
@@ -449,10 +449,10 @@ class StorageException : public ::apache::thrift::TException {
 void swap(StorageException &a, StorageException &b);
 
 typedef struct _LibvirtException__isset {
-  _LibvirtException__isset() : code(false), domain(false), message(false), level(false), str1(false), str2(false), str3(false), int1(false), int2(false) {}
+  _LibvirtException__isset() : code(false), domain(false), msg(false), level(false), str1(false), str2(false), str3(false), int1(false), int2(false) {}
   bool code;
   bool domain;
-  bool message;
+  bool msg;
   bool level;
   bool str1;
   bool str2;
@@ -467,14 +467,14 @@ class LibvirtException : public ::apache::thrift::TException {
   static const char* ascii_fingerprint; // = "65C3F5292FCE4322B50FAA63577642EC";
   static const uint8_t binary_fingerprint[16]; // = {0x65,0xC3,0xF5,0x29,0x2F,0xCE,0x43,0x22,0xB5,0x0F,0xAA,0x63,0x57,0x76,0x42,0xEC};
 
-  LibvirtException() : code(0), domain(0), message(), level(0), str1(), str2(), str3(), int1(0), int2(0) {
+  LibvirtException() : code(0), domain(0), msg(), level(0), str1(), str2(), str3(), int1(0), int2(0) {
   }
 
   virtual ~LibvirtException() throw() {}
 
   int32_t code;
   int32_t domain;
-  std::string message;
+  std::string msg;
   int32_t level;
   std::string str1;
   std::string str2;
@@ -492,8 +492,8 @@ class LibvirtException : public ::apache::thrift::TException {
     domain = val;
   }
 
-  void __set_message(const std::string& val) {
-    message = val;
+  void __set_msg(const std::string& val) {
+    msg = val;
   }
 
   void __set_level(const int32_t val) {
@@ -526,7 +526,7 @@ class LibvirtException : public ::apache::thrift::TException {
       return false;
     if (!(domain == rhs.domain))
       return false;
-    if (!(message == rhs.message))
+    if (!(msg == rhs.msg))
       return false;
     if (!(level == rhs.level))
       return false;
