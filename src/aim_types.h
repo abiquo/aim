@@ -16,6 +16,17 @@
 
 
 
+struct DomainState {
+  enum type {
+    ON = 1,
+    OFF = 2,
+    PAUSED = 3,
+    UNKNOWN = 4
+  };
+};
+
+extern const std::map<int, const char*> _DomainState_VALUES_TO_NAMES;
+
 typedef struct _Datastore__isset {
   _Datastore__isset() : device(false), path(false), type(false), totalSize(false), usableSize(false) {}
   bool device;
@@ -151,7 +162,9 @@ class NetInterface {
 void swap(NetInterface &a, NetInterface &b);
 
 typedef struct _NodeInfo__isset {
-  _NodeInfo__isset() : cores(false), sockets(false), memory(false) {}
+  _NodeInfo__isset() : name(false), version(false), cores(false), sockets(false), memory(false) {}
+  bool name;
+  bool version;
   bool cores;
   bool sockets;
   bool memory;
@@ -160,19 +173,29 @@ typedef struct _NodeInfo__isset {
 class NodeInfo {
  public:
 
-  static const char* ascii_fingerprint; // = "AA65D1E80A832794F68DFF3C92410597";
-  static const uint8_t binary_fingerprint[16]; // = {0xAA,0x65,0xD1,0xE8,0x0A,0x83,0x27,0x94,0xF6,0x8D,0xFF,0x3C,0x92,0x41,0x05,0x97};
+  static const char* ascii_fingerprint; // = "E323F5883186E322C59D09CD4FD1545B";
+  static const uint8_t binary_fingerprint[16]; // = {0xE3,0x23,0xF5,0x88,0x31,0x86,0xE3,0x22,0xC5,0x9D,0x09,0xCD,0x4F,0xD1,0x54,0x5B};
 
-  NodeInfo() : cores(0), sockets(0), memory(0) {
+  NodeInfo() : name(), version(), cores(0), sockets(0), memory(0) {
   }
 
   virtual ~NodeInfo() throw() {}
 
+  std::string name;
+  std::string version;
   int32_t cores;
   int32_t sockets;
   double memory;
 
   _NodeInfo__isset __isset;
+
+  void __set_name(const std::string& val) {
+    name = val;
+  }
+
+  void __set_version(const std::string& val) {
+    version = val;
+  }
 
   void __set_cores(const int32_t val) {
     cores = val;
@@ -188,6 +211,10 @@ class NodeInfo {
 
   bool operator == (const NodeInfo & rhs) const
   {
+    if (!(name == rhs.name))
+      return false;
+    if (!(version == rhs.version))
+      return false;
     if (!(cores == rhs.cores))
       return false;
     if (!(sockets == rhs.sockets))
@@ -210,30 +237,32 @@ class NodeInfo {
 void swap(NodeInfo &a, NodeInfo &b);
 
 typedef struct _DomainInfo__isset {
-  _DomainInfo__isset() : name(false), uuid(false), state(false), numberVirtCpu(false), memory(false) {}
+  _DomainInfo__isset() : name(false), uuid(false), state(false), numberVirtCpu(false), memory(false), xmlDesc(false) {}
   bool name;
   bool uuid;
   bool state;
   bool numberVirtCpu;
   bool memory;
+  bool xmlDesc;
 } _DomainInfo__isset;
 
 class DomainInfo {
  public:
 
-  static const char* ascii_fingerprint; // = "2D1CAF98212361A62ECDC1469A8C2B0F";
-  static const uint8_t binary_fingerprint[16]; // = {0x2D,0x1C,0xAF,0x98,0x21,0x23,0x61,0xA6,0x2E,0xCD,0xC1,0x46,0x9A,0x8C,0x2B,0x0F};
+  static const char* ascii_fingerprint; // = "A34937417D74BC5CE66DFE14D1CF9220";
+  static const uint8_t binary_fingerprint[16]; // = {0xA3,0x49,0x37,0x41,0x7D,0x74,0xBC,0x5C,0xE6,0x6D,0xFE,0x14,0xD1,0xCF,0x92,0x20};
 
-  DomainInfo() : name(), uuid(), state(), numberVirtCpu(0), memory(0) {
+  DomainInfo() : name(), uuid(), state((DomainState::type)0), numberVirtCpu(0), memory(0), xmlDesc() {
   }
 
   virtual ~DomainInfo() throw() {}
 
   std::string name;
   std::string uuid;
-  std::string state;
+  DomainState::type state;
   int32_t numberVirtCpu;
   double memory;
+  std::string xmlDesc;
 
   _DomainInfo__isset __isset;
 
@@ -245,7 +274,7 @@ class DomainInfo {
     uuid = val;
   }
 
-  void __set_state(const std::string& val) {
+  void __set_state(const DomainState::type val) {
     state = val;
   }
 
@@ -255,6 +284,10 @@ class DomainInfo {
 
   void __set_memory(const double val) {
     memory = val;
+  }
+
+  void __set_xmlDesc(const std::string& val) {
+    xmlDesc = val;
   }
 
   bool operator == (const DomainInfo & rhs) const
@@ -268,6 +301,8 @@ class DomainInfo {
     if (!(numberVirtCpu == rhs.numberVirtCpu))
       return false;
     if (!(memory == rhs.memory))
+      return false;
+    if (!(xmlDesc == rhs.xmlDesc))
       return false;
     return true;
   }
@@ -414,32 +449,96 @@ class StorageException : public ::apache::thrift::TException {
 void swap(StorageException &a, StorageException &b);
 
 typedef struct _LibvirtException__isset {
-  _LibvirtException__isset() : description(false) {}
-  bool description;
+  _LibvirtException__isset() : code(false), domain(false), message(false), level(false), str1(false), str2(false), str3(false), int1(false), int2(false) {}
+  bool code;
+  bool domain;
+  bool message;
+  bool level;
+  bool str1;
+  bool str2;
+  bool str3;
+  bool int1;
+  bool int2;
 } _LibvirtException__isset;
 
 class LibvirtException : public ::apache::thrift::TException {
  public:
 
-  static const char* ascii_fingerprint; // = "EFB929595D312AC8F305D5A794CFEDA1";
-  static const uint8_t binary_fingerprint[16]; // = {0xEF,0xB9,0x29,0x59,0x5D,0x31,0x2A,0xC8,0xF3,0x05,0xD5,0xA7,0x94,0xCF,0xED,0xA1};
+  static const char* ascii_fingerprint; // = "65C3F5292FCE4322B50FAA63577642EC";
+  static const uint8_t binary_fingerprint[16]; // = {0x65,0xC3,0xF5,0x29,0x2F,0xCE,0x43,0x22,0xB5,0x0F,0xAA,0x63,0x57,0x76,0x42,0xEC};
 
-  LibvirtException() : description() {
+  LibvirtException() : code(0), domain(0), message(), level(0), str1(), str2(), str3(), int1(0), int2(0) {
   }
 
   virtual ~LibvirtException() throw() {}
 
-  std::string description;
+  int32_t code;
+  int32_t domain;
+  std::string message;
+  int32_t level;
+  std::string str1;
+  std::string str2;
+  std::string str3;
+  int32_t int1;
+  int32_t int2;
 
   _LibvirtException__isset __isset;
 
-  void __set_description(const std::string& val) {
-    description = val;
+  void __set_code(const int32_t val) {
+    code = val;
+  }
+
+  void __set_domain(const int32_t val) {
+    domain = val;
+  }
+
+  void __set_message(const std::string& val) {
+    message = val;
+  }
+
+  void __set_level(const int32_t val) {
+    level = val;
+  }
+
+  void __set_str1(const std::string& val) {
+    str1 = val;
+  }
+
+  void __set_str2(const std::string& val) {
+    str2 = val;
+  }
+
+  void __set_str3(const std::string& val) {
+    str3 = val;
+  }
+
+  void __set_int1(const int32_t val) {
+    int1 = val;
+  }
+
+  void __set_int2(const int32_t val) {
+    int2 = val;
   }
 
   bool operator == (const LibvirtException & rhs) const
   {
-    if (!(description == rhs.description))
+    if (!(code == rhs.code))
+      return false;
+    if (!(domain == rhs.domain))
+      return false;
+    if (!(message == rhs.message))
+      return false;
+    if (!(level == rhs.level))
+      return false;
+    if (!(str1 == rhs.str1))
+      return false;
+    if (!(str2 == rhs.str2))
+      return false;
+    if (!(str3 == rhs.str3))
+      return false;
+    if (!(int1 == rhs.int1))
+      return false;
+    if (!(int2 == rhs.int2))
       return false;
     return true;
   }

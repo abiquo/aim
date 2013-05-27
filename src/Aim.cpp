@@ -400,14 +400,14 @@ uint32_t Aim_getDatastores_result::read(::apache::thrift::protocol::TProtocol* i
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size0;
-            ::apache::thrift::protocol::TType _etype3;
-            xfer += iprot->readListBegin(_etype3, _size0);
-            this->success.resize(_size0);
-            uint32_t _i4;
-            for (_i4 = 0; _i4 < _size0; ++_i4)
+            uint32_t _size1;
+            ::apache::thrift::protocol::TType _etype4;
+            xfer += iprot->readListBegin(_etype4, _size1);
+            this->success.resize(_size1);
+            uint32_t _i5;
+            for (_i5 = 0; _i5 < _size1; ++_i5)
             {
-              xfer += this->success[_i4].read(iprot);
+              xfer += this->success[_i5].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -446,10 +446,10 @@ uint32_t Aim_getDatastores_result::write(::apache::thrift::protocol::TProtocol* 
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<Datastore> ::const_iterator _iter5;
-      for (_iter5 = this->success.begin(); _iter5 != this->success.end(); ++_iter5)
+      std::vector<Datastore> ::const_iterator _iter6;
+      for (_iter6 = this->success.begin(); _iter6 != this->success.end(); ++_iter6)
       {
-        xfer += (*_iter5).write(oprot);
+        xfer += (*_iter6).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -488,14 +488,14 @@ uint32_t Aim_getDatastores_presult::read(::apache::thrift::protocol::TProtocol* 
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size6;
-            ::apache::thrift::protocol::TType _etype9;
-            xfer += iprot->readListBegin(_etype9, _size6);
-            (*(this->success)).resize(_size6);
-            uint32_t _i10;
-            for (_i10 = 0; _i10 < _size6; ++_i10)
+            uint32_t _size7;
+            ::apache::thrift::protocol::TType _etype10;
+            xfer += iprot->readListBegin(_etype10, _size7);
+            (*(this->success)).resize(_size7);
+            uint32_t _i11;
+            for (_i11 = 0; _i11 < _size7; ++_i11)
             {
-              xfer += (*(this->success))[_i10].read(iprot);
+              xfer += (*(this->success))[_i11].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -593,14 +593,14 @@ uint32_t Aim_getNetInterfaces_result::read(::apache::thrift::protocol::TProtocol
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size11;
-            ::apache::thrift::protocol::TType _etype14;
-            xfer += iprot->readListBegin(_etype14, _size11);
-            this->success.resize(_size11);
-            uint32_t _i15;
-            for (_i15 = 0; _i15 < _size11; ++_i15)
+            uint32_t _size12;
+            ::apache::thrift::protocol::TType _etype15;
+            xfer += iprot->readListBegin(_etype15, _size12);
+            this->success.resize(_size12);
+            uint32_t _i16;
+            for (_i16 = 0; _i16 < _size12; ++_i16)
             {
-              xfer += this->success[_i15].read(iprot);
+              xfer += this->success[_i16].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -639,10 +639,10 @@ uint32_t Aim_getNetInterfaces_result::write(::apache::thrift::protocol::TProtoco
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<NetInterface> ::const_iterator _iter16;
-      for (_iter16 = this->success.begin(); _iter16 != this->success.end(); ++_iter16)
+      std::vector<NetInterface> ::const_iterator _iter17;
+      for (_iter17 = this->success.begin(); _iter17 != this->success.end(); ++_iter17)
       {
-        xfer += (*_iter16).write(oprot);
+        xfer += (*_iter17).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -681,14 +681,14 @@ uint32_t Aim_getNetInterfaces_presult::read(::apache::thrift::protocol::TProtoco
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size17;
-            ::apache::thrift::protocol::TType _etype20;
-            xfer += iprot->readListBegin(_etype20, _size17);
-            (*(this->success)).resize(_size17);
-            uint32_t _i21;
-            for (_i21 = 0; _i21 < _size17; ++_i21)
+            uint32_t _size18;
+            ::apache::thrift::protocol::TType _etype21;
+            xfer += iprot->readListBegin(_etype21, _size18);
+            (*(this->success)).resize(_size18);
+            uint32_t _i22;
+            for (_i22 = 0; _i22 < _size18; ++_i22)
             {
-              xfer += (*(this->success))[_i21].read(iprot);
+              xfer += (*(this->success))[_i22].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -2013,14 +2013,14 @@ uint32_t Aim_rescanISCSI_args::read(::apache::thrift::protocol::TProtocol* iprot
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->targets.clear();
-            uint32_t _size22;
-            ::apache::thrift::protocol::TType _etype25;
-            xfer += iprot->readListBegin(_etype25, _size22);
-            this->targets.resize(_size22);
-            uint32_t _i26;
-            for (_i26 = 0; _i26 < _size22; ++_i26)
+            uint32_t _size23;
+            ::apache::thrift::protocol::TType _etype26;
+            xfer += iprot->readListBegin(_etype26, _size23);
+            this->targets.resize(_size23);
+            uint32_t _i27;
+            for (_i27 = 0; _i27 < _size23; ++_i27)
             {
-              xfer += iprot->readString(this->targets[_i26]);
+              xfer += iprot->readString(this->targets[_i27]);
             }
             xfer += iprot->readListEnd();
           }
@@ -2048,10 +2048,10 @@ uint32_t Aim_rescanISCSI_args::write(::apache::thrift::protocol::TProtocol* opro
   xfer += oprot->writeFieldBegin("targets", ::apache::thrift::protocol::T_LIST, 1);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->targets.size()));
-    std::vector<std::string> ::const_iterator _iter27;
-    for (_iter27 = this->targets.begin(); _iter27 != this->targets.end(); ++_iter27)
+    std::vector<std::string> ::const_iterator _iter28;
+    for (_iter28 = this->targets.begin(); _iter28 != this->targets.end(); ++_iter28)
     {
-      xfer += oprot->writeString((*_iter27));
+      xfer += oprot->writeString((*_iter28));
     }
     xfer += oprot->writeListEnd();
   }
@@ -2069,10 +2069,10 @@ uint32_t Aim_rescanISCSI_pargs::write(::apache::thrift::protocol::TProtocol* opr
   xfer += oprot->writeFieldBegin("targets", ::apache::thrift::protocol::T_LIST, 1);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>((*(this->targets)).size()));
-    std::vector<std::string> ::const_iterator _iter28;
-    for (_iter28 = (*(this->targets)).begin(); _iter28 != (*(this->targets)).end(); ++_iter28)
+    std::vector<std::string> ::const_iterator _iter29;
+    for (_iter29 = (*(this->targets)).begin(); _iter29 != (*(this->targets)).end(); ++_iter29)
     {
-      xfer += oprot->writeString((*_iter28));
+      xfer += oprot->writeString((*_iter29));
     }
     xfer += oprot->writeListEnd();
   }
@@ -2409,14 +2409,14 @@ uint32_t Aim_getDomains_result::read(::apache::thrift::protocol::TProtocol* ipro
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size29;
-            ::apache::thrift::protocol::TType _etype32;
-            xfer += iprot->readListBegin(_etype32, _size29);
-            this->success.resize(_size29);
-            uint32_t _i33;
-            for (_i33 = 0; _i33 < _size29; ++_i33)
+            uint32_t _size30;
+            ::apache::thrift::protocol::TType _etype33;
+            xfer += iprot->readListBegin(_etype33, _size30);
+            this->success.resize(_size30);
+            uint32_t _i34;
+            for (_i34 = 0; _i34 < _size30; ++_i34)
             {
-              xfer += this->success[_i33].read(iprot);
+              xfer += this->success[_i34].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -2455,10 +2455,10 @@ uint32_t Aim_getDomains_result::write(::apache::thrift::protocol::TProtocol* opr
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<DomainInfo> ::const_iterator _iter34;
-      for (_iter34 = this->success.begin(); _iter34 != this->success.end(); ++_iter34)
+      std::vector<DomainInfo> ::const_iterator _iter35;
+      for (_iter35 = this->success.begin(); _iter35 != this->success.end(); ++_iter35)
       {
-        xfer += (*_iter34).write(oprot);
+        xfer += (*_iter35).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -2497,14 +2497,14 @@ uint32_t Aim_getDomains_presult::read(::apache::thrift::protocol::TProtocol* ipr
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size35;
-            ::apache::thrift::protocol::TType _etype38;
-            xfer += iprot->readListBegin(_etype38, _size35);
-            (*(this->success)).resize(_size35);
-            uint32_t _i39;
-            for (_i39 = 0; _i39 < _size35; ++_i39)
+            uint32_t _size36;
+            ::apache::thrift::protocol::TType _etype39;
+            xfer += iprot->readListBegin(_etype39, _size36);
+            (*(this->success)).resize(_size36);
+            uint32_t _i40;
+            for (_i40 = 0; _i40 < _size36; ++_i40)
             {
-              xfer += (*(this->success))[_i39].read(iprot);
+              xfer += (*(this->success))[_i40].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -3106,8 +3106,10 @@ uint32_t Aim_getDomainState_result::read(::apache::thrift::protocol::TProtocol* 
     switch (fid)
     {
       case 0:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->success);
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          int32_t ecast41;
+          xfer += iprot->readI32(ecast41);
+          this->success = (DomainState::type)ecast41;
           this->__isset.success = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -3140,8 +3142,8 @@ uint32_t Aim_getDomainState_result::write(::apache::thrift::protocol::TProtocol*
   xfer += oprot->writeStructBegin("Aim_getDomainState_result");
 
   if (this->__isset.success) {
-    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_STRING, 0);
-    xfer += oprot->writeString(this->success);
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_I32, 0);
+    xfer += oprot->writeI32((int32_t)this->success);
     xfer += oprot->writeFieldEnd();
   } else if (this->__isset.libvirtException) {
     xfer += oprot->writeFieldBegin("libvirtException", ::apache::thrift::protocol::T_STRUCT, 1);
@@ -3174,8 +3176,10 @@ uint32_t Aim_getDomainState_presult::read(::apache::thrift::protocol::TProtocol*
     switch (fid)
     {
       case 0:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString((*(this->success)));
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          int32_t ecast42;
+          xfer += iprot->readI32(ecast42);
+          (*(this->success)) = (DomainState::type)ecast42;
           this->__isset.success = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -4173,6 +4177,188 @@ uint32_t Aim_resume_presult::read(::apache::thrift::protocol::TProtocol* iprot) 
     }
     switch (fid)
     {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_isStoragePoolAlreadyCreated_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->poolName);
+          this->__isset.poolName = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_isStoragePoolAlreadyCreated_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_isStoragePoolAlreadyCreated_args");
+
+  xfer += oprot->writeFieldBegin("poolName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->poolName);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_isStoragePoolAlreadyCreated_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_isStoragePoolAlreadyCreated_pargs");
+
+  xfer += oprot->writeFieldBegin("poolName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString((*(this->poolName)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_isStoragePoolAlreadyCreated_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_BOOL) {
+          xfer += iprot->readBool(this->success);
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_isStoragePoolAlreadyCreated_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("Aim_isStoragePoolAlreadyCreated_result");
+
+  if (this->__isset.success) {
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_BOOL, 0);
+    xfer += oprot->writeBool(this->success);
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.libvirtException) {
+    xfer += oprot->writeFieldBegin("libvirtException", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->libvirtException.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_isStoragePoolAlreadyCreated_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_BOOL) {
+          xfer += iprot->readBool((*(this->success)));
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       case 1:
         if (ftype == ::apache::thrift::protocol::T_STRUCT) {
           xfer += this->libvirtException.read(iprot);
@@ -5536,10 +5722,10 @@ bool AimClient::recv_existDomain()
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "existDomain failed: unknown result");
 }
 
-void AimClient::getDomainState(std::string& _return, const std::string& domainName)
+DomainState::type AimClient::getDomainState(const std::string& domainName)
 {
   send_getDomainState(domainName);
-  recv_getDomainState(_return);
+  return recv_getDomainState();
 }
 
 void AimClient::send_getDomainState(const std::string& domainName)
@@ -5556,7 +5742,7 @@ void AimClient::send_getDomainState(const std::string& domainName)
   oprot_->getTransport()->flush();
 }
 
-void AimClient::recv_getDomainState(std::string& _return)
+DomainState::type AimClient::recv_getDomainState()
 {
 
   int32_t rseqid = 0;
@@ -5581,6 +5767,7 @@ void AimClient::recv_getDomainState(std::string& _return)
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
   }
+  DomainState::type _return;
   Aim_getDomainState_presult result;
   result.success = &_return;
   result.read(iprot_);
@@ -5588,8 +5775,7 @@ void AimClient::recv_getDomainState(std::string& _return)
   iprot_->getTransport()->readEnd();
 
   if (result.__isset.success) {
-    // _return pointer has now been filled
-    return;
+    return _return;
   }
   if (result.__isset.libvirtException) {
     throw result.libvirtException;
@@ -5936,6 +6122,67 @@ void AimClient::recv_resume()
     throw result.libvirtException;
   }
   return;
+}
+
+bool AimClient::isStoragePoolAlreadyCreated(const std::string& poolName)
+{
+  send_isStoragePoolAlreadyCreated(poolName);
+  return recv_isStoragePoolAlreadyCreated();
+}
+
+void AimClient::send_isStoragePoolAlreadyCreated(const std::string& poolName)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("isStoragePoolAlreadyCreated", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  Aim_isStoragePoolAlreadyCreated_pargs args;
+  args.poolName = &poolName;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
+}
+
+bool AimClient::recv_isStoragePoolAlreadyCreated()
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("isStoragePoolAlreadyCreated") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  bool _return;
+  Aim_isStoragePoolAlreadyCreated_presult result;
+  result.success = &_return;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  if (result.__isset.success) {
+    return _return;
+  }
+  if (result.__isset.libvirtException) {
+    throw result.libvirtException;
+  }
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "isStoragePoolAlreadyCreated failed: unknown result");
 }
 
 void AimClient::createStoragePool(const std::string& xmlDesc)
@@ -7050,7 +7297,7 @@ void AimProcessor::process_getDomainState(int32_t seqid, ::apache::thrift::proto
 
   Aim_getDomainState_result result;
   try {
-    iface_->getDomainState(result.success, args.domainName);
+    result.success = iface_->getDomainState(args.domainName);
     result.__isset.success = true;
   } catch (LibvirtException &libvirtException) {
     result.libvirtException = libvirtException;
@@ -7418,6 +7665,63 @@ void AimProcessor::process_resume(int32_t seqid, ::apache::thrift::protocol::TPr
 
   if (this->eventHandler_.get() != NULL) {
     this->eventHandler_->postWrite(ctx, "Aim.resume", bytes);
+  }
+}
+
+void AimProcessor::process_isStoragePoolAlreadyCreated(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (this->eventHandler_.get() != NULL) {
+    ctx = this->eventHandler_->getContext("Aim.isStoragePoolAlreadyCreated", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "Aim.isStoragePoolAlreadyCreated");
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preRead(ctx, "Aim.isStoragePoolAlreadyCreated");
+  }
+
+  Aim_isStoragePoolAlreadyCreated_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postRead(ctx, "Aim.isStoragePoolAlreadyCreated", bytes);
+  }
+
+  Aim_isStoragePoolAlreadyCreated_result result;
+  try {
+    result.success = iface_->isStoragePoolAlreadyCreated(args.poolName);
+    result.__isset.success = true;
+  } catch (LibvirtException &libvirtException) {
+    result.libvirtException = libvirtException;
+    result.__isset.libvirtException = true;
+  } catch (const std::exception& e) {
+    if (this->eventHandler_.get() != NULL) {
+      this->eventHandler_->handlerError(ctx, "Aim.isStoragePoolAlreadyCreated");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("isStoragePoolAlreadyCreated", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preWrite(ctx, "Aim.isStoragePoolAlreadyCreated");
+  }
+
+  oprot->writeMessageBegin("isStoragePoolAlreadyCreated", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postWrite(ctx, "Aim.isStoragePoolAlreadyCreated", bytes);
   }
 }
 

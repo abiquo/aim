@@ -10,6 +10,20 @@
 
 
 
+int _kDomainStateValues[] = {
+  DomainState::ON,
+  DomainState::OFF,
+  DomainState::PAUSED,
+  DomainState::UNKNOWN
+};
+const char* _kDomainStateNames[] = {
+  "ON",
+  "OFF",
+  "PAUSED",
+  "UNKNOWN"
+};
+const std::map<int, const char*> _DomainState_VALUES_TO_NAMES(::apache::thrift::TEnumIterator(4, _kDomainStateValues, _kDomainStateNames), ::apache::thrift::TEnumIterator(-1, NULL, NULL));
+
 const char* Datastore::ascii_fingerprint = "E2396C406CD75CE894E195C727905C26";
 const uint8_t Datastore::binary_fingerprint[16] = {0xE2,0x39,0x6C,0x40,0x6C,0xD7,0x5C,0xE8,0x94,0xE1,0x95,0xC7,0x27,0x90,0x5C,0x26};
 
@@ -212,8 +226,8 @@ void swap(NetInterface &a, NetInterface &b) {
   swap(a.__isset, b.__isset);
 }
 
-const char* NodeInfo::ascii_fingerprint = "AA65D1E80A832794F68DFF3C92410597";
-const uint8_t NodeInfo::binary_fingerprint[16] = {0xAA,0x65,0xD1,0xE8,0x0A,0x83,0x27,0x94,0xF6,0x8D,0xFF,0x3C,0x92,0x41,0x05,0x97};
+const char* NodeInfo::ascii_fingerprint = "E323F5883186E322C59D09CD4FD1545B";
+const uint8_t NodeInfo::binary_fingerprint[16] = {0xE3,0x23,0xF5,0x88,0x31,0x86,0xE3,0x22,0xC5,0x9D,0x09,0xCD,0x4F,0xD1,0x54,0x5B};
 
 uint32_t NodeInfo::read(::apache::thrift::protocol::TProtocol* iprot) {
 
@@ -236,6 +250,22 @@ uint32_t NodeInfo::read(::apache::thrift::protocol::TProtocol* iprot) {
     switch (fid)
     {
       case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->name);
+          this->__isset.name = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->version);
+          this->__isset.version = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
         if (ftype == ::apache::thrift::protocol::T_I32) {
           xfer += iprot->readI32(this->cores);
           this->__isset.cores = true;
@@ -243,7 +273,7 @@ uint32_t NodeInfo::read(::apache::thrift::protocol::TProtocol* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
-      case 2:
+      case 4:
         if (ftype == ::apache::thrift::protocol::T_I32) {
           xfer += iprot->readI32(this->sockets);
           this->__isset.sockets = true;
@@ -251,7 +281,7 @@ uint32_t NodeInfo::read(::apache::thrift::protocol::TProtocol* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
-      case 3:
+      case 5:
         if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
           xfer += iprot->readDouble(this->memory);
           this->__isset.memory = true;
@@ -275,15 +305,23 @@ uint32_t NodeInfo::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
   xfer += oprot->writeStructBegin("NodeInfo");
 
-  xfer += oprot->writeFieldBegin("cores", ::apache::thrift::protocol::T_I32, 1);
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->name);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("version", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString(this->version);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("cores", ::apache::thrift::protocol::T_I32, 3);
   xfer += oprot->writeI32(this->cores);
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("sockets", ::apache::thrift::protocol::T_I32, 2);
+  xfer += oprot->writeFieldBegin("sockets", ::apache::thrift::protocol::T_I32, 4);
   xfer += oprot->writeI32(this->sockets);
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("memory", ::apache::thrift::protocol::T_DOUBLE, 3);
+  xfer += oprot->writeFieldBegin("memory", ::apache::thrift::protocol::T_DOUBLE, 5);
   xfer += oprot->writeDouble(this->memory);
   xfer += oprot->writeFieldEnd();
 
@@ -294,14 +332,16 @@ uint32_t NodeInfo::write(::apache::thrift::protocol::TProtocol* oprot) const {
 
 void swap(NodeInfo &a, NodeInfo &b) {
   using ::std::swap;
+  swap(a.name, b.name);
+  swap(a.version, b.version);
   swap(a.cores, b.cores);
   swap(a.sockets, b.sockets);
   swap(a.memory, b.memory);
   swap(a.__isset, b.__isset);
 }
 
-const char* DomainInfo::ascii_fingerprint = "2D1CAF98212361A62ECDC1469A8C2B0F";
-const uint8_t DomainInfo::binary_fingerprint[16] = {0x2D,0x1C,0xAF,0x98,0x21,0x23,0x61,0xA6,0x2E,0xCD,0xC1,0x46,0x9A,0x8C,0x2B,0x0F};
+const char* DomainInfo::ascii_fingerprint = "A34937417D74BC5CE66DFE14D1CF9220";
+const uint8_t DomainInfo::binary_fingerprint[16] = {0xA3,0x49,0x37,0x41,0x7D,0x74,0xBC,0x5C,0xE6,0x6D,0xFE,0x14,0xD1,0xCF,0x92,0x20};
 
 uint32_t DomainInfo::read(::apache::thrift::protocol::TProtocol* iprot) {
 
@@ -340,8 +380,10 @@ uint32_t DomainInfo::read(::apache::thrift::protocol::TProtocol* iprot) {
         }
         break;
       case 3:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->state);
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          int32_t ecast0;
+          xfer += iprot->readI32(ecast0);
+          this->state = (DomainState::type)ecast0;
           this->__isset.state = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -359,6 +401,14 @@ uint32_t DomainInfo::read(::apache::thrift::protocol::TProtocol* iprot) {
         if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
           xfer += iprot->readDouble(this->memory);
           this->__isset.memory = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 6:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->xmlDesc);
+          this->__isset.xmlDesc = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -387,8 +437,8 @@ uint32_t DomainInfo::write(::apache::thrift::protocol::TProtocol* oprot) const {
   xfer += oprot->writeString(this->uuid);
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("state", ::apache::thrift::protocol::T_STRING, 3);
-  xfer += oprot->writeString(this->state);
+  xfer += oprot->writeFieldBegin("state", ::apache::thrift::protocol::T_I32, 3);
+  xfer += oprot->writeI32((int32_t)this->state);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldBegin("numberVirtCpu", ::apache::thrift::protocol::T_I32, 4);
@@ -397,6 +447,10 @@ uint32_t DomainInfo::write(::apache::thrift::protocol::TProtocol* oprot) const {
 
   xfer += oprot->writeFieldBegin("memory", ::apache::thrift::protocol::T_DOUBLE, 5);
   xfer += oprot->writeDouble(this->memory);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("xmlDesc", ::apache::thrift::protocol::T_STRING, 6);
+  xfer += oprot->writeString(this->xmlDesc);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -411,6 +465,7 @@ void swap(DomainInfo &a, DomainInfo &b) {
   swap(a.state, b.state);
   swap(a.numberVirtCpu, b.numberVirtCpu);
   swap(a.memory, b.memory);
+  swap(a.xmlDesc, b.xmlDesc);
   swap(a.__isset, b.__isset);
 }
 
@@ -600,8 +655,8 @@ void swap(StorageException &a, StorageException &b) {
   swap(a.__isset, b.__isset);
 }
 
-const char* LibvirtException::ascii_fingerprint = "EFB929595D312AC8F305D5A794CFEDA1";
-const uint8_t LibvirtException::binary_fingerprint[16] = {0xEF,0xB9,0x29,0x59,0x5D,0x31,0x2A,0xC8,0xF3,0x05,0xD5,0xA7,0x94,0xCF,0xED,0xA1};
+const char* LibvirtException::ascii_fingerprint = "65C3F5292FCE4322B50FAA63577642EC";
+const uint8_t LibvirtException::binary_fingerprint[16] = {0x65,0xC3,0xF5,0x29,0x2F,0xCE,0x43,0x22,0xB5,0x0F,0xAA,0x63,0x57,0x76,0x42,0xEC};
 
 uint32_t LibvirtException::read(::apache::thrift::protocol::TProtocol* iprot) {
 
@@ -624,9 +679,73 @@ uint32_t LibvirtException::read(::apache::thrift::protocol::TProtocol* iprot) {
     switch (fid)
     {
       case 1:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->code);
+          this->__isset.code = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->domain);
+          this->__isset.domain = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
         if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->description);
-          this->__isset.description = true;
+          xfer += iprot->readString(this->message);
+          this->__isset.message = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->level);
+          this->__isset.level = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 5:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->str1);
+          this->__isset.str1 = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 6:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->str2);
+          this->__isset.str2 = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 7:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->str3);
+          this->__isset.str3 = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 8:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->int1);
+          this->__isset.int1 = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 9:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->int2);
+          this->__isset.int2 = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -647,8 +766,40 @@ uint32_t LibvirtException::write(::apache::thrift::protocol::TProtocol* oprot) c
   uint32_t xfer = 0;
   xfer += oprot->writeStructBegin("LibvirtException");
 
-  xfer += oprot->writeFieldBegin("description", ::apache::thrift::protocol::T_STRING, 1);
-  xfer += oprot->writeString(this->description);
+  xfer += oprot->writeFieldBegin("code", ::apache::thrift::protocol::T_I32, 1);
+  xfer += oprot->writeI32(this->code);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("domain", ::apache::thrift::protocol::T_I32, 2);
+  xfer += oprot->writeI32(this->domain);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("message", ::apache::thrift::protocol::T_STRING, 3);
+  xfer += oprot->writeString(this->message);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("level", ::apache::thrift::protocol::T_I32, 4);
+  xfer += oprot->writeI32(this->level);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("str1", ::apache::thrift::protocol::T_STRING, 5);
+  xfer += oprot->writeString(this->str1);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("str2", ::apache::thrift::protocol::T_STRING, 6);
+  xfer += oprot->writeString(this->str2);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("str3", ::apache::thrift::protocol::T_STRING, 7);
+  xfer += oprot->writeString(this->str3);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("int1", ::apache::thrift::protocol::T_I32, 8);
+  xfer += oprot->writeI32(this->int1);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("int2", ::apache::thrift::protocol::T_I32, 9);
+  xfer += oprot->writeI32(this->int2);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -658,7 +809,15 @@ uint32_t LibvirtException::write(::apache::thrift::protocol::TProtocol* oprot) c
 
 void swap(LibvirtException &a, LibvirtException &b) {
   using ::std::swap;
-  swap(a.description, b.description);
+  swap(a.code, b.code);
+  swap(a.domain, b.domain);
+  swap(a.message, b.message);
+  swap(a.level, b.level);
+  swap(a.str1, b.str1);
+  swap(a.str2, b.str2);
+  swap(a.str3, b.str3);
+  swap(a.int1, b.int1);
+  swap(a.int2, b.int2);
   swap(a.__isset, b.__isset);
 }
 

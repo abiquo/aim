@@ -12,6 +12,7 @@
 
 string LibvirtService::connectionUrl = "";
 
+
 LibvirtService::LibvirtService() : Service("Libvirt")
 {
 }
@@ -22,12 +23,14 @@ LibvirtService::~LibvirtService()
 
 // Private methods
 
-virDomainPtr LibvirtService::getDomainByName(virConnectPtr conn, const string& name) throw (LibvirtException)
+virDomainPtr LibvirtService::getDomainByName(const virConnectPtr conn, const string& name) throw (LibvirtException)
 {
     virDomainPtr dom = virDomainLookupByName(conn, name.c_str());
     if (dom == NULL)
     {
-        throwError("Domain not found: " + name);
+        // throwError("Domain not found: " + name);
+        // TODO: Verify we populate the right error
+        throwLastKnownError(conn);
     }
     return dom;
 }
@@ -36,30 +39,58 @@ DomainInfo LibvirtService::getDomainInfo(const virConnectPtr conn, const virDoma
 {
     if (domain == NULL)
     {
-        throwError(""); // TODO
+        // TODO: verify we populate the right error
+        throwLastKnownError(conn);
     }
 
     virDomainInfo info;
     if (virDomainGetInfo(domain, &info) < 0)
     {
-        throwError(""); // TODO
+        throwLastKnownError(conn);
     }
 
     const char *name = virDomainGetName(domain);
     if (name == NULL)
     {
-        throwError(""); // TODO
+        throwLastKnownError(conn);
     }
 
     DomainInfo domainInfo;
     domainInfo.name            = string(name);
     domainInfo.uuid            = "";                // TODO
-    domainInfo.state           = info.state;        // the running state, one of virDomainState
+    domainInfo.state           = toDomainState(info.state);        // the running state, one of virDomainState
     domainInfo.numberVirtCpu   = info.nrVirtCpu;    // the number of virtual CPUs for the domain 
     domainInfo.memory          = info.memory;       // the memory in KBytes used by the domain
 
     free((char*) name);
     return domainInfo;
+}
+
+DomainState::type LibvirtService::toDomainState(unsigned char state)
+{
+    switch (state)
+    {
+        case 1: return DomainState::ON;        break;
+        case 2: return DomainState::OFF;       break;
+        case 3: return DomainState::PAUSED;    break;
+        case 4: return DomainState::UNKNOWN;   break;
+        default: return DomainState::UNKNOWN;  break;
+    }
+}
+
+LibvirtException LibvirtService::fromLibvirtError(const virErrorPtr error)
+{
+    LibvirtException exception;
+    exception.code = error->code;
+    exception.domain = error->domain;
+    exception.message = error->message == NULL? "" : string(error->message);
+    exception.level = error->level;
+    exception.str1 = error->str1 == NULL? "" : string(error->str1);
+    exception.str2 = error->str2 == NULL? "" : string(error->str2);
+    exception.str3 = error->str3 == NULL? "" : string(error->str3);
+    exception.int1 = error->int1;
+    exception.int2 = error->int2;
+    return exception;
 }
 
 // Public methods
@@ -89,38 +120,10 @@ bool LibvirtService::cleanup()
     return true;
 }
 
-void LibvirtService::throwError(const string& message)
-{
-    LibvirtException exception;
-    exception.description = message;
-    throw exception;
-}
-
-void LibvirtService::throwError(const virErrorPtr error)
-{
-    LibvirtException exception;
-    stringstream msg;
-    
-    msg << "Resize operation failed. Error code [" << error->code << "] Message [" << error->message << "]";
-    exception.description = msg.str();
-    // TODO: Populate the error code and message in LibvirtException fields
-
-    throw exception;
-}
-
 void LibvirtService::throwLastKnownError(const virConnectPtr conn)
 {
-    LibvirtException exception;
-    stringstream msg;
     virErrorPtr error = virConnGetLastError(conn);
-    
-    msg << "Resize operation failed. Error code [" << error->code << "] Message [" << error->message << "]";
-    exception.description = msg.str();
-    // TODO: Populate the error code and message in LibvirtException fields
-
-    virFreeError(error);
-
-    throw exception;
+    throw fromLibvirtError(error);
 }
 
 virConnectPtr LibvirtService::connect() throw (LibvirtException)
@@ -128,12 +131,15 @@ virConnectPtr LibvirtService::connect() throw (LibvirtException)
     virConnectPtr conn = virConnectOpen(LibvirtService::connectionUrl.c_str());
     if (conn == NULL)
     {
-        throwError("Could not connect to " + LibvirtService::connectionUrl);
+        LibvirtException exception;
+        exception.code = -1; // Connection error code
+        exception.message = "Could not connect to " + LibvirtService::connectionUrl;
+        throw exception;
     }
     return conn;
 }
 
-void LibvirtService::disconnect(virConnectPtr conn)
+void LibvirtService::disconnect(const virConnectPtr conn)
 {
     if (virConnectClose(conn) < 0)
     {
@@ -141,13 +147,13 @@ void LibvirtService::disconnect(virConnectPtr conn)
     }
 }
 
-void LibvirtService::getNodeInfo(NodeInfo& _return, virConnectPtr conn) throw (LibvirtException)
+void LibvirtService::getNodeInfo(NodeInfo& _return, const virConnectPtr conn) throw (LibvirtException)
 {
     virNodeInfo info;
 
     if (virNodeGetInfo(conn, &info) < 0)
     {
-        throwError(""); // TODO
+        throwLastKnownError(conn);
     }
 
     _return.cores   = info.cores;    // number of cores per socket
@@ -156,7 +162,7 @@ void LibvirtService::getNodeInfo(NodeInfo& _return, virConnectPtr conn) throw (L
 }
 
 // Adapted from http://builder.virt-tools.org/artifacts/libvirt-appdev-guide/html/Application_Development_Guide-Guest_Domains-Listing.html
-void LibvirtService::getDomains(std::vector<DomainInfo> & _return, virConnectPtr conn) throw (LibvirtException)
+void LibvirtService::getDomains(std::vector<DomainInfo> & _return, const virConnectPtr conn) throw (LibvirtException)
 {
     int numActiveDomains = virConnectNumOfDomains(conn);
     if (numActiveDomains > 0)
@@ -217,19 +223,19 @@ void LibvirtService::getDomains(std::vector<DomainInfo> & _return, virConnectPtr
     // TODO else => throwError?
 }
 
-void LibvirtService::defineDomain(virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
+void LibvirtService::defineDomain(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
 {
     virDomainPtr domain = virDomainDefineXML(conn, xmlDesc.c_str());
 
     if (domain == NULL)
     {
-        throwError(""); // TODO
+        throwLastKnownError(conn);
     }
 
     virDomainFree(domain);
 }
 
-void LibvirtService::undefineDomain(virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::undefineDomain(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
     virDomainPtr domain = getDomainByName(conn, domainName);
 
@@ -238,11 +244,11 @@ void LibvirtService::undefineDomain(virConnectPtr conn, const std::string& domai
 
     if (ret < 0)
     {
-        throwError(""); // TODO
+        throwLastKnownError(conn);
     }
 }
 
-bool LibvirtService::existDomain(virConnectPtr conn, const std::string& domainName)
+bool LibvirtService::existDomain(const virConnectPtr conn, const std::string& domainName)
 {
     try
     {
@@ -256,7 +262,7 @@ bool LibvirtService::existDomain(virConnectPtr conn, const std::string& domainNa
     }
 }
 
-void LibvirtService::getDomainState(std::string& _return, virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+DomainState::type LibvirtService::getDomainState(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
     virDomainPtr domain = getDomainByName(conn, domainName);
     virDomainInfo info;
@@ -264,15 +270,17 @@ void LibvirtService::getDomainState(std::string& _return, virConnectPtr conn, co
     if (virDomainGetInfo(domain, &info) < 0)
     {
         virDomainFree(domain);
-        throwError(""); // TODO
+        throwLastKnownError(conn);
     }
 
-    _return = info.state; // the running state, one of virDomainState
+    DomainState::type result = toDomainState(info.state);
 
     virDomainFree(domain);
+
+    return result;
 }
 
-void LibvirtService::getDomainInfo(DomainInfo& _return, virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::getDomainInfo(DomainInfo& _return, const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
     virDomainPtr domain = getDomainByName(conn, domainName);
     
@@ -288,7 +296,7 @@ void LibvirtService::getDomainInfo(DomainInfo& _return, virConnectPtr conn, cons
     }
 }
 
-void LibvirtService::powerOn(virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::powerOn(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
     virDomainPtr domain = getDomainByName(conn, domainName);
 
@@ -297,11 +305,11 @@ void LibvirtService::powerOn(virConnectPtr conn, const std::string& domainName) 
     
     if (ret < 0)
     {
-        throwError(""); // TODO
+        throwLastKnownError(conn);
     }   
 }
 
-void LibvirtService::powerOff(virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::powerOff(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
     virDomainPtr domain = getDomainByName(conn, domainName);
 
@@ -310,11 +318,11 @@ void LibvirtService::powerOff(virConnectPtr conn, const std::string& domainName)
     
     if (ret < 0)
     {
-        throwError(""); // TODO
+        throwLastKnownError(conn);
     }
 }
 
-void LibvirtService::reset(virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::reset(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
     virDomainPtr domain = getDomainByName(conn, domainName);
 
@@ -323,11 +331,11 @@ void LibvirtService::reset(virConnectPtr conn, const std::string& domainName) th
     
     if (ret < 0)
     {
-        throwError(""); // TODO
+        throwLastKnownError(conn);
     }
 }
 
-void LibvirtService::pause(virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::pause(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
     virDomainPtr domain = getDomainByName(conn, domainName);
 
@@ -336,11 +344,11 @@ void LibvirtService::pause(virConnectPtr conn, const std::string& domainName) th
     
     if (ret < 0)
     {
-        throwError(""); // TODO
+        throwLastKnownError(conn);
     }
 }
 
-void LibvirtService::resume(virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::resume(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
     virDomainPtr domain = getDomainByName(conn, domainName);
 
@@ -349,22 +357,22 @@ void LibvirtService::resume(virConnectPtr conn, const std::string& domainName) t
     
     if (ret < 0)
     {
-        throwError(""); // TODO
+        throwLastKnownError(conn);
     }
 }
 
-void LibvirtService::createStoragePool(virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
+void LibvirtService::createStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
 {
     virStoragePoolPtr storagePool = virStoragePoolCreateXML(conn, xmlDesc.c_str(), 0);
     if (storagePool == NULL)
     {
-        throwError(""); // TODO
+        throwLastKnownError(conn);
     }
 
     virStoragePoolFree(storagePool);
 }
 
-void LibvirtService::resizeDisk(virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException)
+void LibvirtService::resizeDisk(const virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException)
 {
     virDomainPtr dom = getDomainByName(conn, domainName);
 

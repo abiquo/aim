@@ -208,13 +208,14 @@ class AimHandler: virtual public AimIf
             }
         }
 
-        void getDomainState(std::string& _return, const std::string& domainName)
+        DomainState::type getDomainState(const std::string& domainName)
         {
             virConnectPtr conn = libvirt->connect();
             try
             {
-                libvirt->getDomainState(_return, conn, domainName);
+                DomainState::type state = libvirt->getDomainState(conn, domainName);
                 libvirt->disconnect(conn);
+                return state;
             }
             catch (...)
             {
@@ -319,6 +320,22 @@ class AimHandler: virtual public AimIf
             try
             {
                 libvirt->createStoragePool(conn, xmlDesc);
+                libvirt->disconnect(conn);
+            }
+            catch (...)
+            {
+                libvirt->disconnect(conn);
+                throw;
+            }
+        }
+
+        bool isStoragePoolAlreadyCreated(const std::string& poolName)
+        {
+            virConnectPtr conn = libvirt->connect();
+            try
+            {
+                // TODO: Call libvirt method
+                return false;
                 libvirt->disconnect(conn);
             }
             catch (...)

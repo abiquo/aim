@@ -37,14 +37,15 @@ class LibvirtService : public Service
 
         virDomainPtr getDomainByName(virConnectPtr conn, const string& name) throw (LibvirtException);
         DomainInfo getDomainInfo(const virConnectPtr conn, const virDomainPtr domain) throw (LibvirtException);
+        DomainState::type toDomainState(unsigned char state);
+
+        LibvirtException fromLibvirtError(const virErrorPtr error);
 
     public:
         LibvirtService();
         ~LibvirtService();
 
-        void throwError(const string& message);                 // Populate a generic error
-        void throwError(const virErrorPtr error);               // Populate a libvirt error. Does not call virFreeError!
-        void throwLastKnownError(const virConnectPtr conn);     // Populate the last known libvirt error and call virFreeError
+        void throwLastKnownError(const virConnectPtr conn);
 
         virtual bool initialize(dictionary * configuration);
         virtual bool cleanup();
@@ -53,23 +54,23 @@ class LibvirtService : public Service
 
         // Connection
         virConnectPtr connect() throw (LibvirtException);       // Open a LOCAL connection
-        void disconnect(virConnectPtr conn);                    // Closes the given connection
+        void disconnect(const virConnectPtr conn);                    // Closes the given connection
 
         // Libvirt facade methods
-        void getNodeInfo(NodeInfo& _return, virConnectPtr conn) throw (LibvirtException);
-        void getDomains(std::vector<DomainInfo> & _return, virConnectPtr conn) throw (LibvirtException);
-        void defineDomain(virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
-        void undefineDomain(virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        bool existDomain(virConnectPtr conn, const std::string& domainName);
-        void getDomainState(std::string& _return, virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void getNodeInfo(NodeInfo& _return, const virConnectPtr conn) throw (LibvirtException);
+        void getDomains(std::vector<DomainInfo> & _return, const virConnectPtr conn) throw (LibvirtException);
+        void defineDomain(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
+        void undefineDomain(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        bool existDomain(const virConnectPtr conn, const std::string& domainName);
+        DomainState::type getDomainState(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
         void getDomainInfo(DomainInfo& _return, virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void powerOn(virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void powerOff(virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void reset(virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void pause(virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void resume(virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void createStoragePool(virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
-        void resizeDisk(virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException);
+        void powerOn(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void powerOff(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void reset(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void pause(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void resume(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void createStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
+        void resizeDisk(const virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException);
 };
 
 #endif
