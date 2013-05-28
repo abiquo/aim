@@ -25,21 +25,18 @@ LibvirtService::~LibvirtService()
 
 virDomainPtr LibvirtService::getDomainByName(const virConnectPtr conn, const string& name) throw (LibvirtException)
 {
-    virDomainPtr dom = virDomainLookupByName(conn, name.c_str());
-    if (dom == NULL)
+    virDomainPtr domain = virDomainLookupByName(conn, name.c_str());
+    if (domain == NULL)
     {
-        // throwError("Domain not found: " + name);
-        // TODO: Verify we populate the right error
         throwLastKnownError(conn);
     }
-    return dom;
+    return domain;
 }
 
 DomainInfo LibvirtService::getDomainInfo(const virConnectPtr conn, const virDomainPtr domain) throw (LibvirtException)
 {
     if (domain == NULL)
     {
-        // TODO: verify we populate the right error
         throwLastKnownError(conn);
     }
 
@@ -116,17 +113,16 @@ DomainState::type LibvirtService::toDomainState(unsigned char state)
 LibvirtException LibvirtService::fromLibvirtError(const virErrorPtr error)
 {
     LibvirtException exception;
-    exception.code = error->code;
+    exception.code   = error->code;
     exception.domain = error->domain;
-    exception.msg = error->message == NULL? "" : string(error->message);
-    exception.level = error->level;
-    exception.str1 = error->str1 == NULL? "" : string(error->str1);
-    exception.str2 = error->str2 == NULL? "" : string(error->str2);
-    exception.str3 = error->str3 == NULL? "" : string(error->str3);
-    exception.int1 = error->int1;
-    exception.int2 = error->int2;
-
-    LOG(exception.msg.c_str());    // TODO
+    exception.msg    = error->message == NULL ? "" : string(error->message);
+    exception.level  = error->level;
+    exception.str1   = error->str1 == NULL ? "" : string(error->str1);
+    exception.str2   = error->str2 == NULL ? "" : string(error->str2);
+    exception.str3   = error->str3 == NULL ? "" : string(error->str3);
+    exception.int1   = error->int1;
+    exception.int2   = error->int2;
+    LOG("LibvirtError '%d' level: '%d' message: '%s'", exception.code, exception.level, exception.msg.c_str());
     return exception;
 }
 
@@ -139,6 +135,7 @@ bool LibvirtService::initialize(dictionary* configuration)
         LibvirtService::connectionUrl = getStringProperty(configuration, monitorUri);
     }
 
+    LOG("Libvirt connection url (empty is bad): '%s'", LibvirtService::connectionUrl.c_str());
     return !LibvirtService::connectionUrl.empty();
 }
 
@@ -171,6 +168,7 @@ virConnectPtr LibvirtService::connect() throw (LibvirtException)
         LibvirtException exception;
         exception.code = -1; // Connection error code
         exception.msg = "Could not connect to " + LibvirtService::connectionUrl;
+        LOG(exception.msg.c_str());
         throw exception;
     }
     return conn;
@@ -213,12 +211,11 @@ void LibvirtService::getNodeInfo(NodeInfo& _return, const virConnectPtr conn) th
     free(name);
 }
 
-// Adapted from http://builder.virt-tools.org/artifacts/libvirt-appdev-guide/html/Application_Development_Guide-Guest_Domains-Listing.html
 void LibvirtService::getDomains(std::vector<DomainInfo> & _return, const virConnectPtr conn) throw (LibvirtException)
 {
     virDomainPtr *domains;
-    int ret = virConnectListAllDomains(conn, &domains, 0);
 
+    int ret = virConnectListAllDomains(conn, &domains, 0);
     if (ret < 0)
     {
         throwLastKnownError(conn);
@@ -232,7 +229,8 @@ void LibvirtService::getDomains(std::vector<DomainInfo> & _return, const virConn
         }
         catch(...)
         {
-            // TODO log error
+            // Nothing to do, pass error and continue
+            // See getDomainInfo(conn, domain)
         }
     }
 
