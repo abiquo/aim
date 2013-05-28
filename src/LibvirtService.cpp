@@ -299,17 +299,7 @@ DomainState::type LibvirtService::getDomainState(const virConnectPtr conn, const
 void LibvirtService::getDomainInfo(DomainInfo& _return, const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
     virDomainPtr domain = getDomainByName(conn, domainName);
-    
-    try
-    {
-        _return = getDomainInfo(conn, domain);
-        virDomainFree(domain);
-    }
-    catch (LibvirtException exception)
-    {
-        virDomainFree(domain);
-        throw exception;
-    }
+    _return = getDomainInfo(conn, domain);
 }
 
 void LibvirtService::powerOn(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
