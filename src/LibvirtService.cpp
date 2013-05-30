@@ -184,6 +184,7 @@ void LibvirtService::disconnect(const virConnectPtr conn)
 
 void LibvirtService::getNodeInfo(NodeInfo& _return, const virConnectPtr conn) throw (LibvirtException)
 {
+    LOG("Get node info");
     virNodeInfo info;
     if (virNodeGetInfo(conn, &info) < 0)
     {
@@ -213,6 +214,7 @@ void LibvirtService::getNodeInfo(NodeInfo& _return, const virConnectPtr conn) th
 
 void LibvirtService::getDomains(std::vector<DomainInfo> & _return, const virConnectPtr conn) throw (LibvirtException)
 {
+    LOG("Get all domains");
     virDomainPtr *domains;
 
     int ret = virConnectListAllDomains(conn, &domains, 0);
@@ -239,6 +241,7 @@ void LibvirtService::getDomains(std::vector<DomainInfo> & _return, const virConn
 
 void LibvirtService::defineDomain(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
 {
+    LOG("Define domain");
     virDomainPtr domain = virDomainDefineXML(conn, xmlDesc.c_str());
 
     if (domain == NULL)
@@ -251,6 +254,7 @@ void LibvirtService::defineDomain(const virConnectPtr conn, const std::string& x
 
 void LibvirtService::undefineDomain(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
+    LOG("Undefine domain '%s'", domainName.c_str());
     virDomainPtr domain = getDomainByName(conn, domainName);
 
     int ret = virDomainUndefine(domain);
@@ -266,6 +270,7 @@ bool LibvirtService::existDomain(const virConnectPtr conn, const std::string& do
 {
     try
     {
+        LOG("Check if domain '%s' exists", domainName.c_str());
         virDomainPtr domain = getDomainByName(conn, domainName);
         virDomainFree(domain);
         return true;
@@ -278,6 +283,7 @@ bool LibvirtService::existDomain(const virConnectPtr conn, const std::string& do
 
 DomainState::type LibvirtService::getDomainState(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
+    LOG("Get domain '%s' state", domainName.c_str());
     virDomainPtr domain = getDomainByName(conn, domainName);
     virDomainInfo info;
 
@@ -296,12 +302,14 @@ DomainState::type LibvirtService::getDomainState(const virConnectPtr conn, const
 
 void LibvirtService::getDomainInfo(DomainInfo& _return, const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
+    LOG("Get domain '%s' info", domainName.c_str());
     virDomainPtr domain = getDomainByName(conn, domainName);
     _return = getDomainInfo(conn, domain);
 }
 
 void LibvirtService::powerOn(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
+    LOG("Power on domain '%s'", domainName.c_str());
     virDomainPtr domain = getDomainByName(conn, domainName);
 
     int ret = virDomainCreate(domain);
@@ -315,6 +323,7 @@ void LibvirtService::powerOn(const virConnectPtr conn, const std::string& domain
 
 void LibvirtService::powerOff(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
+    LOG("Power off domain '%s'", domainName.c_str());
     virDomainPtr domain = getDomainByName(conn, domainName);
 
     int ret = virDomainDestroy(domain);
@@ -328,6 +337,7 @@ void LibvirtService::powerOff(const virConnectPtr conn, const std::string& domai
 
 void LibvirtService::reset(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
+    LOG("Reset domain '%s'", domainName.c_str());
     virDomainPtr domain = getDomainByName(conn, domainName);
 
     int ret = virDomainReboot(domain, 0);
@@ -341,6 +351,7 @@ void LibvirtService::reset(const virConnectPtr conn, const std::string& domainNa
 
 void LibvirtService::pause(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
+    LOG("Pause domain '%s'", domainName.c_str());
     virDomainPtr domain = getDomainByName(conn, domainName);
 
     int ret = virDomainSuspend(domain);
@@ -354,6 +365,7 @@ void LibvirtService::pause(const virConnectPtr conn, const std::string& domainNa
 
 void LibvirtService::resume(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
+    LOG("Resume domain '%s'", domainName.c_str());
     virDomainPtr domain = getDomainByName(conn, domainName);
 
     int ret = virDomainResume(domain);
@@ -367,12 +379,14 @@ void LibvirtService::resume(const virConnectPtr conn, const std::string& domainN
 
 bool LibvirtService::isStoragePoolAlreadyCreated(const virConnectPtr conn, const std::string& poolName) throw (LibvirtException)
 {
+    LOG("Check if storage pool '%s' exists", poolName.c_str());
     virStoragePoolPtr storagePool = virStoragePoolLookupByName(conn, poolName.c_str());
     return storagePool != NULL;
 }
 
 void LibvirtService::createStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
 {
+    LOG("Create storage pool");
     virStoragePoolPtr storagePool = virStoragePoolCreateXML(conn, xmlDesc.c_str(), 0);
     if (storagePool == NULL)
     {
@@ -384,6 +398,7 @@ void LibvirtService::createStoragePool(const virConnectPtr conn, const std::stri
 
 void LibvirtService::resizeDisk(const virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException)
 {
+    LOG("Resize disk '%s' of domain '%s' to %f Kb", diskPath.c_str(), domainName.c_str(), diskSizeInKb);
     virDomainPtr dom = getDomainByName(conn, domainName);
 
     int result = virDomainBlockResize(dom, diskPath.c_str(), diskSizeInKb, 0);
