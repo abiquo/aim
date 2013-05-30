@@ -17,19 +17,17 @@ VLan::~VLan()
 bool VLan::initialize(dictionary * configuration)
 {
     ifconfig = getStringProperty(configuration, vlanIfConfigCmd);
-    vconfig = getStringProperty(configuration, vlanVconfigCmd);
     brctl = getStringProperty(configuration, vlanBrctlCmd);
 
     bool ok = true;
 
     ok &= commandExist(ifconfig);
-    ok &= commandExist(vconfig);
     ok &= commandExist(brctl);
 
     if (!ok)
     {
-        LOG("Some required command is missing, check:\n\t%s\n\t%s\n\t%s", 
-                ifconfig.c_str(), vconfig.c_str(), brctl.c_str());
+        LOG("Some required command is missing, check:\n\t%s\n\t%s", 
+                ifconfig.c_str(), brctl.c_str());
     }
 
     return ok;
@@ -319,12 +317,6 @@ void VLan::checkVLANConfiguration()
         ok = false;
         error.append(ifconfig).append(" ");
     }
-
-    if (executeCommand(vconfig) == 127)
-    {
-        ok = false;
-        error.append(vconfig).append(" ");
-    }   
 
     if (executeCommand(brctl) == 127)
     {

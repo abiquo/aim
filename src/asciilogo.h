@@ -18,6 +18,25 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-#ifndef AIM_VERSION
-#define AIM_VERSION "1.6"
+
+#ifndef ASCII_LOGO
+#define ASCII_LOGO
+
+#include <stdio.h>
+#include <stdarg.h>
+#include <syslog.h>
+#include <string.h>
+
+#define PRINT_ASCII_LOGO(version) do { syslog(LOG_ERR, one_line_logo, version); ::fprintf(stderr, ascii_logo, version); } while (0)
+
+const char *ascii_logo =
+"        __    _                     ___    ____ __  ___\r\n"
+" ___ _ / /   (_)___ _ __ __ ___    / _ |  /  _//  |/  /\r\n"
+"/ _ `// _ \\ / // _ `// // // _ \\  / __ | _/ / / /|_/ /\r\n"
+"\\_,_//_.__//_/ \\_, / \\_,_/ \\___/ /_/ |_|/___//_/  /_/\r\n"
+"                /_/ v%s\r\n\r\n";
+
+const char *one_line_logo = "☁  abiquo aim - v%s ☁ ";
+
 #endif
+
