@@ -334,9 +334,9 @@ class AimHandler: virtual public AimIf
             virConnectPtr conn = libvirt->connect();
             try
             {
-                // TODO: Call libvirt method
-                return false;
+                bool created = libvirt->isStoragePoolAlreadyCreated(conn, poolName);
                 libvirt->disconnect(conn);
+                return created;
             }
             catch (...)
             {

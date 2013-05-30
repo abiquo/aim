@@ -365,6 +365,12 @@ void LibvirtService::resume(const virConnectPtr conn, const std::string& domainN
     }
 }
 
+bool LibvirtService::isStoragePoolAlreadyCreated(const virConnectPtr conn, const std::string& poolName) throw (LibvirtException)
+{
+    virStoragePoolPtr storagePool = virStoragePoolLookupByName(conn, poolName.c_str());
+    return storagePool != NULL;
+}
+
 void LibvirtService::createStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
 {
     virStoragePoolPtr storagePool = virStoragePoolCreateXML(conn, xmlDesc.c_str(), 0);
