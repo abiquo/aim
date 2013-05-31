@@ -18,6 +18,37 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-#ifndef AIM_VERSION
-#define AIM_VERSION "1.6"
+
+#ifndef STORAGE_SERVICE_H
+#define STORAGE_SERVICE_H
+
+#include <Service.h>
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+#define ISCSI_DEFAULT_INITIATOR_NAME_FILE "/etc/iscsi/initiatorname.iscsi"
+
+class StorageService : public Service
+{
+    protected:
+        string iscsiInitiatorNameFile;
+
+    public:
+        StorageService();
+        ~StorageService();
+
+        void throwError(const string& message);
+
+        virtual bool initialize(dictionary * configuration);
+        virtual bool cleanup();
+        virtual bool start();
+        virtual bool stop();
+
+        void getInitiatorIQN(string& iqn);
+        void rescanISCSI(const vector<string>& targets);
+};
+
 #endif
