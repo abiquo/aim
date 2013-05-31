@@ -24,8 +24,6 @@
 
 #include <libvirt/libvirt.h>
 
-#define TIMEOUT_MS 1000
-
 #define CREATED     "CREATED\0"
 #define POWEREDON   "POWER_ON\0"
 #define POWEREDOFF  "POWER_OFF\0"

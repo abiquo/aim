@@ -1,8 +1,9 @@
 #include <Aim.h>
-#include <protocol/TBinaryProtocol.h>
-#include <server/TThreadedServer.h>
-#include <transport/TServerSocket.h>
-#include <transport/TBufferTransports.h>
+
+#include <thrift/protocol/TBinaryProtocol.h>
+#include <thrift/server/TThreadedServer.h>
+#include <thrift/transport/TServerSocket.h>
+#include <thrift/transport/TBufferTransports.h>
 
 #include <getopt.h>
 #include <iniparser.h>
@@ -19,6 +20,7 @@
 #include <sys/stat.h>
 
 #include <version.h>
+#include <asciilogo.h>
 
 #define checkProperty(c, e) if (!existProperty(c, e)) { LOG("Missing configuration property '%s'", e); return false; }
 #define existProperty(c, e) (iniparser_find_entry(c, e) != 0)
@@ -60,6 +62,9 @@ int main(int argc, char **argv)
     {
         daemonize();
     }
+
+    // Print aim's logo
+    PRINT_ASCII_LOGO(AIM_VERSION);
 
     // Print configuration summary
     LOG("Configuration from '%s'", configFilename);
@@ -223,7 +228,6 @@ bool checkConfiguration(dictionary * d)
 
     // VLan
     checkProperty(d, vlanIfConfigCmd);
-    checkProperty(d, vlanVconfigCmd);
     checkProperty(d, vlanBrctlCmd);
 
     return true;

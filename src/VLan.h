@@ -37,7 +37,6 @@ class VLan: public Service
 {
     protected:
         string ifconfig;
-        string vconfig;
         string brctl;
 
         void throwError(const string& message);
