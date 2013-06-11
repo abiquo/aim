@@ -18,6 +18,12 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-#ifndef AIM_VERSION
-#define AIM_VERSION "1.6.1"
+#ifndef __VERSION_H__
+#define __VERSION_H__
+
+extern const char* aim_version;
+extern const char* git_revision;
+extern const char* build_platform;
+extern const char* build_date;
+
 #endif

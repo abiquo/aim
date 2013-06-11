@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     }
 
     // Print aim's logo
-    PRINT_ASCII_LOGO(AIM_VERSION);
+    PRINT_ASCII_LOGO(aim_version);
 
     // Print configuration summary
     LOG("Configuration from '%s'", configFilename);
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     printConfiguration(configuration);
 
     // Aim server initialization
-    LOG("Initializing AIM v%s", AIM_VERSION);
+    LOG("Initializing AIM v%s", aim_version);
     shared_ptr<TProcessor> processor(new AimProcessor(aimHandler));
     shared_ptr<TServerTransport> serverTransport(new TServerSocket(getIntProperty(configuration, serverPort)));
     shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
@@ -184,7 +184,8 @@ const char * parseArguments(int argc, char **argv, dictionary *d)
                 break;
 
             case 'v':
-                printf("AIM server version %s\n", AIM_VERSION);
+                printf("AIM server version %s\n", aim_version);
+                printf("  Git: %s\n  Build: %s\n  Platform: %s\n", git_revision, build_date, build_platform);
                 exit(EXIT_SUCCESS);
 
             default:
