@@ -23,7 +23,7 @@ LibvirtService::~LibvirtService()
 
 // Private methods
 
-virDomainPtr LibvirtService::getDomainByName(const virConnectPtr conn, const string& name) throw (LibvirtException)
+virDomainPtr LibvirtService::getDomainByName(const virConnectPtr conn, const std::string& name) throw (LibvirtException)
 {
     virDomainPtr domain = virDomainLookupByName(conn, name.c_str());
     if (domain == NULL)
@@ -396,17 +396,53 @@ void LibvirtService::createStoragePool(const virConnectPtr conn, const std::stri
     virStoragePoolFree(storagePool);
 }
 
-void LibvirtService::resizeDisk(const virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException)
+void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& domainName, const std::string& diskPath, const double diskSizeInKb) throw (LibvirtException)
 {
     LOG("Resize disk '%s' of domain '%s' to %f Kb", diskPath.c_str(), domainName.c_str(), diskSizeInKb);
-    virDomainPtr dom = getDomainByName(conn, domainName);
 
-    int result = virDomainBlockResize(dom, diskPath.c_str(), diskSizeInKb, 0);
+    virDomainInfo info;
+    virDomainPtr domain = getDomainByName(conn, domainName);
+
+    // [ABICLOUDPREMIUM-5486] In the CentOS 6 libvirt version (0.10.2-18)
+    // it seems that disks can not be resized if the domain is not running.
+    // Just make sure the domain is running before resizing and restore it afterwards.
+    if (virDomainGetInfo(domain, &info) < 0)
+    {
+        virDomainFree(domain);
+        throwLastKnownError(conn);
+    }
+
+    DomainState::type state = toDomainState(info.state);
+    bool running = (state == DomainState::ON);
+
+    if (!running)
+    {
+        LOG("Domain '%s' is not running. Powering on to resize the disk...", domainName.c_str());
+        if (virDomainCreate(domain) < 0)
+        {
+            virDomainFree(domain);
+            throwLastKnownError(conn);
+        }
+    }
+
+    int result = virDomainBlockResize(domain, diskPath.c_str(), diskSizeInKb, 0);
+
+    // Even if the resize fails, we need to restore the domain to its original state
+    if (!running)
+    {
+        LOG("Restoring domain '%s' to its original state...", domainName.c_str());
+        if (virDomainDestroy(domain) < 0)
+        {
+            virDomainFree(domain);
+            throwLastKnownError(conn);
+        }
+    }
+
+    virDomainFree(domain);
+
     if (result < 0)
     {
         throwLastKnownError(conn);
     }
-
-    virDomainFree(dom);
 }
 
