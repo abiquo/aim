@@ -1,5 +1,6 @@
 .cproject
 .project
-src/*.o
+*.o
 src/aim
 *~
+version.c

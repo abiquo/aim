@@ -22,7 +22,7 @@
 #ifndef AIMSERVER_H
 #define AIMSERVER_H
 
-#include <iniparser/dictionary.h>
+#include <dictionary.h>
 #include <getopt.h>
 
 #include <AimHandler.hpp>
