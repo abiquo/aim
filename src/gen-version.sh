@@ -2,9 +2,15 @@
 
 AIM_VERSION=1.6.1
 
-GIT_REVISION=`git show-ref --head -s | head -n 1`
+
 BUILD_PLATFORM=`uname -srm`
 BUILD_DATE=`date +"%Y-%m-%d %H:%M"`
+
+if [ -d "../.git" ]; then
+    GIT_REVISION=`git show-ref --head -s | head -n 1`
+else
+    GIT_REVISION="N/A"
+fi
 
 LFILE=../LICENSE
 VFILE=version.c
