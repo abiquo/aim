@@ -10,8 +10,9 @@
 #include <string>
 #include <sstream>
 
-string LibvirtService::connectionUrl = "";
+#include <ExecUtils.h>
 
+string LibvirtService::connectionUrl = "";
 
 LibvirtService::LibvirtService() : Service("Libvirt")
 {
@@ -124,6 +125,35 @@ LibvirtException LibvirtService::fromLibvirtError(const virErrorPtr error)
     exception.int2   = error->int2;
     LOG("LibvirtError '%d' level: '%d' message: '%s'", exception.code, exception.level, exception.msg.c_str());
     return exception;
+}
+
+string LibvirtService::stringBetween(const std::string& input, const std::string& startPattern, const std::string& endPattern)
+{
+    size_t startPatternLength = startPattern.length();
+    
+    size_t start = input.find(startPattern);
+    if (start != string::npos)
+    {
+        start += startPatternLength;
+        size_t end = input.find(endPattern, start);
+        if (end != string::npos)
+        {
+            return input.substr(start, end - start);
+        }
+    }
+
+    return "";
+}
+
+string LibvirtService::parseDevicePath(const std::string& xmlDesc)
+{
+    string path = stringBetween(xmlDesc, "<device path=\"", "\"/>");
+    if (path.empty())
+    {
+        path = stringBetween(xmlDesc, "<device path='", "'/>");
+    }
+
+    return path;
 }
 
 // Public methods
@@ -377,23 +407,69 @@ void LibvirtService::resume(const virConnectPtr conn, const std::string& domainN
     }
 }
 
-bool LibvirtService::isStoragePoolAlreadyCreated(const virConnectPtr conn, const std::string& poolName) throw (LibvirtException)
-{
-    LOG("Check if storage pool '%s' exists", poolName.c_str());
-    virStoragePoolPtr storagePool = virStoragePoolLookupByName(conn, poolName.c_str());
-    return storagePool != NULL;
-}
-
 void LibvirtService::createStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
 {
-    LOG("Create storage pool");
-    virStoragePoolPtr storagePool = virStoragePoolCreateXML(conn, xmlDesc.c_str(), 0);
-    if (storagePool == NULL)
+    LOG("Creating storage pool...");
+    string path = parseDevicePath(xmlDesc);
+    if (path.empty())
+    {
+        LibvirtException exception;
+        exception.code = -2;
+        exception.msg = "Unable to extract device path from the xml description: " + xmlDesc;
+        LOG(exception.msg.c_str());
+        throw exception;
+    }
+
+    virStoragePoolPtr *pools;
+    int ret = virConnectListAllStoragePools(conn, &pools, 0);
+    if (ret < 0)
     {
         throwLastKnownError(conn);
     }
 
-    virStoragePoolFree(storagePool);
+    LOG("Creck if the storage pool device path '%s' is already defined", path.c_str());
+    bool defined = false;
+    for (int i = 0; i < ret && !defined; i++)
+    {
+        LOG("Checking storage pool %d of %d...", i, ret);
+        char *xml = virStoragePoolGetXMLDesc(pools[i], 0);
+        if (xml != NULL)
+        {
+            string definedPath = parseDevicePath(string(xml));
+            LOG("Found device path: '%s'", definedPath.c_str());
+            defined = (path.compare(definedPath) == 0);
+        }
+    }
+
+    free(pools);
+
+    if (!defined)
+    {
+        virStoragePoolPtr storagePool = virStoragePoolCreateXML(conn, xmlDesc.c_str(), 0);
+        if (storagePool == NULL)
+        {
+            throwLastKnownError(conn);
+        }
+
+        LOG("Storage pool defined and created");
+        virStoragePoolFree(storagePool);
+    }
+    else
+    {
+        LOG("Storage pool already defined, rescanning '%s'...", path.c_str());
+        ostringstream command;
+        command << "/sbin/iscsiadm -m node -T " << path << " -R";
+        command.flush();
+
+        if (executeCommand(command.str()) != 0)
+        {
+            LibvirtException exception;
+            exception.code = -3;
+            exception.msg = "Unable to rescan device path " + path;
+            LOG(exception.msg.c_str());
+            throw exception;
+        }
+    }
 }
 
 void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& domainName, const std::string& diskPath, const double diskSizeInKb) throw (LibvirtException)
