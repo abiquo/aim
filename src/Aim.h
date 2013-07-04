@@ -39,7 +39,6 @@ class AimIf {
   virtual void reset(const std::string& domainName) = 0;
   virtual void pause(const std::string& domainName) = 0;
   virtual void resume(const std::string& domainName) = 0;
-  virtual bool isStoragePoolAlreadyCreated(const std::string& poolName) = 0;
   virtual void createStoragePool(const std::string& xmlDesc) = 0;
   virtual void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb) = 0;
 };
@@ -145,10 +144,6 @@ class AimNull : virtual public AimIf {
   }
   void resume(const std::string& /* domainName */) {
     return;
-  }
-  bool isStoragePoolAlreadyCreated(const std::string& /* poolName */) {
-    bool _return = false;
-    return _return;
   }
   void createStoragePool(const std::string& /* xmlDesc */) {
     return;
@@ -2822,124 +2817,6 @@ class Aim_resume_presult {
 
 };
 
-typedef struct _Aim_isStoragePoolAlreadyCreated_args__isset {
-  _Aim_isStoragePoolAlreadyCreated_args__isset() : poolName(false) {}
-  bool poolName;
-} _Aim_isStoragePoolAlreadyCreated_args__isset;
-
-class Aim_isStoragePoolAlreadyCreated_args {
- public:
-
-  Aim_isStoragePoolAlreadyCreated_args() : poolName() {
-  }
-
-  virtual ~Aim_isStoragePoolAlreadyCreated_args() throw() {}
-
-  std::string poolName;
-
-  _Aim_isStoragePoolAlreadyCreated_args__isset __isset;
-
-  void __set_poolName(const std::string& val) {
-    poolName = val;
-  }
-
-  bool operator == (const Aim_isStoragePoolAlreadyCreated_args & rhs) const
-  {
-    if (!(poolName == rhs.poolName))
-      return false;
-    return true;
-  }
-  bool operator != (const Aim_isStoragePoolAlreadyCreated_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const Aim_isStoragePoolAlreadyCreated_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class Aim_isStoragePoolAlreadyCreated_pargs {
- public:
-
-
-  virtual ~Aim_isStoragePoolAlreadyCreated_pargs() throw() {}
-
-  const std::string* poolName;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _Aim_isStoragePoolAlreadyCreated_result__isset {
-  _Aim_isStoragePoolAlreadyCreated_result__isset() : success(false), libvirtException(false) {}
-  bool success;
-  bool libvirtException;
-} _Aim_isStoragePoolAlreadyCreated_result__isset;
-
-class Aim_isStoragePoolAlreadyCreated_result {
- public:
-
-  Aim_isStoragePoolAlreadyCreated_result() : success(0) {
-  }
-
-  virtual ~Aim_isStoragePoolAlreadyCreated_result() throw() {}
-
-  bool success;
-  LibvirtException libvirtException;
-
-  _Aim_isStoragePoolAlreadyCreated_result__isset __isset;
-
-  void __set_success(const bool val) {
-    success = val;
-  }
-
-  void __set_libvirtException(const LibvirtException& val) {
-    libvirtException = val;
-  }
-
-  bool operator == (const Aim_isStoragePoolAlreadyCreated_result & rhs) const
-  {
-    if (!(success == rhs.success))
-      return false;
-    if (!(libvirtException == rhs.libvirtException))
-      return false;
-    return true;
-  }
-  bool operator != (const Aim_isStoragePoolAlreadyCreated_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const Aim_isStoragePoolAlreadyCreated_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _Aim_isStoragePoolAlreadyCreated_presult__isset {
-  _Aim_isStoragePoolAlreadyCreated_presult__isset() : success(false), libvirtException(false) {}
-  bool success;
-  bool libvirtException;
-} _Aim_isStoragePoolAlreadyCreated_presult__isset;
-
-class Aim_isStoragePoolAlreadyCreated_presult {
- public:
-
-
-  virtual ~Aim_isStoragePoolAlreadyCreated_presult() throw() {}
-
-  bool* success;
-  LibvirtException libvirtException;
-
-  _Aim_isStoragePoolAlreadyCreated_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
 typedef struct _Aim_createStoragePool_args__isset {
   _Aim_createStoragePool_args__isset() : xmlDesc(false) {}
   bool xmlDesc;
@@ -3266,9 +3143,6 @@ class AimClient : virtual public AimIf {
   void resume(const std::string& domainName);
   void send_resume(const std::string& domainName);
   void recv_resume();
-  bool isStoragePoolAlreadyCreated(const std::string& poolName);
-  void send_isStoragePoolAlreadyCreated(const std::string& poolName);
-  bool recv_isStoragePoolAlreadyCreated();
   void createStoragePool(const std::string& xmlDesc);
   void send_createStoragePool(const std::string& xmlDesc);
   void recv_createStoragePool();
@@ -3314,7 +3188,6 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_reset(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_pause(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_resume(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_isStoragePoolAlreadyCreated(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_createStoragePool(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_resizeDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
@@ -3344,7 +3217,6 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["reset"] = &AimProcessor::process_reset;
     processMap_["pause"] = &AimProcessor::process_pause;
     processMap_["resume"] = &AimProcessor::process_resume;
-    processMap_["isStoragePoolAlreadyCreated"] = &AimProcessor::process_isStoragePoolAlreadyCreated;
     processMap_["createStoragePool"] = &AimProcessor::process_createStoragePool;
     processMap_["resizeDisk"] = &AimProcessor::process_resizeDisk;
   }
@@ -3595,15 +3467,6 @@ class AimMultiface : virtual public AimIf {
       ifaces_[i]->resume(domainName);
     }
     ifaces_[i]->resume(domainName);
-  }
-
-  bool isStoragePoolAlreadyCreated(const std::string& poolName) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->isStoragePoolAlreadyCreated(poolName);
-    }
-    return ifaces_[i]->isStoragePoolAlreadyCreated(poolName);
   }
 
   void createStoragePool(const std::string& xmlDesc) {

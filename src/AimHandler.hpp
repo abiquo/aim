@@ -329,22 +329,6 @@ class AimHandler: virtual public AimIf
             }
         }
 
-        bool isStoragePoolAlreadyCreated(const std::string& poolName)
-        {
-            virConnectPtr conn = libvirt->connect();
-            try
-            {
-                bool created = libvirt->isStoragePoolAlreadyCreated(conn, poolName);
-                libvirt->disconnect(conn);
-                return created;
-            }
-            catch (...)
-            {
-                libvirt->disconnect(conn);
-                throw;
-            }
-        }
-
         void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb)
         {
             virConnectPtr conn = libvirt->connect();
