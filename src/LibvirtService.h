@@ -40,6 +40,8 @@ class LibvirtService : public Service
         DomainState::type toDomainState(unsigned char state);
 
         LibvirtException fromLibvirtError(const virErrorPtr error);
+        string parseDevicePath(const std::string& xmlDesc);
+        string stringBetween(const std::string& input, const std::string& startPattern, const std::string& endPattern);
 
     public:
         LibvirtService();
@@ -69,7 +71,6 @@ class LibvirtService : public Service
         void reset(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
         void pause(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
         void resume(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        bool isStoragePoolAlreadyCreated(const virConnectPtr conn, const std::string& poolName) throw (LibvirtException);
         void createStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
         void resizeDisk(const virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException);
 };
