@@ -22,8 +22,6 @@
 #ifndef RIMP_UTILS_H
 #define RIMP_UTILS_H
 
-//#include <nfs/nfs.h>
-//#include <linux/nfs_mount.h>
 #include <sys/types.h>
 #include <sys/mount.h>
 #include <sys/param.h>
@@ -53,31 +51,13 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-//#include <boost/uuid/uuid.hpp>
-//#include <boost/uuid/uuid_serialize.hpp>
-//#include <boost/uuid/uuid_generators.hpp>
-
 #include <uuid/uuid.h>
 
-
 // net interfaces
-#include <sys/ioctl.h>
+
 #include <net/if.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <getopt.h>
-#include <sys/socket.h>
-typedef unsigned short u16;
-typedef unsigned int u32;
-typedef unsigned char u8;
-#include <linux/cciss_ioctl.h>
-#include <linux/ethtool.h>
-#include <linux/sockios.h>
 
 using namespace boost::filesystem;
-
-//using namespace boost::uuids;
-
 using namespace std;
 
 /** Identify a file present on the ''repository'' in order to validate as an ''abiquo'' repository. */
