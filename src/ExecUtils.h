@@ -28,6 +28,6 @@ using namespace std;
 
 int executeCommand(string command, bool redirect = false);
 bool commandExist(string& command);
-
+std::string exec(std::string cmd);
 
 #endif

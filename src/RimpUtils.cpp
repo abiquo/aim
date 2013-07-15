@@ -1,4 +1,10 @@
 #include <RimpUtils.h>
+#include <ExecUtils.h>
+#include <iostream>
+#include <stdio.h>
+#include <sstream>
+#include <vector>
+#include <iterator> 
 
 bool checkDatastore(const string& datastore)
 {
@@ -162,71 +168,6 @@ vector<Datastore> getDatastoresFromMtab(const vector<string> validTypes)
   return datastores;
 }
 
-int detect_mii(int skfd, char *ifname)
-{
-  struct ifreq ifr;
-  u16 *data, mii_val;
-  unsigned phy_id;
-
-  /* Get the vitals from the interface. */
-  strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
-  if (ioctl(skfd, SIOCGMIIPHY, &ifr) < 0)
-  {
-    // fprintf(stderr, "SIOCGMIIPHY on %s failed: %s\n", ifname, strerror(errno));
-    // (void) close(skfd);
-    return 2;
-  }
-
-  data = (u16 *) (&ifr.ifr_data);
-  phy_id = data[0];
-  data[1] = 1;
-
-  if (ioctl(skfd, SIOCGMIIREG, &ifr) < 0)
-  {
-    // fprintf(stderr, "SIOCGMIIREG on %s failed: %s\n", ifr.ifr_name, strerror(errno));
-    return 2;
-  }
-
-  mii_val = data[3];
-
-  return (((mii_val & 0x0016) == 0x0004) ? 0 : 1);
-}
-
-int detect_ethtool(int skfd, char *ifname)
-{
-  struct ifreq ifr;
-  struct ethtool_value edata;
-
-  memset(&ifr, 0, sizeof(ifr));
-  edata.cmd = ETHTOOL_GLINK;
-
-  strncpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name) - 1);
-  ifr.ifr_data = (char *) &edata;
-
-  if (ioctl(skfd, SIOCETHTOOL, &ifr) == -1)
-  {
-    // printf("ETHTOOL_GLINK failed: %s\n", strerror(errno));
-    return 2;
-  }
-  return (edata.data ? 0 : 1);
-}
-
-/**
- * http://www.linuxjournal.com/article/6908
- * @return 0, up. 1 down. 2 unknown
- * */
-int netIfaceUp(int skfd, char *ifname)
-{
-  int stat = detect_ethtool(skfd, ifname);
-
-  if (stat == 2)
-  {
-    stat = detect_mii(skfd, ifname);
-  }
-
-  return stat;
-}
-
 string getHardwareAddress(const char* devname)
 {
   int sockfd;
@@ -269,63 +210,29 @@ string getHardwareAddress(const char* devname)
  * */
 vector<NetInterface> getNetInterfacesFromProcNetDev()
 {
-  vector<NetInterface> ifaces;
-  RimpException rimpexc;
+    vector<NetInterface> interfaces;
 
-  char line[512];
-  char *colon;
-  char *name;
-  FILE *fp;
-  int sck;
-
-  /* Get a socket handle. */
-  sck = socket(AF_INET, SOCK_DGRAM, 0);
-  if (sck < 0)
-  {
-    rimpexc.description = "Can not obtain the socket handler";
-    throw rimpexc;
-  }
-
-  if (0 == (fp = fopen("/proc/net/dev", "r")))
-  {
-    rimpexc.description = "Can open ''/proc/net/dev''";
-    throw rimpexc;
-  }
-
-  while (0 != (name = fgets(line, 512, fp)))
-  {
-    while (isspace(name[0])) /* Trim leading whitespace */
+    std::string results = exec("ip link show | awk '/ UP/ && $2 ~ /^[^@]+$/ {print substr($2, 0, length($2)-1)}'");
+    if (results.empty())
     {
-      name++;
+        RimpException exception;
+        exception.description = "Unable to get the network interfaces.";
+        throw exception;
     }
 
-    colon = strchr(name, ':');
+    std::stringstream ss(results);
+    std::istream_iterator<std::string> begin(ss);
+    std::istream_iterator<std::string> end;
+    std::vector<std::string> nets(begin, end);
 
-    if (colon)
+    for(std::vector<std::string>::size_type i = 0; i != nets.size(); i++) 
     {
-      *colon = 0;
-
-      string inetdevice(name);
-      //XXX string inetip(inet_ntoa(((struct sockaddr_in *) &item->ifr_addr)->sin_addr));
-      int faceup = netIfaceUp(sck, name);
-
-      if (inetdevice.compare(string("lo")) != 0 && faceup == 0)
-      {
-        NetInterface netiface;
-        netiface.name = inetdevice;
-        // XXX netiface.address = inetip;
-        netiface.physicalAddress =  getHardwareAddress(name);
-        ifaces.push_back(netiface);
-
-      }// link up and not loopback
-
-
-    }// its a device
-  }// all net devices
-
-  close(sck);
-  fclose(fp);
-  return ifaces;
+        NetInterface netInterface;
+        netInterface.name = nets[i];
+        netInterface.physicalAddress = getHardwareAddress(nets[i].c_str());
+        interfaces.push_back(netInterface);
+    }
+    return interfaces;
 }
 
 bool checkRepository(const string& repository)
