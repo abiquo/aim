@@ -12,6 +12,11 @@
 
 #include <ExecUtils.h>
 
+#define CONNECTION_ERROR_CODE       -1
+#define XML_PARSE_ERROR_CODE        -2
+#define RESCAN_DEVICE_ERROR_CODE    -3
+#define NONE_ERROR_OCCURRED_CODE    -4
+
 string LibvirtService::connectionUrl = "";
 
 LibvirtService::LibvirtService() : Service("Libvirt")
@@ -44,24 +49,28 @@ DomainInfo LibvirtService::getDomainInfo(const virConnectPtr conn, const virDoma
     virDomainInfo info;
     if (virDomainGetInfo(domain, &info) < 0)
     {
+        virDomainFree(domain);
         throwLastKnownError(conn);
     }
 
     const char *name = virDomainGetName(domain);
     if (name == NULL)
     {
+        virDomainFree(domain);
         throwLastKnownError(conn);
     }
 
     const char *xml = virDomainGetXMLDesc(domain, 0);
     if (xml == NULL)
     {
+        virDomainFree(domain);
         throwLastKnownError(conn);
     }
-
+    
     char uuid[VIR_UUID_STRING_BUFLEN];
     if (virDomainGetUUIDString(domain, uuid) < 0)
     {
+        virDomainFree(domain);
         throwLastKnownError(conn);
     }
 
@@ -73,8 +82,6 @@ DomainInfo LibvirtService::getDomainInfo(const virConnectPtr conn, const virDoma
     domainInfo.memory          = info.memory;               // the memory in KBytes used by the domain
     domainInfo.xmlDesc         = string(xml);
 
-    free((char*) name);
-    free((char*) xml);
     return domainInfo;
 }
 
@@ -109,22 +116,6 @@ DomainState::type LibvirtService::toDomainState(unsigned char state)
         default:
             return DomainState::UNKNOWN;
     }
-}
-
-LibvirtException LibvirtService::fromLibvirtError(const virErrorPtr error)
-{
-    LibvirtException exception;
-    exception.code   = error->code;
-    exception.domain = error->domain;
-    exception.msg    = error->message == NULL ? "" : string(error->message);
-    exception.level  = error->level;
-    exception.str1   = error->str1 == NULL ? "" : string(error->str1);
-    exception.str2   = error->str2 == NULL ? "" : string(error->str2);
-    exception.str3   = error->str3 == NULL ? "" : string(error->str3);
-    exception.int1   = error->int1;
-    exception.int2   = error->int2;
-    LOG("LibvirtError '%d' level: '%d' message: '%s'", exception.code, exception.level, exception.msg.c_str());
-    return exception;
 }
 
 string LibvirtService::stringBetween(const std::string& input, const std::string& startPattern, const std::string& endPattern)
@@ -187,7 +178,29 @@ bool LibvirtService::cleanup()
 void LibvirtService::throwLastKnownError(const virConnectPtr conn)
 {
     virErrorPtr error = virConnGetLastError(conn);
-    throw fromLibvirtError(error);
+
+    if (error == NULL)
+    {
+        LibvirtException exception;
+        exception.code = NONE_ERROR_OCCURRED_CODE;
+        exception.msg = "None error occurred";
+        LOG(exception.msg.c_str());
+        throw exception;
+    }
+
+    LibvirtException exception;
+    exception.code   = error->code;
+    exception.domain = error->domain;
+    exception.msg    = error->message == NULL ? "" : string(error->message);
+    exception.level  = error->level;
+    exception.str1   = error->str1 == NULL ? "" : string(error->str1);
+    exception.str2   = error->str2 == NULL ? "" : string(error->str2);
+    exception.str3   = error->str3 == NULL ? "" : string(error->str3);
+    exception.int1   = error->int1;
+    exception.int2   = error->int2;
+    LOG("LibvirtError '%d' level: '%d' message: '%s'", exception.code, exception.level, exception.msg.c_str());
+
+    throw exception;
 }
 
 virConnectPtr LibvirtService::connect() throw (LibvirtException)
@@ -196,7 +209,7 @@ virConnectPtr LibvirtService::connect() throw (LibvirtException)
     if (conn == NULL)
     {
         LibvirtException exception;
-        exception.code = -1; // Connection error code
+        exception.code = CONNECTION_ERROR_CODE;
         exception.msg = "Could not connect to " + LibvirtService::connectionUrl;
         LOG(exception.msg.c_str());
         throw exception;
@@ -258,6 +271,7 @@ void LibvirtService::getDomains(std::vector<DomainInfo> & _return, const virConn
         try
         {
             _return.push_back(getDomainInfo(conn, domains[i]));
+            virDomainFree(domains[i]);
         }
         catch(...)
         {
@@ -335,6 +349,7 @@ void LibvirtService::getDomainInfo(DomainInfo& _return, const virConnectPtr conn
     LOG("Get domain '%s' info", domainName.c_str());
     virDomainPtr domain = getDomainByName(conn, domainName);
     _return = getDomainInfo(conn, domain);
+    virDomainFree(domain);
 }
 
 void LibvirtService::powerOn(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
@@ -414,7 +429,7 @@ void LibvirtService::createStoragePool(const virConnectPtr conn, const std::stri
     if (path.empty())
     {
         LibvirtException exception;
-        exception.code = -2;
+        exception.code = XML_PARSE_ERROR_CODE;
         exception.msg = "Unable to extract device path from the xml description: " + xmlDesc;
         LOG(exception.msg.c_str());
         throw exception;
@@ -439,6 +454,7 @@ void LibvirtService::createStoragePool(const virConnectPtr conn, const std::stri
             LOG("Found device path: '%s'", definedPath.c_str());
             defined = (path.compare(definedPath) == 0);
         }
+        virStoragePoolFree(pools[i]);
     }
 
     free(pools);
@@ -464,7 +480,7 @@ void LibvirtService::createStoragePool(const virConnectPtr conn, const std::stri
         if (executeCommand(command.str()) != 0)
         {
             LibvirtException exception;
-            exception.code = -3;
+            exception.code = RESCAN_DEVICE_ERROR_CODE;
             exception.msg = "Unable to rescan device path " + path;
             LOG(exception.msg.c_str());
             throw exception;
