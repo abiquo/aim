@@ -39,7 +39,6 @@ class LibvirtService : public Service
         DomainInfo getDomainInfo(const virConnectPtr conn, const virDomainPtr domain) throw (LibvirtException);
         DomainState::type toDomainState(unsigned char state);
 
-        LibvirtException fromLibvirtError(const virErrorPtr error);
         string parseDevicePath(const std::string& xmlDesc);
         string stringBetween(const std::string& input, const std::string& startPattern, const std::string& endPattern);
 
