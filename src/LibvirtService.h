@@ -38,8 +38,11 @@ class LibvirtService : public Service
         virDomainPtr getDomainByName(virConnectPtr conn, const string& name) throw (LibvirtException);
         DomainInfo getDomainInfo(const virConnectPtr conn, const virDomainPtr domain) throw (LibvirtException);
         DomainState::type toDomainState(unsigned char state);
+        void defineStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
 
         string parseDevicePath(const std::string& xmlDesc);
+        string parseSourceHostAndDir(const std::string& xmlDesc);
+        string parseMountPoint(const std::string& xmlDesc);
         string stringBetween(const std::string& input, const std::string& startPattern, const std::string& endPattern);
 
     public:
@@ -70,7 +73,8 @@ class LibvirtService : public Service
         void reset(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
         void pause(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
         void resume(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void createStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
+        void createISCSIStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
+        void createNFSStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
         void resizeDisk(const virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException);
 };
 

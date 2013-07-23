@@ -5,6 +5,7 @@
 #include <sstream>
 #include <vector>
 #include <iterator> 
+#include <boost/algorithm/string/predicate.hpp>
 
 bool checkDatastore(const string& datastore)
 {
@@ -114,7 +115,7 @@ vector<Datastore> getDatastoresFromMtab(const vector<string> validTypes)
       found = (com == 0);
     }
 
-    if (found && directory.compare("/boot"))
+    if (found && directory.compare("/boot") && !boost::starts_with(directory, "/var/lib/libvirt/images/"))
     {
       Datastore datastore;
 
