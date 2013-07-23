@@ -4197,7 +4197,7 @@ uint32_t Aim_resume_presult::read(::apache::thrift::protocol::TProtocol* iprot) 
   return xfer;
 }
 
-uint32_t Aim_createStoragePool_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t Aim_createISCSIStoragePool_args::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -4237,9 +4237,9 @@ uint32_t Aim_createStoragePool_args::read(::apache::thrift::protocol::TProtocol*
   return xfer;
 }
 
-uint32_t Aim_createStoragePool_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t Aim_createISCSIStoragePool_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
-  xfer += oprot->writeStructBegin("Aim_createStoragePool_args");
+  xfer += oprot->writeStructBegin("Aim_createISCSIStoragePool_args");
 
   xfer += oprot->writeFieldBegin("xmlDesc", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString(this->xmlDesc);
@@ -4250,9 +4250,9 @@ uint32_t Aim_createStoragePool_args::write(::apache::thrift::protocol::TProtocol
   return xfer;
 }
 
-uint32_t Aim_createStoragePool_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t Aim_createISCSIStoragePool_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
-  xfer += oprot->writeStructBegin("Aim_createStoragePool_pargs");
+  xfer += oprot->writeStructBegin("Aim_createISCSIStoragePool_pargs");
 
   xfer += oprot->writeFieldBegin("xmlDesc", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString((*(this->xmlDesc)));
@@ -4263,7 +4263,7 @@ uint32_t Aim_createStoragePool_pargs::write(::apache::thrift::protocol::TProtoco
   return xfer;
 }
 
-uint32_t Aim_createStoragePool_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t Aim_createISCSIStoragePool_result::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -4303,11 +4303,11 @@ uint32_t Aim_createStoragePool_result::read(::apache::thrift::protocol::TProtoco
   return xfer;
 }
 
-uint32_t Aim_createStoragePool_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t Aim_createISCSIStoragePool_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
 
   uint32_t xfer = 0;
 
-  xfer += oprot->writeStructBegin("Aim_createStoragePool_result");
+  xfer += oprot->writeStructBegin("Aim_createISCSIStoragePool_result");
 
   if (this->__isset.libvirtException) {
     xfer += oprot->writeFieldBegin("libvirtException", ::apache::thrift::protocol::T_STRUCT, 1);
@@ -4319,7 +4319,169 @@ uint32_t Aim_createStoragePool_result::write(::apache::thrift::protocol::TProtoc
   return xfer;
 }
 
-uint32_t Aim_createStoragePool_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t Aim_createISCSIStoragePool_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_createNFSStoragePool_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->xmlDesc);
+          this->__isset.xmlDesc = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_createNFSStoragePool_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_createNFSStoragePool_args");
+
+  xfer += oprot->writeFieldBegin("xmlDesc", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->xmlDesc);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_createNFSStoragePool_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_createNFSStoragePool_pargs");
+
+  xfer += oprot->writeFieldBegin("xmlDesc", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString((*(this->xmlDesc)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_createNFSStoragePool_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_createNFSStoragePool_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("Aim_createNFSStoragePool_result");
+
+  if (this->__isset.libvirtException) {
+    xfer += oprot->writeFieldBegin("libvirtException", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->libvirtException.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_createNFSStoragePool_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -5942,18 +6104,18 @@ void AimClient::recv_resume()
   return;
 }
 
-void AimClient::createStoragePool(const std::string& xmlDesc)
+void AimClient::createISCSIStoragePool(const std::string& xmlDesc)
 {
-  send_createStoragePool(xmlDesc);
-  recv_createStoragePool();
+  send_createISCSIStoragePool(xmlDesc);
+  recv_createISCSIStoragePool();
 }
 
-void AimClient::send_createStoragePool(const std::string& xmlDesc)
+void AimClient::send_createISCSIStoragePool(const std::string& xmlDesc)
 {
   int32_t cseqid = 0;
-  oprot_->writeMessageBegin("createStoragePool", ::apache::thrift::protocol::T_CALL, cseqid);
+  oprot_->writeMessageBegin("createISCSIStoragePool", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  Aim_createStoragePool_pargs args;
+  Aim_createISCSIStoragePool_pargs args;
   args.xmlDesc = &xmlDesc;
   args.write(oprot_);
 
@@ -5962,7 +6124,7 @@ void AimClient::send_createStoragePool(const std::string& xmlDesc)
   oprot_->getTransport()->flush();
 }
 
-void AimClient::recv_createStoragePool()
+void AimClient::recv_createISCSIStoragePool()
 {
 
   int32_t rseqid = 0;
@@ -5982,12 +6144,68 @@ void AimClient::recv_createStoragePool()
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
   }
-  if (fname.compare("createStoragePool") != 0) {
+  if (fname.compare("createISCSIStoragePool") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
   }
-  Aim_createStoragePool_presult result;
+  Aim_createISCSIStoragePool_presult result;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  if (result.__isset.libvirtException) {
+    throw result.libvirtException;
+  }
+  return;
+}
+
+void AimClient::createNFSStoragePool(const std::string& xmlDesc)
+{
+  send_createNFSStoragePool(xmlDesc);
+  recv_createNFSStoragePool();
+}
+
+void AimClient::send_createNFSStoragePool(const std::string& xmlDesc)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("createNFSStoragePool", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  Aim_createNFSStoragePool_pargs args;
+  args.xmlDesc = &xmlDesc;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
+}
+
+void AimClient::recv_createNFSStoragePool()
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("createNFSStoragePool") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  Aim_createNFSStoragePool_presult result;
   result.read(iprot_);
   iprot_->readMessageEnd();
   iprot_->getTransport()->readEnd();
@@ -7425,40 +7643,40 @@ void AimProcessor::process_resume(int32_t seqid, ::apache::thrift::protocol::TPr
   }
 }
 
-void AimProcessor::process_createStoragePool(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+void AimProcessor::process_createISCSIStoragePool(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("Aim.createStoragePool", callContext);
+    ctx = this->eventHandler_->getContext("Aim.createISCSIStoragePool", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "Aim.createStoragePool");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "Aim.createISCSIStoragePool");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "Aim.createStoragePool");
+    this->eventHandler_->preRead(ctx, "Aim.createISCSIStoragePool");
   }
 
-  Aim_createStoragePool_args args;
+  Aim_createISCSIStoragePool_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "Aim.createStoragePool", bytes);
+    this->eventHandler_->postRead(ctx, "Aim.createISCSIStoragePool", bytes);
   }
 
-  Aim_createStoragePool_result result;
+  Aim_createISCSIStoragePool_result result;
   try {
-    iface_->createStoragePool(args.xmlDesc);
+    iface_->createISCSIStoragePool(args.xmlDesc);
   } catch (LibvirtException &libvirtException) {
     result.libvirtException = libvirtException;
     result.__isset.libvirtException = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "Aim.createStoragePool");
+      this->eventHandler_->handlerError(ctx, "Aim.createISCSIStoragePool");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("createStoragePool", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("createISCSIStoragePool", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->writeEnd();
@@ -7467,17 +7685,73 @@ void AimProcessor::process_createStoragePool(int32_t seqid, ::apache::thrift::pr
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "Aim.createStoragePool");
+    this->eventHandler_->preWrite(ctx, "Aim.createISCSIStoragePool");
   }
 
-  oprot->writeMessageBegin("createStoragePool", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("createISCSIStoragePool", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "Aim.createStoragePool", bytes);
+    this->eventHandler_->postWrite(ctx, "Aim.createISCSIStoragePool", bytes);
+  }
+}
+
+void AimProcessor::process_createNFSStoragePool(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (this->eventHandler_.get() != NULL) {
+    ctx = this->eventHandler_->getContext("Aim.createNFSStoragePool", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "Aim.createNFSStoragePool");
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preRead(ctx, "Aim.createNFSStoragePool");
+  }
+
+  Aim_createNFSStoragePool_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postRead(ctx, "Aim.createNFSStoragePool", bytes);
+  }
+
+  Aim_createNFSStoragePool_result result;
+  try {
+    iface_->createNFSStoragePool(args.xmlDesc);
+  } catch (LibvirtException &libvirtException) {
+    result.libvirtException = libvirtException;
+    result.__isset.libvirtException = true;
+  } catch (const std::exception& e) {
+    if (this->eventHandler_.get() != NULL) {
+      this->eventHandler_->handlerError(ctx, "Aim.createNFSStoragePool");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("createNFSStoragePool", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preWrite(ctx, "Aim.createNFSStoragePool");
+  }
+
+  oprot->writeMessageBegin("createNFSStoragePool", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postWrite(ctx, "Aim.createNFSStoragePool", bytes);
   }
 }
 
