@@ -314,12 +314,27 @@ class AimHandler: virtual public AimIf
             }
         }
 
-        void createStoragePool(const std::string& xmlDesc)
+        void createISCSIStoragePool(const std::string& xmlDesc)
         {
             virConnectPtr conn = libvirt->connect();
             try
             {
-                libvirt->createStoragePool(conn, xmlDesc);
+                libvirt->createISCSIStoragePool(conn, xmlDesc);
+                libvirt->disconnect(conn);
+            }
+            catch (...)
+            {
+                libvirt->disconnect(conn);
+                throw;
+            }
+        }
+
+        void createNFSStoragePool(const std::string& xmlDesc)
+        {
+            virConnectPtr conn = libvirt->connect();
+            try
+            {
+                libvirt->createNFSStoragePool(conn, xmlDesc);
                 libvirt->disconnect(conn);
             }
             catch (...)

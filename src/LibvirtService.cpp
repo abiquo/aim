@@ -12,10 +12,17 @@
 
 #include <ExecUtils.h>
 
+#include <boost/filesystem.hpp>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #define CONNECTION_ERROR_CODE       -1
 #define XML_PARSE_ERROR_CODE        -2
 #define RESCAN_DEVICE_ERROR_CODE    -3
 #define NONE_ERROR_OCCURRED_CODE    -4
+#define NFS_MOUNT_POINT_CREATION    -5
+
+using namespace boost::filesystem;
 
 string LibvirtService::connectionUrl = "";
 
@@ -145,6 +152,57 @@ string LibvirtService::parseDevicePath(const std::string& xmlDesc)
     }
 
     return path;
+}
+
+string LibvirtService::parseSourceHostAndDir(const std::string& xmlDesc)
+{
+    string name = stringBetween(xmlDesc, "<host name=\"", "\"/>");
+    if (name.empty())
+    {
+        name = stringBetween(xmlDesc, "<host name='", "'/>");
+    }
+
+    string path = stringBetween(xmlDesc, "<dir path=\"", "\"/>");
+    if (path.empty())
+    {
+        path = stringBetween(xmlDesc, "dir path='", "'/>");
+    }
+
+    return name + path;
+}
+
+string LibvirtService::parseMountPoint(const std::string& xmlDesc)
+{
+    return stringBetween(xmlDesc, "<path>", "</path>");
+}
+
+void LibvirtService::defineStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
+{
+    LOG("Define storage pool XML: %s", xmlDesc.c_str());
+    virStoragePoolPtr storagePool = virStoragePoolDefineXML(conn, xmlDesc.c_str(), 0);
+    if (storagePool == NULL)
+    {
+        throwLastKnownError(conn);
+    }
+
+    LOG("Set storage pool autostart");
+    if (virStoragePoolSetAutostart(storagePool, 1) < 0)
+    {
+        virStoragePoolUndefine(storagePool);
+        virStoragePoolFree(storagePool);
+        throwLastKnownError(conn);
+    }
+
+    LOG("Activate storage pool");
+    if (virStoragePoolCreate(storagePool, 0) < 0)
+    {
+        virStoragePoolUndefine(storagePool);
+        virStoragePoolFree(storagePool);
+        throwLastKnownError(conn);
+    }
+
+    LOG("Storage pool defined and created");
+    virStoragePoolFree(storagePool);
 }
 
 // Public methods
@@ -287,7 +345,6 @@ void LibvirtService::defineDomain(const virConnectPtr conn, const std::string& x
 {
     LOG("Define domain");
     virDomainPtr domain = virDomainDefineXML(conn, xmlDesc.c_str());
-
     if (domain == NULL)
     {
         throwLastKnownError(conn);
@@ -422,31 +479,31 @@ void LibvirtService::resume(const virConnectPtr conn, const std::string& domainN
     }
 }
 
-void LibvirtService::createStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
+void LibvirtService::createISCSIStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
 {
-    LOG("Creating storage pool...");
+    LOG("Creating ISCSI storage pool...");
     string path = parseDevicePath(xmlDesc);
     if (path.empty())
     {
         LibvirtException exception;
         exception.code = XML_PARSE_ERROR_CODE;
-        exception.msg = "Unable to extract device path from the xml description: " + xmlDesc;
+        exception.msg = "Unable to parse device path from the xml description: " + xmlDesc;
         LOG(exception.msg.c_str());
         throw exception;
     }
 
     virStoragePoolPtr *pools;
-    int ret = virConnectListAllStoragePools(conn, &pools, 0);
+    int ret = virConnectListAllStoragePools(conn, &pools, VIR_CONNECT_LIST_STORAGE_POOLS_SCSI);
     if (ret < 0)
     {
         throwLastKnownError(conn);
     }
 
-    LOG("Creck if the storage pool device path '%s' is already defined", path.c_str());
+    LOG("Creck if the ISCSI storage pool device path '%s' is already defined", path.c_str());
     bool defined = false;
     for (int i = 0; i < ret && !defined; i++)
     {
-        LOG("Checking storage pool %d of %d...", i, ret);
+        LOG("Checking ISCSI storage pool %d of %d...", i, ret);
         char *xml = virStoragePoolGetXMLDesc(pools[i], 0);
         if (xml != NULL)
         {
@@ -485,6 +542,78 @@ void LibvirtService::createStoragePool(const virConnectPtr conn, const std::stri
             LOG(exception.msg.c_str());
             throw exception;
         }
+    }
+}
+
+void LibvirtService::createNFSStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
+{
+    LOG("Creating NFS storage pool...");
+
+    string device = parseSourceHostAndDir(xmlDesc);
+    if (device.empty())
+    {
+        LibvirtException exception;
+        exception.code = XML_PARSE_ERROR_CODE;
+        exception.msg = "Unable to parse source host and dir from the xml description: " + xmlDesc;
+        LOG(exception.msg.c_str());
+        throw exception;
+    }
+    
+    string mountPoint = parseMountPoint(xmlDesc);
+    if (mountPoint.empty())
+    {
+        LibvirtException exception;
+        exception.code = XML_PARSE_ERROR_CODE;
+        exception.msg = "Unable to parse mount point from the xml description: " + xmlDesc;
+        LOG(exception.msg.c_str());
+        throw exception;
+    }
+
+    virStoragePoolPtr *pools;
+    int ret = virConnectListAllStoragePools(conn, &pools, VIR_CONNECT_LIST_STORAGE_POOLS_NETFS);
+    if (ret < 0)
+    {
+        throwLastKnownError(conn);
+    }
+
+    LOG("Creck if the NFS device ('%s') is already defined", device.c_str());
+    bool defined = false;
+    for (int i = 0; i < ret && !defined; i++)
+    {
+        LOG("Checking NFS storage pool %d of %d...", i, ret);
+        char *xml = virStoragePoolGetXMLDesc(pools[i], 0);
+        if (xml != NULL)
+        {
+            string definedDevice = parseSourceHostAndDir(string(xml));
+            LOG("Found device: '%s'", definedDevice.c_str());
+            defined = (device.compare(definedDevice) == 0);
+        }
+        virStoragePoolFree(pools[i]);
+    }
+
+    free(pools);
+
+    LOG("Check if mount point '%s' exists", mountPoint.c_str());
+    if (!exists(mountPoint))
+    {
+        LOG("Creating mount point directory '%s'", mountPoint.c_str());
+        if (!create_directories(mountPoint))
+        {
+            LibvirtException exception;
+            exception.code = NFS_MOUNT_POINT_CREATION;
+            exception.msg = "Unable to create mount point at " + mountPoint;
+            LOG(exception.msg.c_str());
+            throw exception; 
+        }
+    }
+
+    if (!defined)
+    {
+        defineStoragePool(conn, xmlDesc);
+    }
+    else
+    {
+        LOG("Storage pool already defined");
     }
 }
 

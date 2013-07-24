@@ -39,7 +39,8 @@ class AimIf {
   virtual void reset(const std::string& domainName) = 0;
   virtual void pause(const std::string& domainName) = 0;
   virtual void resume(const std::string& domainName) = 0;
-  virtual void createStoragePool(const std::string& xmlDesc) = 0;
+  virtual void createISCSIStoragePool(const std::string& xmlDesc) = 0;
+  virtual void createNFSStoragePool(const std::string& xmlDesc) = 0;
   virtual void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb) = 0;
 };
 
@@ -145,7 +146,10 @@ class AimNull : virtual public AimIf {
   void resume(const std::string& /* domainName */) {
     return;
   }
-  void createStoragePool(const std::string& /* xmlDesc */) {
+  void createISCSIStoragePool(const std::string& /* xmlDesc */) {
+    return;
+  }
+  void createNFSStoragePool(const std::string& /* xmlDesc */) {
     return;
   }
   void resizeDisk(const std::string& /* domainName */, const std::string& /* diskPath */, const double /* diskSizeInKb */) {
@@ -2817,38 +2821,38 @@ class Aim_resume_presult {
 
 };
 
-typedef struct _Aim_createStoragePool_args__isset {
-  _Aim_createStoragePool_args__isset() : xmlDesc(false) {}
+typedef struct _Aim_createISCSIStoragePool_args__isset {
+  _Aim_createISCSIStoragePool_args__isset() : xmlDesc(false) {}
   bool xmlDesc;
-} _Aim_createStoragePool_args__isset;
+} _Aim_createISCSIStoragePool_args__isset;
 
-class Aim_createStoragePool_args {
+class Aim_createISCSIStoragePool_args {
  public:
 
-  Aim_createStoragePool_args() : xmlDesc() {
+  Aim_createISCSIStoragePool_args() : xmlDesc() {
   }
 
-  virtual ~Aim_createStoragePool_args() throw() {}
+  virtual ~Aim_createISCSIStoragePool_args() throw() {}
 
   std::string xmlDesc;
 
-  _Aim_createStoragePool_args__isset __isset;
+  _Aim_createISCSIStoragePool_args__isset __isset;
 
   void __set_xmlDesc(const std::string& val) {
     xmlDesc = val;
   }
 
-  bool operator == (const Aim_createStoragePool_args & rhs) const
+  bool operator == (const Aim_createISCSIStoragePool_args & rhs) const
   {
     if (!(xmlDesc == rhs.xmlDesc))
       return false;
     return true;
   }
-  bool operator != (const Aim_createStoragePool_args &rhs) const {
+  bool operator != (const Aim_createISCSIStoragePool_args &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const Aim_createStoragePool_args & ) const;
+  bool operator < (const Aim_createISCSIStoragePool_args & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -2856,11 +2860,11 @@ class Aim_createStoragePool_args {
 };
 
 
-class Aim_createStoragePool_pargs {
+class Aim_createISCSIStoragePool_pargs {
  public:
 
 
-  virtual ~Aim_createStoragePool_pargs() throw() {}
+  virtual ~Aim_createISCSIStoragePool_pargs() throw() {}
 
   const std::string* xmlDesc;
 
@@ -2868,58 +2872,166 @@ class Aim_createStoragePool_pargs {
 
 };
 
-typedef struct _Aim_createStoragePool_result__isset {
-  _Aim_createStoragePool_result__isset() : libvirtException(false) {}
+typedef struct _Aim_createISCSIStoragePool_result__isset {
+  _Aim_createISCSIStoragePool_result__isset() : libvirtException(false) {}
   bool libvirtException;
-} _Aim_createStoragePool_result__isset;
+} _Aim_createISCSIStoragePool_result__isset;
 
-class Aim_createStoragePool_result {
+class Aim_createISCSIStoragePool_result {
  public:
 
-  Aim_createStoragePool_result() {
+  Aim_createISCSIStoragePool_result() {
   }
 
-  virtual ~Aim_createStoragePool_result() throw() {}
+  virtual ~Aim_createISCSIStoragePool_result() throw() {}
 
   LibvirtException libvirtException;
 
-  _Aim_createStoragePool_result__isset __isset;
+  _Aim_createISCSIStoragePool_result__isset __isset;
 
   void __set_libvirtException(const LibvirtException& val) {
     libvirtException = val;
   }
 
-  bool operator == (const Aim_createStoragePool_result & rhs) const
+  bool operator == (const Aim_createISCSIStoragePool_result & rhs) const
   {
     if (!(libvirtException == rhs.libvirtException))
       return false;
     return true;
   }
-  bool operator != (const Aim_createStoragePool_result &rhs) const {
+  bool operator != (const Aim_createISCSIStoragePool_result &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const Aim_createStoragePool_result & ) const;
+  bool operator < (const Aim_createISCSIStoragePool_result & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
 };
 
-typedef struct _Aim_createStoragePool_presult__isset {
-  _Aim_createStoragePool_presult__isset() : libvirtException(false) {}
+typedef struct _Aim_createISCSIStoragePool_presult__isset {
+  _Aim_createISCSIStoragePool_presult__isset() : libvirtException(false) {}
   bool libvirtException;
-} _Aim_createStoragePool_presult__isset;
+} _Aim_createISCSIStoragePool_presult__isset;
 
-class Aim_createStoragePool_presult {
+class Aim_createISCSIStoragePool_presult {
  public:
 
 
-  virtual ~Aim_createStoragePool_presult() throw() {}
+  virtual ~Aim_createISCSIStoragePool_presult() throw() {}
 
   LibvirtException libvirtException;
 
-  _Aim_createStoragePool_presult__isset __isset;
+  _Aim_createISCSIStoragePool_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
+typedef struct _Aim_createNFSStoragePool_args__isset {
+  _Aim_createNFSStoragePool_args__isset() : xmlDesc(false) {}
+  bool xmlDesc;
+} _Aim_createNFSStoragePool_args__isset;
+
+class Aim_createNFSStoragePool_args {
+ public:
+
+  Aim_createNFSStoragePool_args() : xmlDesc() {
+  }
+
+  virtual ~Aim_createNFSStoragePool_args() throw() {}
+
+  std::string xmlDesc;
+
+  _Aim_createNFSStoragePool_args__isset __isset;
+
+  void __set_xmlDesc(const std::string& val) {
+    xmlDesc = val;
+  }
+
+  bool operator == (const Aim_createNFSStoragePool_args & rhs) const
+  {
+    if (!(xmlDesc == rhs.xmlDesc))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_createNFSStoragePool_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_createNFSStoragePool_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Aim_createNFSStoragePool_pargs {
+ public:
+
+
+  virtual ~Aim_createNFSStoragePool_pargs() throw() {}
+
+  const std::string* xmlDesc;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_createNFSStoragePool_result__isset {
+  _Aim_createNFSStoragePool_result__isset() : libvirtException(false) {}
+  bool libvirtException;
+} _Aim_createNFSStoragePool_result__isset;
+
+class Aim_createNFSStoragePool_result {
+ public:
+
+  Aim_createNFSStoragePool_result() {
+  }
+
+  virtual ~Aim_createNFSStoragePool_result() throw() {}
+
+  LibvirtException libvirtException;
+
+  _Aim_createNFSStoragePool_result__isset __isset;
+
+  void __set_libvirtException(const LibvirtException& val) {
+    libvirtException = val;
+  }
+
+  bool operator == (const Aim_createNFSStoragePool_result & rhs) const
+  {
+    if (!(libvirtException == rhs.libvirtException))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_createNFSStoragePool_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_createNFSStoragePool_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_createNFSStoragePool_presult__isset {
+  _Aim_createNFSStoragePool_presult__isset() : libvirtException(false) {}
+  bool libvirtException;
+} _Aim_createNFSStoragePool_presult__isset;
+
+class Aim_createNFSStoragePool_presult {
+ public:
+
+
+  virtual ~Aim_createNFSStoragePool_presult() throw() {}
+
+  LibvirtException libvirtException;
+
+  _Aim_createNFSStoragePool_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -3143,9 +3255,12 @@ class AimClient : virtual public AimIf {
   void resume(const std::string& domainName);
   void send_resume(const std::string& domainName);
   void recv_resume();
-  void createStoragePool(const std::string& xmlDesc);
-  void send_createStoragePool(const std::string& xmlDesc);
-  void recv_createStoragePool();
+  void createISCSIStoragePool(const std::string& xmlDesc);
+  void send_createISCSIStoragePool(const std::string& xmlDesc);
+  void recv_createISCSIStoragePool();
+  void createNFSStoragePool(const std::string& xmlDesc);
+  void send_createNFSStoragePool(const std::string& xmlDesc);
+  void recv_createNFSStoragePool();
   void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb);
   void send_resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb);
   void recv_resizeDisk();
@@ -3188,7 +3303,8 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_reset(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_pause(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_resume(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_createStoragePool(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_createISCSIStoragePool(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_createNFSStoragePool(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_resizeDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   AimProcessor(boost::shared_ptr<AimIf> iface) :
@@ -3217,7 +3333,8 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["reset"] = &AimProcessor::process_reset;
     processMap_["pause"] = &AimProcessor::process_pause;
     processMap_["resume"] = &AimProcessor::process_resume;
-    processMap_["createStoragePool"] = &AimProcessor::process_createStoragePool;
+    processMap_["createISCSIStoragePool"] = &AimProcessor::process_createISCSIStoragePool;
+    processMap_["createNFSStoragePool"] = &AimProcessor::process_createNFSStoragePool;
     processMap_["resizeDisk"] = &AimProcessor::process_resizeDisk;
   }
 
@@ -3469,13 +3586,22 @@ class AimMultiface : virtual public AimIf {
     ifaces_[i]->resume(domainName);
   }
 
-  void createStoragePool(const std::string& xmlDesc) {
+  void createISCSIStoragePool(const std::string& xmlDesc) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->createStoragePool(xmlDesc);
+      ifaces_[i]->createISCSIStoragePool(xmlDesc);
     }
-    ifaces_[i]->createStoragePool(xmlDesc);
+    ifaces_[i]->createISCSIStoragePool(xmlDesc);
+  }
+
+  void createNFSStoragePool(const std::string& xmlDesc) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->createNFSStoragePool(xmlDesc);
+    }
+    ifaces_[i]->createNFSStoragePool(xmlDesc);
   }
 
   void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb) {
