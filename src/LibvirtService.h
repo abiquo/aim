@@ -43,8 +43,8 @@ class LibvirtService : public Service
         bool existPrimaryDisk(const DomainInfo& domainInfo);
 
         string parseDevicePath(const std::string& xmlDesc);
-        string parseSourceHostAndDir(const std::string& xmlDesc);
-        string parseMountPoint(const std::string& xmlDesc);
+        string parseTargetPath(const std::string& xmlDesc);
+        void parseSourceHostAndDir(const std::string& xmlDesc, std::string& host, std::string& dir);
         string stringBetween(const std::string& input, const std::string& startPattern, const std::string& endPattern);
 
     public:
@@ -62,6 +62,10 @@ class LibvirtService : public Service
         virConnectPtr connect() throw (LibvirtException);       // Open a LOCAL connection
         void disconnect(const virConnectPtr conn);                    // Closes the given connection
 
+        // Utils
+        bool comparePaths(const std::string& one, const std::string& other);
+        bool endsWith(const std::string& value, const std::string& end);
+
         // Libvirt facade methods
         void getNodeInfo(NodeInfo& _return, const virConnectPtr conn) throw (LibvirtException);
         void getDomains(std::vector<DomainInfo> & _return, const virConnectPtr conn) throw (LibvirtException);
@@ -75,8 +79,12 @@ class LibvirtService : public Service
         void reset(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
         void pause(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
         void resume(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void createISCSIStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
-        void createNFSStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
+        void createISCSIStoragePool(const virConnectPtr conn, const std::string& name, const std::string& host, const std::string& iqn, const std::string& targetPath) throw (LibvirtException);
+        void createNFSStoragePool(const virConnectPtr conn, const std::string& name, const std::string& host, const std::string& dir, const std::string& targetPath) throw (LibvirtException);
+        void createDirStoragePool(const virConnectPtr conn, const std::string& name, const std::string& targetPath) throw (LibvirtException);
+        void createDisk(const virConnectPtr conn, const string& poolName, const string& name, const double capacityInKb, const double allocationInKb, const string& format) throw (LibvirtException);
+        void deleteDisk(const virConnectPtr conn, const string& poolName, const string& name) throw (LibvirtException);
+        void resizeVol(const virConnectPtr conn, const string& poolName, const string& name, const double capacityInKb) throw (LibvirtException);
         void resizeDisk(const virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException);
 };
 

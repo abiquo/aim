@@ -156,26 +156,24 @@ string LibvirtService::parseDevicePath(const std::string& xmlDesc)
     return path;
 }
 
-string LibvirtService::parseSourceHostAndDir(const std::string& xmlDesc)
-{
-    string name = stringBetween(xmlDesc, "<host name=\"", "\"/>");
-    if (name.empty())
-    {
-        name = stringBetween(xmlDesc, "<host name='", "'/>");
-    }
-
-    string path = stringBetween(xmlDesc, "<dir path=\"", "\"/>");
-    if (path.empty())
-    {
-        path = stringBetween(xmlDesc, "dir path='", "'/>");
-    }
-
-    return name + path;
-}
-
-string LibvirtService::parseMountPoint(const std::string& xmlDesc)
+string LibvirtService::parseTargetPath(const std::string& xmlDesc)
 {
     return stringBetween(xmlDesc, "<path>", "</path>");
+}
+
+void LibvirtService::parseSourceHostAndDir(const std::string& xmlDesc, std::string& host, std::string& dir)
+{
+    host = stringBetween(xmlDesc, "<host name=\"", "\"/>");
+    if (host.empty())
+    {
+        host = stringBetween(xmlDesc, "<host name='", "'/>");
+    }
+
+    dir = stringBetween(xmlDesc, "<dir path=\"", "\"/>");
+    if (dir.empty())
+    {
+        dir = stringBetween(xmlDesc, "dir path='", "'/>");
+    }
 }
 
 void LibvirtService::defineStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
@@ -203,7 +201,7 @@ void LibvirtService::defineStoragePool(const virConnectPtr conn, const std::stri
         throwLastKnownError(conn);
     }
 
-    LOG("Storage pool defined and created");
+    LOG("Storage pool defined, created and activated");
     virStoragePoolFree(storagePool);
 }
 
@@ -559,18 +557,11 @@ void LibvirtService::resume(const virConnectPtr conn, const std::string& domainN
     }
 }
 
-void LibvirtService::createISCSIStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
+void LibvirtService::createISCSIStoragePool(const virConnectPtr conn, const std::string& name, const std::string& host,
+        const std::string& iqn, const std::string& targetPath) throw (LibvirtException)
 {
-    LOG("Creating ISCSI storage pool...");
-    string path = parseDevicePath(xmlDesc);
-    if (path.empty())
-    {
-        LibvirtException exception;
-        exception.code = XML_PARSE_ERROR_CODE;
-        exception.msg = "Unable to parse device path from the xml description: " + xmlDesc;
-        LOG(exception.msg.c_str());
-        throw exception;
-    }
+    LOG("Creating iSCSI storage pool %s (host='%s' iqn='%s' targetPath='%s')", name.c_str(), host.c_str(),
+            iqn.c_str(), targetPath.c_str());
 
     virStoragePoolPtr *pools;
     int ret = virConnectListAllStoragePools(conn, &pools, VIR_CONNECT_LIST_STORAGE_POOLS_ISCSI);
@@ -579,17 +570,17 @@ void LibvirtService::createISCSIStoragePool(const virConnectPtr conn, const std:
         throwLastKnownError(conn);
     }
 
-    LOG("Creck if the ISCSI storage pool device path '%s' is already defined", path.c_str());
+    LOG("Creck if the iSCSI storage pool (host='%s', iqn='%s') is already defined", host.c_str(), iqn.c_str());
     bool defined = false;
     for (int i = 0; i < ret && !defined; i++)
     {
-        LOG("Checking ISCSI storage pool %d of %d...", i, ret);
+        LOG("Checking iSCSI storage pool %d of %d...", i + 1, ret);
         char *xml = virStoragePoolGetXMLDesc(pools[i], 0);
         if (xml != NULL)
         {
-            string definedPath = parseDevicePath(string(xml));
-            LOG("Found device path: '%s'", definedPath.c_str());
-            defined = (path.compare(definedPath) == 0);
+            string _iqn = parseDevicePath(string(xml));
+            defined = (_iqn.compare(iqn) == 0);
+            LOG("Found iqn='%s'. Match=%s", _iqn.c_str(), defined ? "True" : "False");
         }
         virStoragePoolFree(pools[i]);
     }
@@ -598,56 +589,49 @@ void LibvirtService::createISCSIStoragePool(const virConnectPtr conn, const std:
 
     if (!defined)
     {
-        virStoragePoolPtr storagePool = virStoragePoolCreateXML(conn, xmlDesc.c_str(), 0);
-        if (storagePool == NULL)
-        {
-            throwLastKnownError(conn);
-        }
+        ostringstream xml;
+        xml << "<pool type='iscsi'>";
+        xml << "<name>" << name << "</name>";
+        xml << "<source>";
+        xml << "<host name='" << host << "'/>";
+        xml << "<device path='" << iqn << "'/>";
+        xml << "</source>";
+        xml << "<target>";
+        xml << "<path>" << targetPath << "</path>";
+        xml << "<permissions>";
+        xml << "<mode>0755</mode>";
+        xml << "<owner>0</owner>";
+        xml << "<group>0</group>";
+        xml << "</permissions>";
+        xml << "</target>";
+        xml << "</pool>";
+        xml.flush();
 
-        LOG("Storage pool defined and created");
-        virStoragePoolFree(storagePool);
+        defineStoragePool(conn, xml.str());
     }
     else
     {
-        LOG("Storage pool already defined, rescanning '%s'...", path.c_str());
+        LOG("iSCSI Storage pool already defined, rescanning '%s'...", iqn.c_str());
         ostringstream command;
-        command << "/sbin/iscsiadm -m node -T " << path << " -R";
+        command << "/sbin/iscsiadm -m node -T " << iqn << " -R";
         command.flush();
 
         if (executeCommand(command.str()) != 0)
         {
             LibvirtException exception;
             exception.code = RESCAN_DEVICE_ERROR_CODE;
-            exception.msg = "Unable to rescan device path " + path;
+            exception.msg = "Unable to rescan device path " + iqn;
             LOG(exception.msg.c_str());
             throw exception;
         }
     }
 }
 
-void LibvirtService::createNFSStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException)
+void LibvirtService::createNFSStoragePool(const virConnectPtr conn, const std::string& name, const std::string& host, 
+        const std::string& dir, const std::string& targetPath) throw (LibvirtException)
 {
-    LOG("Creating NFS storage pool...");
-
-    string device = parseSourceHostAndDir(xmlDesc);
-    if (device.empty())
-    {
-        LibvirtException exception;
-        exception.code = XML_PARSE_ERROR_CODE;
-        exception.msg = "Unable to parse source host and dir from the xml description: " + xmlDesc;
-        LOG(exception.msg.c_str());
-        throw exception;
-    }
-    
-    string mountPoint = parseMountPoint(xmlDesc);
-    if (mountPoint.empty())
-    {
-        LibvirtException exception;
-        exception.code = XML_PARSE_ERROR_CODE;
-        exception.msg = "Unable to parse mount point from the xml description: " + xmlDesc;
-        LOG(exception.msg.c_str());
-        throw exception;
-    }
+    LOG("Creating NFS storage pool %s (host='%s' dir='%s' targetPath='%s')", name.c_str(), host.c_str(),
+            dir.c_str(), targetPath.c_str());
 
     virStoragePoolPtr *pools;
     int ret = virConnectListAllStoragePools(conn, &pools, VIR_CONNECT_LIST_STORAGE_POOLS_NETFS);
@@ -656,32 +640,34 @@ void LibvirtService::createNFSStoragePool(const virConnectPtr conn, const std::s
         throwLastKnownError(conn);
     }
 
-    LOG("Creck if the NFS device ('%s') is already defined", device.c_str());
+    LOG("Creck if the NFS storage pool (host='%s', dir='%s') is already defined", host.c_str(), dir.c_str());
     bool defined = false;
     for (int i = 0; i < ret && !defined; i++)
     {
-        LOG("Checking NFS storage pool %d of %d...", i, ret);
+        LOG("Checking NFS storage pool %d of %d...", i + 1, ret);
         char *xml = virStoragePoolGetXMLDesc(pools[i], 0);
         if (xml != NULL)
         {
-            string definedDevice = parseSourceHostAndDir(string(xml));
-            LOG("Found device: '%s'", definedDevice.c_str());
-            defined = (device.compare(definedDevice) == 0);
+            string _host = "";
+            string _dir= "";
+            parseSourceHostAndDir(string(xml), _host, _dir);
+            defined = (host.compare(_host) == 0) && (dir.compare(_dir) ==0);
+            LOG("Found host='%s' dir='%s'. Match=%s", _host.c_str(), _dir.c_str(), defined ? "True" : "False");
         }
         virStoragePoolFree(pools[i]);
     }
 
     free(pools);
 
-    LOG("Check if mount point '%s' exists", mountPoint.c_str());
-    if (!exists(mountPoint))
+    LOG("Check if mount point '%s' exists", targetPath.c_str());
+    if (!exists(targetPath))
     {
-        LOG("Creating mount point directory '%s'", mountPoint.c_str());
-        if (!create_directories(mountPoint))
+        LOG("Creating mount point directory '%s'", targetPath.c_str());
+        if (!create_directories(targetPath))
         {
             LibvirtException exception;
             exception.code = NFS_MOUNT_POINT_CREATION;
-            exception.msg = "Unable to create mount point at " + mountPoint;
+            exception.msg = "Unable to create mount point at " + targetPath;
             LOG(exception.msg.c_str());
             throw exception; 
         }
@@ -689,15 +675,219 @@ void LibvirtService::createNFSStoragePool(const virConnectPtr conn, const std::s
 
     if (!defined)
     {
-        defineStoragePool(conn, xmlDesc);
-    }
-    else
-    {
-        LOG("Storage pool already defined");
+        ostringstream xml;
+        xml << "<pool type='netfs'>";
+        xml << "<name>" << name << "</name>";
+        xml << "<source>";
+        xml << "<host name='" << host << "'/>";
+        xml << "<dir path='" << dir << "'/>";
+        xml << "</source>";
+        xml << "<target>";
+        xml << "<path>" << targetPath << "</path>";
+        xml << "<permissions>";
+        xml << "<mode>0755</mode>";
+        xml << "<owner>0</owner>";
+        xml << "<group>0</group>";
+        xml << "</permissions>";
+        xml << "</target>";
+        xml << "</pool>";
+        xml.flush();
+
+        defineStoragePool(conn, xml.str());
     }
 }
 
-void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& domainName, const std::string& diskPath, const double diskSizeInKb) throw (LibvirtException)
+void LibvirtService::createDirStoragePool(const virConnectPtr conn, const std::string& name, const std::string& targetPath) 
+    throw (LibvirtException)
+{
+    LOG("Creating DIR storage pool %s (targetPath='%s')", name.c_str(), targetPath.c_str());
+
+    virStoragePoolPtr *pools;
+    int ret = virConnectListAllStoragePools(conn, &pools, VIR_CONNECT_LIST_STORAGE_POOLS_DIR);
+    if (ret < 0)
+    {
+        throwLastKnownError(conn);
+    }
+
+    LOG("Creck if the DIR storage pool (targetPath='%s') is already defined", targetPath.c_str());
+    bool defined = false;
+    for (int i = 0; i < ret && !defined; i++)
+    {
+        LOG("Checking DIR storage pool %d of %d...", i + 1, ret);
+        char *xml = virStoragePoolGetXMLDesc(pools[i], 0);
+        if (xml != NULL)
+        {
+            string _path = parseTargetPath(string(xml));
+            defined = comparePaths(_path, targetPath); // (_path.compare(targetPath) == 0);
+            LOG("Found directory='%s'. Match=%s", _path.c_str(), defined ? "True" : "False");
+        }
+        virStoragePoolFree(pools[i]);
+    }
+
+    free(pools);
+
+    LOG("Check if directory '%s' exists", targetPath.c_str());
+    if (!exists(targetPath))
+    {
+        LOG("Creating directory '%s'", targetPath.c_str());
+        if (!create_directories(targetPath))
+        {
+            LibvirtException exception;
+            exception.code = NFS_MOUNT_POINT_CREATION;
+            exception.msg = "Unable to create mount point at " + targetPath;
+            LOG(exception.msg.c_str());
+            throw exception; 
+        }
+    }
+
+    if (!defined)
+    {
+        ostringstream xml;
+        xml << "<pool type='dir'>";
+        xml << "<name>" << name << "</name>";
+        xml << "<source>";
+        xml << "</source>";
+        xml << "<target>";
+        xml << "<path>" << targetPath << "</path>";
+        xml << "<permissions>";
+        xml << "<mode>0755</mode>";
+        xml << "<owner>0</owner>";
+        xml << "<group>0</group>";
+        xml << "</permissions>";
+        xml << "</target>";
+        xml << "</pool>";
+        xml.flush();
+
+        defineStoragePool(conn, xml.str());
+    }
+}
+
+bool LibvirtService::comparePaths(const std::string& one, const std::string& other)
+{
+    string _one = endsWith(one, "/") ? one : one + "/";
+    string _other = endsWith(other, "/") ? other : other + "/";
+    return (0 == _one.compare(_other));
+}
+
+bool LibvirtService::endsWith(const std::string& value, const std::string& end)
+{
+    if (value.length() >= end.length())
+    {
+        return (0 == value.compare(value.length()-end.length(), end.length(), end));
+    }
+
+    return false;
+}
+
+void LibvirtService::createDisk(const virConnectPtr conn, const string& poolName, const string& name, 
+    const double capacityInKb, const double allocationInKb, const string& format) throw (LibvirtException)
+{
+    LOG("Create disk '%s' in storage pool '%s' (format: '%s' capacity: %f kb allocation: %f kb", 
+            name.c_str(), poolName.c_str(), format.c_str(), capacityInKb, allocationInKb);
+
+    virStoragePoolPtr pool = virStoragePoolLookupByName(conn, poolName.c_str());
+    if (pool == NULL)
+    {
+         throwLastKnownError(conn);
+    }
+
+    virStorageVolPtr vol = virStorageVolLookupByName(pool, name.c_str());
+    if (vol != NULL)
+    {
+        virStorageVolFree(vol);
+        virStoragePoolFree(pool);
+        throwLastKnownError(conn);
+    }
+
+    ostringstream xml;
+    xml << "<volume>";
+    xml << "<name>" << name << "</name>";
+    xml << "<capacity unit='KB'>" << capacityInKb << "</capacity>";
+    xml << "<allocation unit='KB'>" << allocationInKb << "</allocation>";
+    xml << "<target>";
+    xml << "<format type='" << format << "' />";
+    xml << "<permissions>";
+    xml << "<mode>0755</mode>";
+    xml << "<owner>0</owner>";
+    xml << "<group>0</group>";
+    xml << "</permissions>";
+    xml << "</target>";
+    xml << "</volume>";
+    xml.flush();
+
+    vol = virStorageVolCreateXML(pool, xml.str().c_str(), 0);
+    virStoragePoolFree(pool);
+
+    if (vol == NULL)
+    {
+        throwLastKnownError(conn);
+    }
+
+    virStorageVolFree(vol);
+    LOG("Disk '%s' created", name.c_str());
+}
+
+void LibvirtService::deleteDisk(const virConnectPtr conn, const string& poolName, 
+        const string& name) throw (LibvirtException)
+{
+    LOG("Delete disk '%s' in storage pool '%s'", name.c_str(), poolName.c_str());
+
+    virStoragePoolPtr pool = virStoragePoolLookupByName(conn, poolName.c_str());
+    if (pool == NULL)
+    {
+         throwLastKnownError(conn);
+    }
+
+    virStorageVolPtr vol = virStorageVolLookupByName(pool, name.c_str());
+    if (vol != NULL)
+    {
+        if (virStorageVolDelete(vol, 0) < 0)
+        {
+            virStorageVolFree(vol);
+            virStoragePoolFree(pool);
+            throwLastKnownError(conn);
+        }
+
+        virStorageVolFree(vol);
+    }
+
+    virStoragePoolFree(pool);
+    LOG("Disk '%s' deleted", name.c_str());
+}
+
+void LibvirtService::resizeVol(const virConnectPtr conn, const string& poolName, const string& name, 
+        const double capacityInKb) throw (LibvirtException)
+{
+    LOG("Resize disk '%s' in storage pool '%s' to %f kb", name.c_str(), poolName.c_str(), capacityInKb);
+    
+    virStoragePoolPtr pool = virStoragePoolLookupByName(conn, poolName.c_str());
+    if (pool == NULL)
+    {
+         throwLastKnownError(conn);
+    }
+
+    virStorageVolPtr vol = virStorageVolLookupByName(pool, name.c_str());
+    if (vol == NULL)
+    {
+        virStoragePoolFree(pool);
+        throwLastKnownError(conn);
+    }
+
+    if (virStorageVolResize(vol, capacityInKb * 1024, 0) < 0)
+    {
+        virStorageVolFree(vol);
+        virStoragePoolFree(pool);
+        throwLastKnownError(conn);
+    }
+
+    virStorageVolFree(vol);
+    virStoragePoolFree(pool);
+
+    LOG("Disk '%s' resized", name.c_str());
+}
+
+void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& domainName, 
+        const std::string& diskPath, const double diskSizeInKb) throw (LibvirtException)
 {
     LOG("Resize disk '%s' of domain '%s' to %f Kb", diskPath.c_str(), domainName.c_str(), diskSizeInKb);
 

@@ -314,12 +314,12 @@ class AimHandler: virtual public AimIf
             }
         }
 
-        void createISCSIStoragePool(const std::string& xmlDesc)
+        void createISCSIStoragePool(const std::string& name, const std::string& host, const std::string& iqn, const std::string& targetPath)
         {
             virConnectPtr conn = libvirt->connect();
             try
             {
-                libvirt->createISCSIStoragePool(conn, xmlDesc);
+                libvirt->createISCSIStoragePool(conn, name, host, iqn, targetPath);
                 libvirt->disconnect(conn);
             }
             catch (...)
@@ -329,12 +329,72 @@ class AimHandler: virtual public AimIf
             }
         }
 
-        void createNFSStoragePool(const std::string& xmlDesc)
+        void createNFSStoragePool(const std::string& name, const std::string& host, const std::string& dir, const std::string& targetPath)
         {
             virConnectPtr conn = libvirt->connect();
             try
             {
-                libvirt->createNFSStoragePool(conn, xmlDesc);
+                libvirt->createNFSStoragePool(conn, name, host, dir, targetPath);
+                libvirt->disconnect(conn);
+            }
+            catch (...)
+            {
+                libvirt->disconnect(conn);
+                throw;
+            }
+        }
+
+        void createDirStoragePool(const std::string& name, const std::string& targetPath)
+        {
+            virConnectPtr conn = libvirt->connect();
+            try
+            {
+                libvirt->createDirStoragePool(conn, name, targetPath);
+                libvirt->disconnect(conn);
+            }
+            catch (...)
+            {
+                libvirt->disconnect(conn);
+                throw;
+            }
+        }
+
+        void createDisk(const std::string& poolName, const std::string& name, double capacityInKb, double allocationInKb, const std::string& format)
+        {
+            virConnectPtr conn = libvirt->connect();
+            try
+            {
+                libvirt->createDisk(conn, poolName, name, capacityInKb, allocationInKb, format);
+                libvirt->disconnect(conn);
+            }
+            catch (...)
+            {
+                libvirt->disconnect(conn);
+                throw;
+            }
+        }
+
+        void deleteDisk(const std::string& poolName, const std::string& name)
+        {
+            virConnectPtr conn = libvirt->connect();
+            try
+            {
+                libvirt->deleteDisk(conn, poolName, name);
+                libvirt->disconnect(conn);
+            }
+            catch (...)
+            {
+                libvirt->disconnect(conn);
+                throw;
+            }
+        }
+
+        void resizeVol(const std::string& poolName, const std::string& name, const double capacityInKb)
+        {
+            virConnectPtr conn = libvirt->connect();
+            try
+            {
+                libvirt->resizeVol(conn, poolName, name, capacityInKb);
                 libvirt->disconnect(conn);
             }
             catch (...)
