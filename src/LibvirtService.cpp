@@ -493,7 +493,7 @@ void LibvirtService::createISCSIStoragePool(const virConnectPtr conn, const std:
     }
 
     virStoragePoolPtr *pools;
-    int ret = virConnectListAllStoragePools(conn, &pools, VIR_CONNECT_LIST_STORAGE_POOLS_SCSI);
+    int ret = virConnectListAllStoragePools(conn, &pools, VIR_CONNECT_LIST_STORAGE_POOLS_ISCSI);
     if (ret < 0)
     {
         throwLastKnownError(conn);
