@@ -16,6 +16,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <pugixml.hpp>
+
 #define CONNECTION_ERROR_CODE       -1
 #define XML_PARSE_ERROR_CODE        -2
 #define RESCAN_DEVICE_ERROR_CODE    -3
@@ -205,6 +207,53 @@ void LibvirtService::defineStoragePool(const virConnectPtr conn, const std::stri
     virStoragePoolFree(storagePool);
 }
 
+bool LibvirtService::existPrimaryDisk(const DomainInfo& domainInfo)
+{
+    // Build writable char buffer
+    char * writable = new char[domainInfo.xmlDesc.size() + 1];
+    std::copy(domainInfo.xmlDesc.begin(), domainInfo.xmlDesc.end(), writable);
+    writable[domainInfo.xmlDesc.size()] = '\0';
+
+    // Load XML description
+    pugi::xml_document doc;
+    pugi::xml_parse_result result = doc.load_buffer_inplace(writable, domainInfo.xmlDesc.size());
+
+    if (!result)
+    {
+        LOG("Error loading XML '%s'. Cause: '%s'", domainInfo.xmlDesc.c_str(), result.description());
+        return false;
+    }
+
+    bool exist = false;
+
+    try
+    {
+        // Parse the primary disk file or dev
+        pugi::xpath_node primary = doc.select_single_node("//disk[target[@dev='hda']]/source");
+        const char * file = primary.node().attribute("file").value();
+        const char * dev = primary.node().attribute("dev").value();
+        
+        if (strlen(file) > 0)
+        {
+            LOG("Checking if file '%s' exists", file);
+            exist = boost::filesystem::exists(file);
+        }
+        else if (strlen(dev) > 0)
+        {
+            LOG("Checking if dev '%s' exists", dev);
+            exist = boost::filesystem::exists(dev);
+        }
+    }    
+    catch (const pugi::xpath_exception& e)
+    {
+        LOG("Error parsing primary disk info from domain '%s'. Cause: '%s'", domainInfo.name.c_str(), e.what());
+    }
+
+    LOG("Primary disk of domain '%s' %s", domainInfo.name.c_str(), exist ? "exist" : "does not exist");
+    delete[] writable;
+    return exist;
+}
+
 // Public methods
 
 bool LibvirtService::initialize(dictionary* configuration)
@@ -328,7 +377,11 @@ void LibvirtService::getDomains(std::vector<DomainInfo> & _return, const virConn
     {
         try
         {
-            _return.push_back(getDomainInfo(conn, domains[i]));
+            DomainInfo domainInfo = getDomainInfo(conn, domains[i]);
+            if (existPrimaryDisk(domainInfo))
+            {
+                _return.push_back(domainInfo);
+            }
             virDomainFree(domains[i]);
         }
         catch(...)
@@ -338,6 +391,7 @@ void LibvirtService::getDomains(std::vector<DomainInfo> & _return, const virConn
         }
     }
 
+    LOG("%zu domains returned", _return.size());
     free(domains);
 }
 
