@@ -40,6 +40,8 @@ class LibvirtService : public Service
         DomainState::type toDomainState(unsigned char state);
         void defineStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
 
+        bool existPrimaryDisk(const DomainInfo& domainInfo);
+
         string parseDevicePath(const std::string& xmlDesc);
         string parseSourceHostAndDir(const std::string& xmlDesc);
         string parseMountPoint(const std::string& xmlDesc);

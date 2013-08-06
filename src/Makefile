@@ -14,6 +14,7 @@ GEN_SRC = aim_constants.cpp \
 		ExecUtils.cpp \
 		iniparser/dictionary.c \
 		iniparser/iniparser.c \
+		pugixml/pugixml.cpp \
 		version.c
 CPP_OBJ = $(GEN_SRC:%.cpp=%.o)
 GEN_OBJ = $(CPP_OBJ:%.c=%.o)
@@ -28,9 +29,10 @@ VIRT_INC = /usr/include/libvirt
 CURL_INC = /usr/include/curl
 HIREDIS_INC = /usr/local/include/hiredis
 INIPARSER_INC = ./iniparser
+PUGIXML_INC = ./pugixml
 
 # Include and link paths
-INC_PATH = -I$(USR_INC) -I$(USRLOCAL_INC) -I$(VIRT_INC) -I$(CURL_INC) -I$(HIREDIS_INC) -I$(INIPARSER_INC) -I.
+INC_PATH = -I$(USR_INC) -I$(USRLOCAL_INC) -I$(VIRT_INC) -I$(CURL_INC) -I$(HIREDIS_INC) -I$(INIPARSER_INC) -I$(PUGIXML_INC) -I.
 LD_PATH = -L/lib64 -L/usr/lib64 -L/usr/local/lib
 
 # Compiler and linker flags
@@ -50,6 +52,7 @@ aim: $(GEN_OBJ)
 clean:
 	$(RM) *.o aim
 	$(RM) iniparser/*.o
-     
+	$(RM) pugixml/*.o
+
 .PHONY: all clean
 
