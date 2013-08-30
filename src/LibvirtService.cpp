@@ -412,7 +412,33 @@ void LibvirtService::undefineDomain(const virConnectPtr conn, const std::string&
     LOG("Undefine domain '%s'", domainName.c_str());
     virDomainPtr domain = getDomainByName(conn, domainName);
 
-    int ret = virDomainUndefine(domain);
+    // ABICLOUDPREMIUM-5990: Check if the domain has a managed save image or snapshots, to properly undefine everything,
+    // otherwise the undefine operation will fail. See: http://libvirt.org/html/libvirt-libvirt.html#virDomainUndefine
+    int managed = virDomainHasManagedSaveImage(domain, 0);
+    if (managed == -1)
+    {
+        virDomainFree(domain);
+        throwLastKnownError(conn);
+    }
+    int snapshots = virDomainSnapshotNum(domain, 0);
+    if (snapshots == -1)
+    {
+        virDomainFree(domain);
+        throwLastKnownError(conn);
+    }
+
+    // Set all the flags required to properly undefine the domain
+    unsigned int flags = 0;
+    if (managed == 1)
+    {
+        flags |= VIR_DOMAIN_UNDEFINE_MANAGED_SAVE;
+    }
+    if (snapshots > 0)
+    {
+        flags |= VIR_DOMAIN_UNDEFINE_SNAPSHOTS_METADATA;
+    }
+
+    int ret = virDomainUndefineFlags(domain, flags);
     virDomainFree(domain);
 
     if (ret < 0)
