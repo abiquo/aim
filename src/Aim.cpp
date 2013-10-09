@@ -2340,199 +2340,6 @@ uint32_t Aim_getNodeInfo_presult::read(::apache::thrift::protocol::TProtocol* ip
   return xfer;
 }
 
-uint32_t Aim_getDomains_args::read(::apache::thrift::protocol::TProtocol* iprot) {
-
-  uint32_t xfer = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TType ftype;
-  int16_t fid;
-
-  xfer += iprot->readStructBegin(fname);
-
-  using ::apache::thrift::protocol::TProtocolException;
-
-
-  while (true)
-  {
-    xfer += iprot->readFieldBegin(fname, ftype, fid);
-    if (ftype == ::apache::thrift::protocol::T_STOP) {
-      break;
-    }
-    xfer += iprot->skip(ftype);
-    xfer += iprot->readFieldEnd();
-  }
-
-  xfer += iprot->readStructEnd();
-
-  return xfer;
-}
-
-uint32_t Aim_getDomains_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
-  uint32_t xfer = 0;
-  xfer += oprot->writeStructBegin("Aim_getDomains_args");
-
-  xfer += oprot->writeFieldStop();
-  xfer += oprot->writeStructEnd();
-  return xfer;
-}
-
-uint32_t Aim_getDomains_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
-  uint32_t xfer = 0;
-  xfer += oprot->writeStructBegin("Aim_getDomains_pargs");
-
-  xfer += oprot->writeFieldStop();
-  xfer += oprot->writeStructEnd();
-  return xfer;
-}
-
-uint32_t Aim_getDomains_result::read(::apache::thrift::protocol::TProtocol* iprot) {
-
-  uint32_t xfer = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TType ftype;
-  int16_t fid;
-
-  xfer += iprot->readStructBegin(fname);
-
-  using ::apache::thrift::protocol::TProtocolException;
-
-
-  while (true)
-  {
-    xfer += iprot->readFieldBegin(fname, ftype, fid);
-    if (ftype == ::apache::thrift::protocol::T_STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 0:
-        if (ftype == ::apache::thrift::protocol::T_LIST) {
-          {
-            this->success.clear();
-            uint32_t _size30;
-            ::apache::thrift::protocol::TType _etype33;
-            xfer += iprot->readListBegin(_etype33, _size30);
-            this->success.resize(_size30);
-            uint32_t _i34;
-            for (_i34 = 0; _i34 < _size30; ++_i34)
-            {
-              xfer += this->success[_i34].read(iprot);
-            }
-            xfer += iprot->readListEnd();
-          }
-          this->__isset.success = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      case 1:
-        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
-          xfer += this->libvirtException.read(iprot);
-          this->__isset.libvirtException = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      default:
-        xfer += iprot->skip(ftype);
-        break;
-    }
-    xfer += iprot->readFieldEnd();
-  }
-
-  xfer += iprot->readStructEnd();
-
-  return xfer;
-}
-
-uint32_t Aim_getDomains_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
-
-  uint32_t xfer = 0;
-
-  xfer += oprot->writeStructBegin("Aim_getDomains_result");
-
-  if (this->__isset.success) {
-    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
-    {
-      xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<DomainInfo> ::const_iterator _iter35;
-      for (_iter35 = this->success.begin(); _iter35 != this->success.end(); ++_iter35)
-      {
-        xfer += (*_iter35).write(oprot);
-      }
-      xfer += oprot->writeListEnd();
-    }
-    xfer += oprot->writeFieldEnd();
-  } else if (this->__isset.libvirtException) {
-    xfer += oprot->writeFieldBegin("libvirtException", ::apache::thrift::protocol::T_STRUCT, 1);
-    xfer += this->libvirtException.write(oprot);
-    xfer += oprot->writeFieldEnd();
-  }
-  xfer += oprot->writeFieldStop();
-  xfer += oprot->writeStructEnd();
-  return xfer;
-}
-
-uint32_t Aim_getDomains_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
-
-  uint32_t xfer = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TType ftype;
-  int16_t fid;
-
-  xfer += iprot->readStructBegin(fname);
-
-  using ::apache::thrift::protocol::TProtocolException;
-
-
-  while (true)
-  {
-    xfer += iprot->readFieldBegin(fname, ftype, fid);
-    if (ftype == ::apache::thrift::protocol::T_STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 0:
-        if (ftype == ::apache::thrift::protocol::T_LIST) {
-          {
-            (*(this->success)).clear();
-            uint32_t _size36;
-            ::apache::thrift::protocol::TType _etype39;
-            xfer += iprot->readListBegin(_etype39, _size36);
-            (*(this->success)).resize(_size36);
-            uint32_t _i40;
-            for (_i40 = 0; _i40 < _size36; ++_i40)
-            {
-              xfer += (*(this->success))[_i40].read(iprot);
-            }
-            xfer += iprot->readListEnd();
-          }
-          this->__isset.success = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      case 1:
-        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
-          xfer += this->libvirtException.read(iprot);
-          this->__isset.libvirtException = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      default:
-        xfer += iprot->skip(ftype);
-        break;
-    }
-    xfer += iprot->readFieldEnd();
-  }
-
-  xfer += iprot->readStructEnd();
-
-  return xfer;
-}
-
 uint32_t Aim_defineDomain_args::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
@@ -3107,9 +2914,9 @@ uint32_t Aim_getDomainState_result::read(::apache::thrift::protocol::TProtocol* 
     {
       case 0:
         if (ftype == ::apache::thrift::protocol::T_I32) {
-          int32_t ecast41;
-          xfer += iprot->readI32(ecast41);
-          this->success = (DomainState::type)ecast41;
+          int32_t ecast30;
+          xfer += iprot->readI32(ecast30);
+          this->success = (DomainState::type)ecast30;
           this->__isset.success = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -3177,9 +2984,9 @@ uint32_t Aim_getDomainState_presult::read(::apache::thrift::protocol::TProtocol*
     {
       case 0:
         if (ftype == ::apache::thrift::protocol::T_I32) {
-          int32_t ecast42;
-          xfer += iprot->readI32(ecast42);
-          (*(this->success)) = (DomainState::type)ecast42;
+          int32_t ecast31;
+          xfer += iprot->readI32(ecast31);
+          (*(this->success)) = (DomainState::type)ecast31;
           this->__isset.success = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -3362,6 +3169,199 @@ uint32_t Aim_getDomainInfo_presult::read(::apache::thrift::protocol::TProtocol* 
       case 0:
         if (ftype == ::apache::thrift::protocol::T_STRUCT) {
           xfer += (*(this->success)).read(iprot);
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_getDomains_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    xfer += iprot->skip(ftype);
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_getDomains_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_getDomains_args");
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_getDomains_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_getDomains_pargs");
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_getDomains_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->success.clear();
+            uint32_t _size32;
+            ::apache::thrift::protocol::TType _etype35;
+            xfer += iprot->readListBegin(_etype35, _size32);
+            this->success.resize(_size32);
+            uint32_t _i36;
+            for (_i36 = 0; _i36 < _size32; ++_i36)
+            {
+              xfer += this->success[_i36].read(iprot);
+            }
+            xfer += iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_getDomains_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("Aim_getDomains_result");
+
+  if (this->__isset.success) {
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
+    {
+      xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
+      std::vector<DomainInfo> ::const_iterator _iter37;
+      for (_iter37 = this->success.begin(); _iter37 != this->success.end(); ++_iter37)
+      {
+        xfer += (*_iter37).write(oprot);
+      }
+      xfer += oprot->writeListEnd();
+    }
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.libvirtException) {
+    xfer += oprot->writeFieldBegin("libvirtException", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->libvirtException.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_getDomains_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            (*(this->success)).clear();
+            uint32_t _size38;
+            ::apache::thrift::protocol::TType _etype41;
+            xfer += iprot->readListBegin(_etype41, _size38);
+            (*(this->success)).resize(_size38);
+            uint32_t _i42;
+            for (_i42 = 0; _i42 < _size38; ++_i42)
+            {
+              xfer += (*(this->success))[_i42].read(iprot);
+            }
+            xfer += iprot->readListEnd();
+          }
           this->__isset.success = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -4219,8 +4219,32 @@ uint32_t Aim_createISCSIStoragePool_args::read(::apache::thrift::protocol::TProt
     {
       case 1:
         if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->xmlDesc);
-          this->__isset.xmlDesc = true;
+          xfer += iprot->readString(this->name);
+          this->__isset.name = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->host);
+          this->__isset.host = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->iqn);
+          this->__isset.iqn = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->targetPath);
+          this->__isset.targetPath = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -4241,8 +4265,20 @@ uint32_t Aim_createISCSIStoragePool_args::write(::apache::thrift::protocol::TPro
   uint32_t xfer = 0;
   xfer += oprot->writeStructBegin("Aim_createISCSIStoragePool_args");
 
-  xfer += oprot->writeFieldBegin("xmlDesc", ::apache::thrift::protocol::T_STRING, 1);
-  xfer += oprot->writeString(this->xmlDesc);
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->name);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("host", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString(this->host);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("iqn", ::apache::thrift::protocol::T_STRING, 3);
+  xfer += oprot->writeString(this->iqn);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("targetPath", ::apache::thrift::protocol::T_STRING, 4);
+  xfer += oprot->writeString(this->targetPath);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -4254,8 +4290,20 @@ uint32_t Aim_createISCSIStoragePool_pargs::write(::apache::thrift::protocol::TPr
   uint32_t xfer = 0;
   xfer += oprot->writeStructBegin("Aim_createISCSIStoragePool_pargs");
 
-  xfer += oprot->writeFieldBegin("xmlDesc", ::apache::thrift::protocol::T_STRING, 1);
-  xfer += oprot->writeString((*(this->xmlDesc)));
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString((*(this->name)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("host", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString((*(this->host)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("iqn", ::apache::thrift::protocol::T_STRING, 3);
+  xfer += oprot->writeString((*(this->iqn)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("targetPath", ::apache::thrift::protocol::T_STRING, 4);
+  xfer += oprot->writeString((*(this->targetPath)));
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -4381,8 +4429,32 @@ uint32_t Aim_createNFSStoragePool_args::read(::apache::thrift::protocol::TProtoc
     {
       case 1:
         if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->xmlDesc);
-          this->__isset.xmlDesc = true;
+          xfer += iprot->readString(this->name);
+          this->__isset.name = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->host);
+          this->__isset.host = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->dir);
+          this->__isset.dir = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->targetPath);
+          this->__isset.targetPath = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -4403,8 +4475,20 @@ uint32_t Aim_createNFSStoragePool_args::write(::apache::thrift::protocol::TProto
   uint32_t xfer = 0;
   xfer += oprot->writeStructBegin("Aim_createNFSStoragePool_args");
 
-  xfer += oprot->writeFieldBegin("xmlDesc", ::apache::thrift::protocol::T_STRING, 1);
-  xfer += oprot->writeString(this->xmlDesc);
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->name);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("host", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString(this->host);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("dir", ::apache::thrift::protocol::T_STRING, 3);
+  xfer += oprot->writeString(this->dir);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("targetPath", ::apache::thrift::protocol::T_STRING, 4);
+  xfer += oprot->writeString(this->targetPath);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -4416,8 +4500,20 @@ uint32_t Aim_createNFSStoragePool_pargs::write(::apache::thrift::protocol::TProt
   uint32_t xfer = 0;
   xfer += oprot->writeStructBegin("Aim_createNFSStoragePool_pargs");
 
-  xfer += oprot->writeFieldBegin("xmlDesc", ::apache::thrift::protocol::T_STRING, 1);
-  xfer += oprot->writeString((*(this->xmlDesc)));
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString((*(this->name)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("host", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString((*(this->host)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("dir", ::apache::thrift::protocol::T_STRING, 3);
+  xfer += oprot->writeString((*(this->dir)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("targetPath", ::apache::thrift::protocol::T_STRING, 4);
+  xfer += oprot->writeString((*(this->targetPath)));
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -4482,6 +4578,782 @@ uint32_t Aim_createNFSStoragePool_result::write(::apache::thrift::protocol::TPro
 }
 
 uint32_t Aim_createNFSStoragePool_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_createDirStoragePool_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->name);
+          this->__isset.name = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->targetPath);
+          this->__isset.targetPath = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_createDirStoragePool_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_createDirStoragePool_args");
+
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->name);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("targetPath", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString(this->targetPath);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_createDirStoragePool_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_createDirStoragePool_pargs");
+
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString((*(this->name)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("targetPath", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString((*(this->targetPath)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_createDirStoragePool_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_createDirStoragePool_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("Aim_createDirStoragePool_result");
+
+  if (this->__isset.libvirtException) {
+    xfer += oprot->writeFieldBegin("libvirtException", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->libvirtException.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_createDirStoragePool_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_createDisk_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->poolName);
+          this->__isset.poolName = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->name);
+          this->__isset.name = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
+          xfer += iprot->readDouble(this->capacityInKb);
+          this->__isset.capacityInKb = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
+          xfer += iprot->readDouble(this->allocationInKb);
+          this->__isset.allocationInKb = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 5:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->format);
+          this->__isset.format = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_createDisk_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_createDisk_args");
+
+  xfer += oprot->writeFieldBegin("poolName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->poolName);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString(this->name);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("capacityInKb", ::apache::thrift::protocol::T_DOUBLE, 3);
+  xfer += oprot->writeDouble(this->capacityInKb);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("allocationInKb", ::apache::thrift::protocol::T_DOUBLE, 4);
+  xfer += oprot->writeDouble(this->allocationInKb);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("format", ::apache::thrift::protocol::T_STRING, 5);
+  xfer += oprot->writeString(this->format);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_createDisk_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_createDisk_pargs");
+
+  xfer += oprot->writeFieldBegin("poolName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString((*(this->poolName)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString((*(this->name)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("capacityInKb", ::apache::thrift::protocol::T_DOUBLE, 3);
+  xfer += oprot->writeDouble((*(this->capacityInKb)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("allocationInKb", ::apache::thrift::protocol::T_DOUBLE, 4);
+  xfer += oprot->writeDouble((*(this->allocationInKb)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("format", ::apache::thrift::protocol::T_STRING, 5);
+  xfer += oprot->writeString((*(this->format)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_createDisk_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_createDisk_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("Aim_createDisk_result");
+
+  if (this->__isset.libvirtException) {
+    xfer += oprot->writeFieldBegin("libvirtException", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->libvirtException.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_createDisk_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_deleteDisk_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->poolName);
+          this->__isset.poolName = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->name);
+          this->__isset.name = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_deleteDisk_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_deleteDisk_args");
+
+  xfer += oprot->writeFieldBegin("poolName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->poolName);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString(this->name);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_deleteDisk_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_deleteDisk_pargs");
+
+  xfer += oprot->writeFieldBegin("poolName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString((*(this->poolName)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString((*(this->name)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_deleteDisk_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_deleteDisk_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("Aim_deleteDisk_result");
+
+  if (this->__isset.libvirtException) {
+    xfer += oprot->writeFieldBegin("libvirtException", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->libvirtException.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_deleteDisk_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_resizeVol_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->poolName);
+          this->__isset.poolName = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->name);
+          this->__isset.name = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
+          xfer += iprot->readDouble(this->capacityInKb);
+          this->__isset.capacityInKb = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_resizeVol_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_resizeVol_args");
+
+  xfer += oprot->writeFieldBegin("poolName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->poolName);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString(this->name);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("capacityInKb", ::apache::thrift::protocol::T_DOUBLE, 3);
+  xfer += oprot->writeDouble(this->capacityInKb);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_resizeVol_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Aim_resizeVol_pargs");
+
+  xfer += oprot->writeFieldBegin("poolName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString((*(this->poolName)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 2);
+  xfer += oprot->writeString((*(this->name)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("capacityInKb", ::apache::thrift::protocol::T_DOUBLE, 3);
+  xfer += oprot->writeDouble((*(this->capacityInKb)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_resizeVol_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->libvirtException.read(iprot);
+          this->__isset.libvirtException = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Aim_resizeVol_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("Aim_resizeVol_result");
+
+  if (this->__isset.libvirtException) {
+    xfer += oprot->writeFieldBegin("libvirtException", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->libvirtException.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Aim_resizeVol_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -5472,66 +6344,6 @@ void AimClient::recv_getNodeInfo(NodeInfo& _return)
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "getNodeInfo failed: unknown result");
 }
 
-void AimClient::getDomains(std::vector<DomainInfo> & _return)
-{
-  send_getDomains();
-  recv_getDomains(_return);
-}
-
-void AimClient::send_getDomains()
-{
-  int32_t cseqid = 0;
-  oprot_->writeMessageBegin("getDomains", ::apache::thrift::protocol::T_CALL, cseqid);
-
-  Aim_getDomains_pargs args;
-  args.write(oprot_);
-
-  oprot_->writeMessageEnd();
-  oprot_->getTransport()->writeEnd();
-  oprot_->getTransport()->flush();
-}
-
-void AimClient::recv_getDomains(std::vector<DomainInfo> & _return)
-{
-
-  int32_t rseqid = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TMessageType mtype;
-
-  iprot_->readMessageBegin(fname, mtype, rseqid);
-  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
-    ::apache::thrift::TApplicationException x;
-    x.read(iprot_);
-    iprot_->readMessageEnd();
-    iprot_->getTransport()->readEnd();
-    throw x;
-  }
-  if (mtype != ::apache::thrift::protocol::T_REPLY) {
-    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
-    iprot_->readMessageEnd();
-    iprot_->getTransport()->readEnd();
-  }
-  if (fname.compare("getDomains") != 0) {
-    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
-    iprot_->readMessageEnd();
-    iprot_->getTransport()->readEnd();
-  }
-  Aim_getDomains_presult result;
-  result.success = &_return;
-  result.read(iprot_);
-  iprot_->readMessageEnd();
-  iprot_->getTransport()->readEnd();
-
-  if (result.__isset.success) {
-    // _return pointer has now been filled
-    return;
-  }
-  if (result.__isset.libvirtException) {
-    throw result.libvirtException;
-  }
-  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "getDomains failed: unknown result");
-}
-
 void AimClient::defineDomain(const std::string& xmlDesc)
 {
   send_defineDomain(xmlDesc);
@@ -5824,6 +6636,66 @@ void AimClient::recv_getDomainInfo(DomainInfo& _return)
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "getDomainInfo failed: unknown result");
 }
 
+void AimClient::getDomains(std::vector<DomainInfo> & _return)
+{
+  send_getDomains();
+  recv_getDomains(_return);
+}
+
+void AimClient::send_getDomains()
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("getDomains", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  Aim_getDomains_pargs args;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
+}
+
+void AimClient::recv_getDomains(std::vector<DomainInfo> & _return)
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("getDomains") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  Aim_getDomains_presult result;
+  result.success = &_return;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  if (result.__isset.success) {
+    // _return pointer has now been filled
+    return;
+  }
+  if (result.__isset.libvirtException) {
+    throw result.libvirtException;
+  }
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "getDomains failed: unknown result");
+}
+
 void AimClient::powerOn(const std::string& domainName)
 {
   send_powerOn(domainName);
@@ -6104,19 +6976,22 @@ void AimClient::recv_resume()
   return;
 }
 
-void AimClient::createISCSIStoragePool(const std::string& xmlDesc)
+void AimClient::createISCSIStoragePool(const std::string& name, const std::string& host, const std::string& iqn, const std::string& targetPath)
 {
-  send_createISCSIStoragePool(xmlDesc);
+  send_createISCSIStoragePool(name, host, iqn, targetPath);
   recv_createISCSIStoragePool();
 }
 
-void AimClient::send_createISCSIStoragePool(const std::string& xmlDesc)
+void AimClient::send_createISCSIStoragePool(const std::string& name, const std::string& host, const std::string& iqn, const std::string& targetPath)
 {
   int32_t cseqid = 0;
   oprot_->writeMessageBegin("createISCSIStoragePool", ::apache::thrift::protocol::T_CALL, cseqid);
 
   Aim_createISCSIStoragePool_pargs args;
-  args.xmlDesc = &xmlDesc;
+  args.name = &name;
+  args.host = &host;
+  args.iqn = &iqn;
+  args.targetPath = &targetPath;
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
@@ -6160,19 +7035,22 @@ void AimClient::recv_createISCSIStoragePool()
   return;
 }
 
-void AimClient::createNFSStoragePool(const std::string& xmlDesc)
+void AimClient::createNFSStoragePool(const std::string& name, const std::string& host, const std::string& dir, const std::string& targetPath)
 {
-  send_createNFSStoragePool(xmlDesc);
+  send_createNFSStoragePool(name, host, dir, targetPath);
   recv_createNFSStoragePool();
 }
 
-void AimClient::send_createNFSStoragePool(const std::string& xmlDesc)
+void AimClient::send_createNFSStoragePool(const std::string& name, const std::string& host, const std::string& dir, const std::string& targetPath)
 {
   int32_t cseqid = 0;
   oprot_->writeMessageBegin("createNFSStoragePool", ::apache::thrift::protocol::T_CALL, cseqid);
 
   Aim_createNFSStoragePool_pargs args;
-  args.xmlDesc = &xmlDesc;
+  args.name = &name;
+  args.host = &host;
+  args.dir = &dir;
+  args.targetPath = &targetPath;
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
@@ -6206,6 +7084,238 @@ void AimClient::recv_createNFSStoragePool()
     iprot_->getTransport()->readEnd();
   }
   Aim_createNFSStoragePool_presult result;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  if (result.__isset.libvirtException) {
+    throw result.libvirtException;
+  }
+  return;
+}
+
+void AimClient::createDirStoragePool(const std::string& name, const std::string& targetPath)
+{
+  send_createDirStoragePool(name, targetPath);
+  recv_createDirStoragePool();
+}
+
+void AimClient::send_createDirStoragePool(const std::string& name, const std::string& targetPath)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("createDirStoragePool", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  Aim_createDirStoragePool_pargs args;
+  args.name = &name;
+  args.targetPath = &targetPath;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
+}
+
+void AimClient::recv_createDirStoragePool()
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("createDirStoragePool") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  Aim_createDirStoragePool_presult result;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  if (result.__isset.libvirtException) {
+    throw result.libvirtException;
+  }
+  return;
+}
+
+void AimClient::createDisk(const std::string& poolName, const std::string& name, const double capacityInKb, const double allocationInKb, const std::string& format)
+{
+  send_createDisk(poolName, name, capacityInKb, allocationInKb, format);
+  recv_createDisk();
+}
+
+void AimClient::send_createDisk(const std::string& poolName, const std::string& name, const double capacityInKb, const double allocationInKb, const std::string& format)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("createDisk", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  Aim_createDisk_pargs args;
+  args.poolName = &poolName;
+  args.name = &name;
+  args.capacityInKb = &capacityInKb;
+  args.allocationInKb = &allocationInKb;
+  args.format = &format;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
+}
+
+void AimClient::recv_createDisk()
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("createDisk") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  Aim_createDisk_presult result;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  if (result.__isset.libvirtException) {
+    throw result.libvirtException;
+  }
+  return;
+}
+
+void AimClient::deleteDisk(const std::string& poolName, const std::string& name)
+{
+  send_deleteDisk(poolName, name);
+  recv_deleteDisk();
+}
+
+void AimClient::send_deleteDisk(const std::string& poolName, const std::string& name)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("deleteDisk", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  Aim_deleteDisk_pargs args;
+  args.poolName = &poolName;
+  args.name = &name;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
+}
+
+void AimClient::recv_deleteDisk()
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("deleteDisk") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  Aim_deleteDisk_presult result;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  if (result.__isset.libvirtException) {
+    throw result.libvirtException;
+  }
+  return;
+}
+
+void AimClient::resizeVol(const std::string& poolName, const std::string& name, const double capacityInKb)
+{
+  send_resizeVol(poolName, name, capacityInKb);
+  recv_resizeVol();
+}
+
+void AimClient::send_resizeVol(const std::string& poolName, const std::string& name, const double capacityInKb)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("resizeVol", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  Aim_resizeVol_pargs args;
+  args.poolName = &poolName;
+  args.name = &name;
+  args.capacityInKb = &capacityInKb;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
+}
+
+void AimClient::recv_resizeVol()
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("resizeVol") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  Aim_resizeVol_presult result;
   result.read(iprot_);
   iprot_->readMessageEnd();
   iprot_->getTransport()->readEnd();
@@ -7026,63 +8136,6 @@ void AimProcessor::process_getNodeInfo(int32_t seqid, ::apache::thrift::protocol
   }
 }
 
-void AimProcessor::process_getDomains(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
-{
-  void* ctx = NULL;
-  if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("Aim.getDomains", callContext);
-  }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "Aim.getDomains");
-
-  if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "Aim.getDomains");
-  }
-
-  Aim_getDomains_args args;
-  args.read(iprot);
-  iprot->readMessageEnd();
-  uint32_t bytes = iprot->getTransport()->readEnd();
-
-  if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "Aim.getDomains", bytes);
-  }
-
-  Aim_getDomains_result result;
-  try {
-    iface_->getDomains(result.success);
-    result.__isset.success = true;
-  } catch (LibvirtException &libvirtException) {
-    result.libvirtException = libvirtException;
-    result.__isset.libvirtException = true;
-  } catch (const std::exception& e) {
-    if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "Aim.getDomains");
-    }
-
-    ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("getDomains", ::apache::thrift::protocol::T_EXCEPTION, seqid);
-    x.write(oprot);
-    oprot->writeMessageEnd();
-    oprot->getTransport()->writeEnd();
-    oprot->getTransport()->flush();
-    return;
-  }
-
-  if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "Aim.getDomains");
-  }
-
-  oprot->writeMessageBegin("getDomains", ::apache::thrift::protocol::T_REPLY, seqid);
-  result.write(oprot);
-  oprot->writeMessageEnd();
-  bytes = oprot->getTransport()->writeEnd();
-  oprot->getTransport()->flush();
-
-  if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "Aim.getDomains", bytes);
-  }
-}
-
 void AimProcessor::process_defineDomain(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
   void* ctx = NULL;
@@ -7360,6 +8413,63 @@ void AimProcessor::process_getDomainInfo(int32_t seqid, ::apache::thrift::protoc
 
   if (this->eventHandler_.get() != NULL) {
     this->eventHandler_->postWrite(ctx, "Aim.getDomainInfo", bytes);
+  }
+}
+
+void AimProcessor::process_getDomains(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (this->eventHandler_.get() != NULL) {
+    ctx = this->eventHandler_->getContext("Aim.getDomains", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "Aim.getDomains");
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preRead(ctx, "Aim.getDomains");
+  }
+
+  Aim_getDomains_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postRead(ctx, "Aim.getDomains", bytes);
+  }
+
+  Aim_getDomains_result result;
+  try {
+    iface_->getDomains(result.success);
+    result.__isset.success = true;
+  } catch (LibvirtException &libvirtException) {
+    result.libvirtException = libvirtException;
+    result.__isset.libvirtException = true;
+  } catch (const std::exception& e) {
+    if (this->eventHandler_.get() != NULL) {
+      this->eventHandler_->handlerError(ctx, "Aim.getDomains");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("getDomains", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preWrite(ctx, "Aim.getDomains");
+  }
+
+  oprot->writeMessageBegin("getDomains", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postWrite(ctx, "Aim.getDomains", bytes);
   }
 }
 
@@ -7666,7 +8776,7 @@ void AimProcessor::process_createISCSIStoragePool(int32_t seqid, ::apache::thrif
 
   Aim_createISCSIStoragePool_result result;
   try {
-    iface_->createISCSIStoragePool(args.xmlDesc);
+    iface_->createISCSIStoragePool(args.name, args.host, args.iqn, args.targetPath);
   } catch (LibvirtException &libvirtException) {
     result.libvirtException = libvirtException;
     result.__isset.libvirtException = true;
@@ -7722,7 +8832,7 @@ void AimProcessor::process_createNFSStoragePool(int32_t seqid, ::apache::thrift:
 
   Aim_createNFSStoragePool_result result;
   try {
-    iface_->createNFSStoragePool(args.xmlDesc);
+    iface_->createNFSStoragePool(args.name, args.host, args.dir, args.targetPath);
   } catch (LibvirtException &libvirtException) {
     result.libvirtException = libvirtException;
     result.__isset.libvirtException = true;
@@ -7752,6 +8862,230 @@ void AimProcessor::process_createNFSStoragePool(int32_t seqid, ::apache::thrift:
 
   if (this->eventHandler_.get() != NULL) {
     this->eventHandler_->postWrite(ctx, "Aim.createNFSStoragePool", bytes);
+  }
+}
+
+void AimProcessor::process_createDirStoragePool(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (this->eventHandler_.get() != NULL) {
+    ctx = this->eventHandler_->getContext("Aim.createDirStoragePool", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "Aim.createDirStoragePool");
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preRead(ctx, "Aim.createDirStoragePool");
+  }
+
+  Aim_createDirStoragePool_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postRead(ctx, "Aim.createDirStoragePool", bytes);
+  }
+
+  Aim_createDirStoragePool_result result;
+  try {
+    iface_->createDirStoragePool(args.name, args.targetPath);
+  } catch (LibvirtException &libvirtException) {
+    result.libvirtException = libvirtException;
+    result.__isset.libvirtException = true;
+  } catch (const std::exception& e) {
+    if (this->eventHandler_.get() != NULL) {
+      this->eventHandler_->handlerError(ctx, "Aim.createDirStoragePool");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("createDirStoragePool", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preWrite(ctx, "Aim.createDirStoragePool");
+  }
+
+  oprot->writeMessageBegin("createDirStoragePool", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postWrite(ctx, "Aim.createDirStoragePool", bytes);
+  }
+}
+
+void AimProcessor::process_createDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (this->eventHandler_.get() != NULL) {
+    ctx = this->eventHandler_->getContext("Aim.createDisk", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "Aim.createDisk");
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preRead(ctx, "Aim.createDisk");
+  }
+
+  Aim_createDisk_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postRead(ctx, "Aim.createDisk", bytes);
+  }
+
+  Aim_createDisk_result result;
+  try {
+    iface_->createDisk(args.poolName, args.name, args.capacityInKb, args.allocationInKb, args.format);
+  } catch (LibvirtException &libvirtException) {
+    result.libvirtException = libvirtException;
+    result.__isset.libvirtException = true;
+  } catch (const std::exception& e) {
+    if (this->eventHandler_.get() != NULL) {
+      this->eventHandler_->handlerError(ctx, "Aim.createDisk");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("createDisk", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preWrite(ctx, "Aim.createDisk");
+  }
+
+  oprot->writeMessageBegin("createDisk", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postWrite(ctx, "Aim.createDisk", bytes);
+  }
+}
+
+void AimProcessor::process_deleteDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (this->eventHandler_.get() != NULL) {
+    ctx = this->eventHandler_->getContext("Aim.deleteDisk", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "Aim.deleteDisk");
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preRead(ctx, "Aim.deleteDisk");
+  }
+
+  Aim_deleteDisk_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postRead(ctx, "Aim.deleteDisk", bytes);
+  }
+
+  Aim_deleteDisk_result result;
+  try {
+    iface_->deleteDisk(args.poolName, args.name);
+  } catch (LibvirtException &libvirtException) {
+    result.libvirtException = libvirtException;
+    result.__isset.libvirtException = true;
+  } catch (const std::exception& e) {
+    if (this->eventHandler_.get() != NULL) {
+      this->eventHandler_->handlerError(ctx, "Aim.deleteDisk");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("deleteDisk", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preWrite(ctx, "Aim.deleteDisk");
+  }
+
+  oprot->writeMessageBegin("deleteDisk", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postWrite(ctx, "Aim.deleteDisk", bytes);
+  }
+}
+
+void AimProcessor::process_resizeVol(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (this->eventHandler_.get() != NULL) {
+    ctx = this->eventHandler_->getContext("Aim.resizeVol", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "Aim.resizeVol");
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preRead(ctx, "Aim.resizeVol");
+  }
+
+  Aim_resizeVol_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postRead(ctx, "Aim.resizeVol", bytes);
+  }
+
+  Aim_resizeVol_result result;
+  try {
+    iface_->resizeVol(args.poolName, args.name, args.capacityInKb);
+  } catch (LibvirtException &libvirtException) {
+    result.libvirtException = libvirtException;
+    result.__isset.libvirtException = true;
+  } catch (const std::exception& e) {
+    if (this->eventHandler_.get() != NULL) {
+      this->eventHandler_->handlerError(ctx, "Aim.resizeVol");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("resizeVol", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preWrite(ctx, "Aim.resizeVol");
+  }
+
+  oprot->writeMessageBegin("resizeVol", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postWrite(ctx, "Aim.resizeVol", bytes);
   }
 }
 

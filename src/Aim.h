@@ -28,19 +28,23 @@ class AimIf {
   virtual void getInitiatorIQN(std::string& _return) = 0;
   virtual void rescanISCSI(const std::vector<std::string> & targets) = 0;
   virtual void getNodeInfo(NodeInfo& _return) = 0;
-  virtual void getDomains(std::vector<DomainInfo> & _return) = 0;
   virtual void defineDomain(const std::string& xmlDesc) = 0;
   virtual void undefineDomain(const std::string& domainName) = 0;
   virtual bool existDomain(const std::string& domainName) = 0;
   virtual DomainState::type getDomainState(const std::string& domainName) = 0;
   virtual void getDomainInfo(DomainInfo& _return, const std::string& domainName) = 0;
+  virtual void getDomains(std::vector<DomainInfo> & _return) = 0;
   virtual void powerOn(const std::string& domainName) = 0;
   virtual void powerOff(const std::string& domainName) = 0;
   virtual void reset(const std::string& domainName) = 0;
   virtual void pause(const std::string& domainName) = 0;
   virtual void resume(const std::string& domainName) = 0;
-  virtual void createISCSIStoragePool(const std::string& xmlDesc) = 0;
-  virtual void createNFSStoragePool(const std::string& xmlDesc) = 0;
+  virtual void createISCSIStoragePool(const std::string& name, const std::string& host, const std::string& iqn, const std::string& targetPath) = 0;
+  virtual void createNFSStoragePool(const std::string& name, const std::string& host, const std::string& dir, const std::string& targetPath) = 0;
+  virtual void createDirStoragePool(const std::string& name, const std::string& targetPath) = 0;
+  virtual void createDisk(const std::string& poolName, const std::string& name, const double capacityInKb, const double allocationInKb, const std::string& format) = 0;
+  virtual void deleteDisk(const std::string& poolName, const std::string& name) = 0;
+  virtual void resizeVol(const std::string& poolName, const std::string& name, const double capacityInKb) = 0;
   virtual void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb) = 0;
 };
 
@@ -111,9 +115,6 @@ class AimNull : virtual public AimIf {
   void getNodeInfo(NodeInfo& /* _return */) {
     return;
   }
-  void getDomains(std::vector<DomainInfo> & /* _return */) {
-    return;
-  }
   void defineDomain(const std::string& /* xmlDesc */) {
     return;
   }
@@ -131,6 +132,9 @@ class AimNull : virtual public AimIf {
   void getDomainInfo(DomainInfo& /* _return */, const std::string& /* domainName */) {
     return;
   }
+  void getDomains(std::vector<DomainInfo> & /* _return */) {
+    return;
+  }
   void powerOn(const std::string& /* domainName */) {
     return;
   }
@@ -146,10 +150,22 @@ class AimNull : virtual public AimIf {
   void resume(const std::string& /* domainName */) {
     return;
   }
-  void createISCSIStoragePool(const std::string& /* xmlDesc */) {
+  void createISCSIStoragePool(const std::string& /* name */, const std::string& /* host */, const std::string& /* iqn */, const std::string& /* targetPath */) {
     return;
   }
-  void createNFSStoragePool(const std::string& /* xmlDesc */) {
+  void createNFSStoragePool(const std::string& /* name */, const std::string& /* host */, const std::string& /* dir */, const std::string& /* targetPath */) {
+    return;
+  }
+  void createDirStoragePool(const std::string& /* name */, const std::string& /* targetPath */) {
+    return;
+  }
+  void createDisk(const std::string& /* poolName */, const std::string& /* name */, const double /* capacityInKb */, const double /* allocationInKb */, const std::string& /* format */) {
+    return;
+  }
+  void deleteDisk(const std::string& /* poolName */, const std::string& /* name */) {
+    return;
+  }
+  void resizeVol(const std::string& /* poolName */, const std::string& /* name */, const double /* capacityInKb */) {
     return;
   }
   void resizeDisk(const std::string& /* domainName */, const std::string& /* diskPath */, const double /* diskSizeInKb */) {
@@ -1617,110 +1633,6 @@ class Aim_getNodeInfo_presult {
 
 };
 
-
-class Aim_getDomains_args {
- public:
-
-  Aim_getDomains_args() {
-  }
-
-  virtual ~Aim_getDomains_args() throw() {}
-
-
-  bool operator == (const Aim_getDomains_args & /* rhs */) const
-  {
-    return true;
-  }
-  bool operator != (const Aim_getDomains_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const Aim_getDomains_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class Aim_getDomains_pargs {
- public:
-
-
-  virtual ~Aim_getDomains_pargs() throw() {}
-
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _Aim_getDomains_result__isset {
-  _Aim_getDomains_result__isset() : success(false), libvirtException(false) {}
-  bool success;
-  bool libvirtException;
-} _Aim_getDomains_result__isset;
-
-class Aim_getDomains_result {
- public:
-
-  Aim_getDomains_result() {
-  }
-
-  virtual ~Aim_getDomains_result() throw() {}
-
-  std::vector<DomainInfo>  success;
-  LibvirtException libvirtException;
-
-  _Aim_getDomains_result__isset __isset;
-
-  void __set_success(const std::vector<DomainInfo> & val) {
-    success = val;
-  }
-
-  void __set_libvirtException(const LibvirtException& val) {
-    libvirtException = val;
-  }
-
-  bool operator == (const Aim_getDomains_result & rhs) const
-  {
-    if (!(success == rhs.success))
-      return false;
-    if (!(libvirtException == rhs.libvirtException))
-      return false;
-    return true;
-  }
-  bool operator != (const Aim_getDomains_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const Aim_getDomains_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _Aim_getDomains_presult__isset {
-  _Aim_getDomains_presult__isset() : success(false), libvirtException(false) {}
-  bool success;
-  bool libvirtException;
-} _Aim_getDomains_presult__isset;
-
-class Aim_getDomains_presult {
- public:
-
-
-  virtual ~Aim_getDomains_presult() throw() {}
-
-  std::vector<DomainInfo> * success;
-  LibvirtException libvirtException;
-
-  _Aim_getDomains_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
 typedef struct _Aim_defineDomain_args__isset {
   _Aim_defineDomain_args__isset() : xmlDesc(false) {}
   bool xmlDesc;
@@ -2281,6 +2193,110 @@ class Aim_getDomainInfo_presult {
 
 };
 
+
+class Aim_getDomains_args {
+ public:
+
+  Aim_getDomains_args() {
+  }
+
+  virtual ~Aim_getDomains_args() throw() {}
+
+
+  bool operator == (const Aim_getDomains_args & /* rhs */) const
+  {
+    return true;
+  }
+  bool operator != (const Aim_getDomains_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_getDomains_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Aim_getDomains_pargs {
+ public:
+
+
+  virtual ~Aim_getDomains_pargs() throw() {}
+
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_getDomains_result__isset {
+  _Aim_getDomains_result__isset() : success(false), libvirtException(false) {}
+  bool success;
+  bool libvirtException;
+} _Aim_getDomains_result__isset;
+
+class Aim_getDomains_result {
+ public:
+
+  Aim_getDomains_result() {
+  }
+
+  virtual ~Aim_getDomains_result() throw() {}
+
+  std::vector<DomainInfo>  success;
+  LibvirtException libvirtException;
+
+  _Aim_getDomains_result__isset __isset;
+
+  void __set_success(const std::vector<DomainInfo> & val) {
+    success = val;
+  }
+
+  void __set_libvirtException(const LibvirtException& val) {
+    libvirtException = val;
+  }
+
+  bool operator == (const Aim_getDomains_result & rhs) const
+  {
+    if (!(success == rhs.success))
+      return false;
+    if (!(libvirtException == rhs.libvirtException))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_getDomains_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_getDomains_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_getDomains_presult__isset {
+  _Aim_getDomains_presult__isset() : success(false), libvirtException(false) {}
+  bool success;
+  bool libvirtException;
+} _Aim_getDomains_presult__isset;
+
+class Aim_getDomains_presult {
+ public:
+
+
+  virtual ~Aim_getDomains_presult() throw() {}
+
+  std::vector<DomainInfo> * success;
+  LibvirtException libvirtException;
+
+  _Aim_getDomains_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
 typedef struct _Aim_powerOn_args__isset {
   _Aim_powerOn_args__isset() : domainName(false) {}
   bool domainName;
@@ -2822,29 +2838,53 @@ class Aim_resume_presult {
 };
 
 typedef struct _Aim_createISCSIStoragePool_args__isset {
-  _Aim_createISCSIStoragePool_args__isset() : xmlDesc(false) {}
-  bool xmlDesc;
+  _Aim_createISCSIStoragePool_args__isset() : name(false), host(false), iqn(false), targetPath(false) {}
+  bool name;
+  bool host;
+  bool iqn;
+  bool targetPath;
 } _Aim_createISCSIStoragePool_args__isset;
 
 class Aim_createISCSIStoragePool_args {
  public:
 
-  Aim_createISCSIStoragePool_args() : xmlDesc() {
+  Aim_createISCSIStoragePool_args() : name(), host(), iqn(), targetPath() {
   }
 
   virtual ~Aim_createISCSIStoragePool_args() throw() {}
 
-  std::string xmlDesc;
+  std::string name;
+  std::string host;
+  std::string iqn;
+  std::string targetPath;
 
   _Aim_createISCSIStoragePool_args__isset __isset;
 
-  void __set_xmlDesc(const std::string& val) {
-    xmlDesc = val;
+  void __set_name(const std::string& val) {
+    name = val;
+  }
+
+  void __set_host(const std::string& val) {
+    host = val;
+  }
+
+  void __set_iqn(const std::string& val) {
+    iqn = val;
+  }
+
+  void __set_targetPath(const std::string& val) {
+    targetPath = val;
   }
 
   bool operator == (const Aim_createISCSIStoragePool_args & rhs) const
   {
-    if (!(xmlDesc == rhs.xmlDesc))
+    if (!(name == rhs.name))
+      return false;
+    if (!(host == rhs.host))
+      return false;
+    if (!(iqn == rhs.iqn))
+      return false;
+    if (!(targetPath == rhs.targetPath))
       return false;
     return true;
   }
@@ -2866,7 +2906,10 @@ class Aim_createISCSIStoragePool_pargs {
 
   virtual ~Aim_createISCSIStoragePool_pargs() throw() {}
 
-  const std::string* xmlDesc;
+  const std::string* name;
+  const std::string* host;
+  const std::string* iqn;
+  const std::string* targetPath;
 
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
@@ -2930,29 +2973,53 @@ class Aim_createISCSIStoragePool_presult {
 };
 
 typedef struct _Aim_createNFSStoragePool_args__isset {
-  _Aim_createNFSStoragePool_args__isset() : xmlDesc(false) {}
-  bool xmlDesc;
+  _Aim_createNFSStoragePool_args__isset() : name(false), host(false), dir(false), targetPath(false) {}
+  bool name;
+  bool host;
+  bool dir;
+  bool targetPath;
 } _Aim_createNFSStoragePool_args__isset;
 
 class Aim_createNFSStoragePool_args {
  public:
 
-  Aim_createNFSStoragePool_args() : xmlDesc() {
+  Aim_createNFSStoragePool_args() : name(), host(), dir(), targetPath() {
   }
 
   virtual ~Aim_createNFSStoragePool_args() throw() {}
 
-  std::string xmlDesc;
+  std::string name;
+  std::string host;
+  std::string dir;
+  std::string targetPath;
 
   _Aim_createNFSStoragePool_args__isset __isset;
 
-  void __set_xmlDesc(const std::string& val) {
-    xmlDesc = val;
+  void __set_name(const std::string& val) {
+    name = val;
+  }
+
+  void __set_host(const std::string& val) {
+    host = val;
+  }
+
+  void __set_dir(const std::string& val) {
+    dir = val;
+  }
+
+  void __set_targetPath(const std::string& val) {
+    targetPath = val;
   }
 
   bool operator == (const Aim_createNFSStoragePool_args & rhs) const
   {
-    if (!(xmlDesc == rhs.xmlDesc))
+    if (!(name == rhs.name))
+      return false;
+    if (!(host == rhs.host))
+      return false;
+    if (!(dir == rhs.dir))
+      return false;
+    if (!(targetPath == rhs.targetPath))
       return false;
     return true;
   }
@@ -2974,7 +3041,10 @@ class Aim_createNFSStoragePool_pargs {
 
   virtual ~Aim_createNFSStoragePool_pargs() throw() {}
 
-  const std::string* xmlDesc;
+  const std::string* name;
+  const std::string* host;
+  const std::string* dir;
+  const std::string* targetPath;
 
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
@@ -3032,6 +3102,510 @@ class Aim_createNFSStoragePool_presult {
   LibvirtException libvirtException;
 
   _Aim_createNFSStoragePool_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
+typedef struct _Aim_createDirStoragePool_args__isset {
+  _Aim_createDirStoragePool_args__isset() : name(false), targetPath(false) {}
+  bool name;
+  bool targetPath;
+} _Aim_createDirStoragePool_args__isset;
+
+class Aim_createDirStoragePool_args {
+ public:
+
+  Aim_createDirStoragePool_args() : name(), targetPath() {
+  }
+
+  virtual ~Aim_createDirStoragePool_args() throw() {}
+
+  std::string name;
+  std::string targetPath;
+
+  _Aim_createDirStoragePool_args__isset __isset;
+
+  void __set_name(const std::string& val) {
+    name = val;
+  }
+
+  void __set_targetPath(const std::string& val) {
+    targetPath = val;
+  }
+
+  bool operator == (const Aim_createDirStoragePool_args & rhs) const
+  {
+    if (!(name == rhs.name))
+      return false;
+    if (!(targetPath == rhs.targetPath))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_createDirStoragePool_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_createDirStoragePool_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Aim_createDirStoragePool_pargs {
+ public:
+
+
+  virtual ~Aim_createDirStoragePool_pargs() throw() {}
+
+  const std::string* name;
+  const std::string* targetPath;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_createDirStoragePool_result__isset {
+  _Aim_createDirStoragePool_result__isset() : libvirtException(false) {}
+  bool libvirtException;
+} _Aim_createDirStoragePool_result__isset;
+
+class Aim_createDirStoragePool_result {
+ public:
+
+  Aim_createDirStoragePool_result() {
+  }
+
+  virtual ~Aim_createDirStoragePool_result() throw() {}
+
+  LibvirtException libvirtException;
+
+  _Aim_createDirStoragePool_result__isset __isset;
+
+  void __set_libvirtException(const LibvirtException& val) {
+    libvirtException = val;
+  }
+
+  bool operator == (const Aim_createDirStoragePool_result & rhs) const
+  {
+    if (!(libvirtException == rhs.libvirtException))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_createDirStoragePool_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_createDirStoragePool_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_createDirStoragePool_presult__isset {
+  _Aim_createDirStoragePool_presult__isset() : libvirtException(false) {}
+  bool libvirtException;
+} _Aim_createDirStoragePool_presult__isset;
+
+class Aim_createDirStoragePool_presult {
+ public:
+
+
+  virtual ~Aim_createDirStoragePool_presult() throw() {}
+
+  LibvirtException libvirtException;
+
+  _Aim_createDirStoragePool_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
+typedef struct _Aim_createDisk_args__isset {
+  _Aim_createDisk_args__isset() : poolName(false), name(false), capacityInKb(false), allocationInKb(false), format(false) {}
+  bool poolName;
+  bool name;
+  bool capacityInKb;
+  bool allocationInKb;
+  bool format;
+} _Aim_createDisk_args__isset;
+
+class Aim_createDisk_args {
+ public:
+
+  Aim_createDisk_args() : poolName(), name(), capacityInKb(0), allocationInKb(0), format() {
+  }
+
+  virtual ~Aim_createDisk_args() throw() {}
+
+  std::string poolName;
+  std::string name;
+  double capacityInKb;
+  double allocationInKb;
+  std::string format;
+
+  _Aim_createDisk_args__isset __isset;
+
+  void __set_poolName(const std::string& val) {
+    poolName = val;
+  }
+
+  void __set_name(const std::string& val) {
+    name = val;
+  }
+
+  void __set_capacityInKb(const double val) {
+    capacityInKb = val;
+  }
+
+  void __set_allocationInKb(const double val) {
+    allocationInKb = val;
+  }
+
+  void __set_format(const std::string& val) {
+    format = val;
+  }
+
+  bool operator == (const Aim_createDisk_args & rhs) const
+  {
+    if (!(poolName == rhs.poolName))
+      return false;
+    if (!(name == rhs.name))
+      return false;
+    if (!(capacityInKb == rhs.capacityInKb))
+      return false;
+    if (!(allocationInKb == rhs.allocationInKb))
+      return false;
+    if (!(format == rhs.format))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_createDisk_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_createDisk_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Aim_createDisk_pargs {
+ public:
+
+
+  virtual ~Aim_createDisk_pargs() throw() {}
+
+  const std::string* poolName;
+  const std::string* name;
+  const double* capacityInKb;
+  const double* allocationInKb;
+  const std::string* format;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_createDisk_result__isset {
+  _Aim_createDisk_result__isset() : libvirtException(false) {}
+  bool libvirtException;
+} _Aim_createDisk_result__isset;
+
+class Aim_createDisk_result {
+ public:
+
+  Aim_createDisk_result() {
+  }
+
+  virtual ~Aim_createDisk_result() throw() {}
+
+  LibvirtException libvirtException;
+
+  _Aim_createDisk_result__isset __isset;
+
+  void __set_libvirtException(const LibvirtException& val) {
+    libvirtException = val;
+  }
+
+  bool operator == (const Aim_createDisk_result & rhs) const
+  {
+    if (!(libvirtException == rhs.libvirtException))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_createDisk_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_createDisk_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_createDisk_presult__isset {
+  _Aim_createDisk_presult__isset() : libvirtException(false) {}
+  bool libvirtException;
+} _Aim_createDisk_presult__isset;
+
+class Aim_createDisk_presult {
+ public:
+
+
+  virtual ~Aim_createDisk_presult() throw() {}
+
+  LibvirtException libvirtException;
+
+  _Aim_createDisk_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
+typedef struct _Aim_deleteDisk_args__isset {
+  _Aim_deleteDisk_args__isset() : poolName(false), name(false) {}
+  bool poolName;
+  bool name;
+} _Aim_deleteDisk_args__isset;
+
+class Aim_deleteDisk_args {
+ public:
+
+  Aim_deleteDisk_args() : poolName(), name() {
+  }
+
+  virtual ~Aim_deleteDisk_args() throw() {}
+
+  std::string poolName;
+  std::string name;
+
+  _Aim_deleteDisk_args__isset __isset;
+
+  void __set_poolName(const std::string& val) {
+    poolName = val;
+  }
+
+  void __set_name(const std::string& val) {
+    name = val;
+  }
+
+  bool operator == (const Aim_deleteDisk_args & rhs) const
+  {
+    if (!(poolName == rhs.poolName))
+      return false;
+    if (!(name == rhs.name))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_deleteDisk_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_deleteDisk_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Aim_deleteDisk_pargs {
+ public:
+
+
+  virtual ~Aim_deleteDisk_pargs() throw() {}
+
+  const std::string* poolName;
+  const std::string* name;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_deleteDisk_result__isset {
+  _Aim_deleteDisk_result__isset() : libvirtException(false) {}
+  bool libvirtException;
+} _Aim_deleteDisk_result__isset;
+
+class Aim_deleteDisk_result {
+ public:
+
+  Aim_deleteDisk_result() {
+  }
+
+  virtual ~Aim_deleteDisk_result() throw() {}
+
+  LibvirtException libvirtException;
+
+  _Aim_deleteDisk_result__isset __isset;
+
+  void __set_libvirtException(const LibvirtException& val) {
+    libvirtException = val;
+  }
+
+  bool operator == (const Aim_deleteDisk_result & rhs) const
+  {
+    if (!(libvirtException == rhs.libvirtException))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_deleteDisk_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_deleteDisk_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_deleteDisk_presult__isset {
+  _Aim_deleteDisk_presult__isset() : libvirtException(false) {}
+  bool libvirtException;
+} _Aim_deleteDisk_presult__isset;
+
+class Aim_deleteDisk_presult {
+ public:
+
+
+  virtual ~Aim_deleteDisk_presult() throw() {}
+
+  LibvirtException libvirtException;
+
+  _Aim_deleteDisk_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
+typedef struct _Aim_resizeVol_args__isset {
+  _Aim_resizeVol_args__isset() : poolName(false), name(false), capacityInKb(false) {}
+  bool poolName;
+  bool name;
+  bool capacityInKb;
+} _Aim_resizeVol_args__isset;
+
+class Aim_resizeVol_args {
+ public:
+
+  Aim_resizeVol_args() : poolName(), name(), capacityInKb(0) {
+  }
+
+  virtual ~Aim_resizeVol_args() throw() {}
+
+  std::string poolName;
+  std::string name;
+  double capacityInKb;
+
+  _Aim_resizeVol_args__isset __isset;
+
+  void __set_poolName(const std::string& val) {
+    poolName = val;
+  }
+
+  void __set_name(const std::string& val) {
+    name = val;
+  }
+
+  void __set_capacityInKb(const double val) {
+    capacityInKb = val;
+  }
+
+  bool operator == (const Aim_resizeVol_args & rhs) const
+  {
+    if (!(poolName == rhs.poolName))
+      return false;
+    if (!(name == rhs.name))
+      return false;
+    if (!(capacityInKb == rhs.capacityInKb))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_resizeVol_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_resizeVol_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Aim_resizeVol_pargs {
+ public:
+
+
+  virtual ~Aim_resizeVol_pargs() throw() {}
+
+  const std::string* poolName;
+  const std::string* name;
+  const double* capacityInKb;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_resizeVol_result__isset {
+  _Aim_resizeVol_result__isset() : libvirtException(false) {}
+  bool libvirtException;
+} _Aim_resizeVol_result__isset;
+
+class Aim_resizeVol_result {
+ public:
+
+  Aim_resizeVol_result() {
+  }
+
+  virtual ~Aim_resizeVol_result() throw() {}
+
+  LibvirtException libvirtException;
+
+  _Aim_resizeVol_result__isset __isset;
+
+  void __set_libvirtException(const LibvirtException& val) {
+    libvirtException = val;
+  }
+
+  bool operator == (const Aim_resizeVol_result & rhs) const
+  {
+    if (!(libvirtException == rhs.libvirtException))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_resizeVol_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_resizeVol_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_resizeVol_presult__isset {
+  _Aim_resizeVol_presult__isset() : libvirtException(false) {}
+  bool libvirtException;
+} _Aim_resizeVol_presult__isset;
+
+class Aim_resizeVol_presult {
+ public:
+
+
+  virtual ~Aim_resizeVol_presult() throw() {}
+
+  LibvirtException libvirtException;
+
+  _Aim_resizeVol_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -3222,9 +3796,6 @@ class AimClient : virtual public AimIf {
   void getNodeInfo(NodeInfo& _return);
   void send_getNodeInfo();
   void recv_getNodeInfo(NodeInfo& _return);
-  void getDomains(std::vector<DomainInfo> & _return);
-  void send_getDomains();
-  void recv_getDomains(std::vector<DomainInfo> & _return);
   void defineDomain(const std::string& xmlDesc);
   void send_defineDomain(const std::string& xmlDesc);
   void recv_defineDomain();
@@ -3240,6 +3811,9 @@ class AimClient : virtual public AimIf {
   void getDomainInfo(DomainInfo& _return, const std::string& domainName);
   void send_getDomainInfo(const std::string& domainName);
   void recv_getDomainInfo(DomainInfo& _return);
+  void getDomains(std::vector<DomainInfo> & _return);
+  void send_getDomains();
+  void recv_getDomains(std::vector<DomainInfo> & _return);
   void powerOn(const std::string& domainName);
   void send_powerOn(const std::string& domainName);
   void recv_powerOn();
@@ -3255,12 +3829,24 @@ class AimClient : virtual public AimIf {
   void resume(const std::string& domainName);
   void send_resume(const std::string& domainName);
   void recv_resume();
-  void createISCSIStoragePool(const std::string& xmlDesc);
-  void send_createISCSIStoragePool(const std::string& xmlDesc);
+  void createISCSIStoragePool(const std::string& name, const std::string& host, const std::string& iqn, const std::string& targetPath);
+  void send_createISCSIStoragePool(const std::string& name, const std::string& host, const std::string& iqn, const std::string& targetPath);
   void recv_createISCSIStoragePool();
-  void createNFSStoragePool(const std::string& xmlDesc);
-  void send_createNFSStoragePool(const std::string& xmlDesc);
+  void createNFSStoragePool(const std::string& name, const std::string& host, const std::string& dir, const std::string& targetPath);
+  void send_createNFSStoragePool(const std::string& name, const std::string& host, const std::string& dir, const std::string& targetPath);
   void recv_createNFSStoragePool();
+  void createDirStoragePool(const std::string& name, const std::string& targetPath);
+  void send_createDirStoragePool(const std::string& name, const std::string& targetPath);
+  void recv_createDirStoragePool();
+  void createDisk(const std::string& poolName, const std::string& name, const double capacityInKb, const double allocationInKb, const std::string& format);
+  void send_createDisk(const std::string& poolName, const std::string& name, const double capacityInKb, const double allocationInKb, const std::string& format);
+  void recv_createDisk();
+  void deleteDisk(const std::string& poolName, const std::string& name);
+  void send_deleteDisk(const std::string& poolName, const std::string& name);
+  void recv_deleteDisk();
+  void resizeVol(const std::string& poolName, const std::string& name, const double capacityInKb);
+  void send_resizeVol(const std::string& poolName, const std::string& name, const double capacityInKb);
+  void recv_resizeVol();
   void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb);
   void send_resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb);
   void recv_resizeDisk();
@@ -3292,12 +3878,12 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_getInitiatorIQN(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_rescanISCSI(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_getNodeInfo(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_getDomains(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_defineDomain(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_undefineDomain(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_existDomain(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_getDomainState(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_getDomainInfo(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getDomains(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_powerOn(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_powerOff(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_reset(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
@@ -3305,6 +3891,10 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_resume(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_createISCSIStoragePool(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_createNFSStoragePool(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_createDirStoragePool(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_createDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_deleteDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_resizeVol(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_resizeDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   AimProcessor(boost::shared_ptr<AimIf> iface) :
@@ -3322,12 +3912,12 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["getInitiatorIQN"] = &AimProcessor::process_getInitiatorIQN;
     processMap_["rescanISCSI"] = &AimProcessor::process_rescanISCSI;
     processMap_["getNodeInfo"] = &AimProcessor::process_getNodeInfo;
-    processMap_["getDomains"] = &AimProcessor::process_getDomains;
     processMap_["defineDomain"] = &AimProcessor::process_defineDomain;
     processMap_["undefineDomain"] = &AimProcessor::process_undefineDomain;
     processMap_["existDomain"] = &AimProcessor::process_existDomain;
     processMap_["getDomainState"] = &AimProcessor::process_getDomainState;
     processMap_["getDomainInfo"] = &AimProcessor::process_getDomainInfo;
+    processMap_["getDomains"] = &AimProcessor::process_getDomains;
     processMap_["powerOn"] = &AimProcessor::process_powerOn;
     processMap_["powerOff"] = &AimProcessor::process_powerOff;
     processMap_["reset"] = &AimProcessor::process_reset;
@@ -3335,6 +3925,10 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["resume"] = &AimProcessor::process_resume;
     processMap_["createISCSIStoragePool"] = &AimProcessor::process_createISCSIStoragePool;
     processMap_["createNFSStoragePool"] = &AimProcessor::process_createNFSStoragePool;
+    processMap_["createDirStoragePool"] = &AimProcessor::process_createDirStoragePool;
+    processMap_["createDisk"] = &AimProcessor::process_createDisk;
+    processMap_["deleteDisk"] = &AimProcessor::process_deleteDisk;
+    processMap_["resizeVol"] = &AimProcessor::process_resizeVol;
     processMap_["resizeDisk"] = &AimProcessor::process_resizeDisk;
   }
 
@@ -3485,16 +4079,6 @@ class AimMultiface : virtual public AimIf {
     return;
   }
 
-  void getDomains(std::vector<DomainInfo> & _return) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->getDomains(_return);
-    }
-    ifaces_[i]->getDomains(_return);
-    return;
-  }
-
   void defineDomain(const std::string& xmlDesc) {
     size_t sz = ifaces_.size();
     size_t i = 0;
@@ -3538,6 +4122,16 @@ class AimMultiface : virtual public AimIf {
       ifaces_[i]->getDomainInfo(_return, domainName);
     }
     ifaces_[i]->getDomainInfo(_return, domainName);
+    return;
+  }
+
+  void getDomains(std::vector<DomainInfo> & _return) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->getDomains(_return);
+    }
+    ifaces_[i]->getDomains(_return);
     return;
   }
 
@@ -3586,22 +4180,58 @@ class AimMultiface : virtual public AimIf {
     ifaces_[i]->resume(domainName);
   }
 
-  void createISCSIStoragePool(const std::string& xmlDesc) {
+  void createISCSIStoragePool(const std::string& name, const std::string& host, const std::string& iqn, const std::string& targetPath) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->createISCSIStoragePool(xmlDesc);
+      ifaces_[i]->createISCSIStoragePool(name, host, iqn, targetPath);
     }
-    ifaces_[i]->createISCSIStoragePool(xmlDesc);
+    ifaces_[i]->createISCSIStoragePool(name, host, iqn, targetPath);
   }
 
-  void createNFSStoragePool(const std::string& xmlDesc) {
+  void createNFSStoragePool(const std::string& name, const std::string& host, const std::string& dir, const std::string& targetPath) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->createNFSStoragePool(xmlDesc);
+      ifaces_[i]->createNFSStoragePool(name, host, dir, targetPath);
     }
-    ifaces_[i]->createNFSStoragePool(xmlDesc);
+    ifaces_[i]->createNFSStoragePool(name, host, dir, targetPath);
+  }
+
+  void createDirStoragePool(const std::string& name, const std::string& targetPath) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->createDirStoragePool(name, targetPath);
+    }
+    ifaces_[i]->createDirStoragePool(name, targetPath);
+  }
+
+  void createDisk(const std::string& poolName, const std::string& name, const double capacityInKb, const double allocationInKb, const std::string& format) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->createDisk(poolName, name, capacityInKb, allocationInKb, format);
+    }
+    ifaces_[i]->createDisk(poolName, name, capacityInKb, allocationInKb, format);
+  }
+
+  void deleteDisk(const std::string& poolName, const std::string& name) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->deleteDisk(poolName, name);
+    }
+    ifaces_[i]->deleteDisk(poolName, name);
+  }
+
+  void resizeVol(const std::string& poolName, const std::string& name, const double capacityInKb) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->resizeVol(poolName, name, capacityInKb);
+    }
+    ifaces_[i]->resizeVol(poolName, name, capacityInKb);
   }
 
   void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb) {
