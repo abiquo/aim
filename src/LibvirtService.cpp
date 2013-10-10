@@ -581,11 +581,11 @@ void LibvirtService::createISCSIStoragePool(const virConnectPtr conn, const std:
 
     LOG("Creck if the ISCSI storage pool device path '%s' is already defined", path.c_str());
     bool defined = false;
-    for (int i = 0; i < ret && !defined; i++)
+    for (int i = 0; i < ret; i++)
     {
         LOG("Checking ISCSI storage pool %d of %d...", i, ret);
         char *xml = virStoragePoolGetXMLDesc(pools[i], 0);
-        if (xml != NULL)
+        if (xml != NULL && !defined)
         {
             string definedPath = parseDevicePath(string(xml));
             LOG("Found device path: '%s'", definedPath.c_str());
@@ -658,11 +658,11 @@ void LibvirtService::createNFSStoragePool(const virConnectPtr conn, const std::s
 
     LOG("Creck if the NFS device ('%s') is already defined", device.c_str());
     bool defined = false;
-    for (int i = 0; i < ret && !defined; i++)
+    for (int i = 0; i < ret; i++)
     {
         LOG("Checking NFS storage pool %d of %d...", i, ret);
         char *xml = virStoragePoolGetXMLDesc(pools[i], 0);
-        if (xml != NULL)
+        if (xml != NULL && !defined)
         {
             string definedDevice = parseSourceHostAndDir(string(xml));
             LOG("Found device: '%s'", definedDevice.c_str());
