@@ -213,7 +213,7 @@ vector<NetInterface> getNetInterfacesFromProcNetDev()
 {
     vector<NetInterface> interfaces;
 
-    std::string results = exec("ip link show | grep \" UP\" | grep -v '@\\|vnet' | awk '{print $2}' | awk '{print substr($1, 0, length($1)-1)}'");
+    std::string results = exec("ip link show | grep \",UP\" | grep -v '@\\|abiquo_\\|lo\\|virbr0\\|vnet' | awk '{print $2}' | awk '{print substr($1, 0, length($1)-1)}'");
     if (results.empty())
     {
         RimpException exception;
