@@ -23,7 +23,6 @@
 #define AIM_HANDLER_H
 
 #include <Service.h>
-#include <EventsMonitor.h>
 #include <Rimp.h>
 #include <VLan.h>
 #include <StorageService.h>
@@ -38,7 +37,6 @@ using namespace std;
 class AimHandler: virtual public AimIf
 {
     protected:
-        EventsMonitor* monitor;
         Rimp* rimp;
         VLan* vlan;
         StorageService* storage;
@@ -47,7 +45,6 @@ class AimHandler: virtual public AimIf
     public:
         AimHandler()
         {
-            monitor = EventsMonitor::getInstance();
             rimp = new Rimp();
             vlan = new VLan();
             storage = new StorageService();
@@ -58,7 +55,6 @@ class AimHandler: virtual public AimIf
         {
             vector<Service*> services;
 
-            services.push_back(monitor);
             services.push_back(rimp);
             services.push_back(vlan);
             services.push_back(storage);

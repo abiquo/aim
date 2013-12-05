@@ -256,13 +256,7 @@ bool LibvirtService::existPrimaryDisk(const DomainInfo& domainInfo)
 
 bool LibvirtService::initialize(dictionary* configuration)
 {
-    if (LibvirtService::connectionUrl.empty())
-    {
-        LibvirtService::connectionUrl = getStringProperty(configuration, monitorUri);
-    }
-
-    LOG("Libvirt connection url (empty is bad): '%s'", LibvirtService::connectionUrl.c_str());
-    return !LibvirtService::connectionUrl.empty();
+    return true;
 }
 
 bool LibvirtService::start()

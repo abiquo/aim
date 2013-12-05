@@ -3,8 +3,6 @@ GEN_SRC = aim_constants.cpp \
 		Aim.cpp \
 		aim_types.cpp \
 		AimServer.cpp \
-		virt_monitor.cpp \
-		EventsMonitor.cpp \
 		RimpUtils.cpp \
 		Rimp.cpp \
 		VLan.cpp \
@@ -27,12 +25,11 @@ USR_INC = /usr/include
 USRLOCAL_INC = /usr/local/include
 VIRT_INC = /usr/include/libvirt
 CURL_INC = /usr/include/curl
-HIREDIS_INC = /usr/local/include/hiredis
 INIPARSER_INC = ./iniparser
 PUGIXML_INC = ./pugixml
 
 # Include and link paths
-INC_PATH = -I$(USR_INC) -I$(USRLOCAL_INC) -I$(VIRT_INC) -I$(CURL_INC) -I$(HIREDIS_INC) -I$(INIPARSER_INC) -I$(PUGIXML_INC) -I.
+INC_PATH = -I$(USR_INC) -I$(USRLOCAL_INC) -I$(VIRT_INC) -I$(CURL_INC) -I$(INIPARSER_INC) -I$(PUGIXML_INC) -I.
 LD_PATH = -L/lib64 -L/usr/lib64 -L/usr/local/lib
 
 # Compiler and linker flags
@@ -41,7 +38,7 @@ THRIFT_FLAGS = -DHAVE_NETINET_IN_H -DHAVE_INTTYPES_H
 CC = g++
 CFLAGS = -Wall
 CXXFLAGS = -Wall $(THRIFT_FLAGS) $(INC_PATH)
-LDFLAGS = $(LD_PATH) -lpthread -lhiredis -lvirt -lthrift -lcurl -luuid -lboost_filesystem -lboost_thread-mt
+LDFLAGS = $(LD_PATH) -lpthread -lvirt -lthrift -lcurl -luuid -lboost_filesystem -lboost_thread-mt
 
 
 all: aim

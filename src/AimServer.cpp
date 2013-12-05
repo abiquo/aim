@@ -171,10 +171,6 @@ const char * parseArguments(int argc, char **argv, dictionary *d)
                 ret = iniparser_setstring(d, serverPort, optarg);
                 break;
 
-            case 'u':
-                ret = iniparser_setstring(d, monitorUri, optarg);
-                break; 
-
             case 'r':
                 ret = iniparser_setstring(d, rimpRepository, optarg);
                 break;
@@ -218,11 +214,6 @@ bool checkConfiguration(dictionary * d)
 {
     // Server
     checkProperty(d, serverPort);
-
-    // Monitor
-    checkProperty(d, monitorUri);
-    checkProperty(d, redisHost);
-    checkProperty(d, redisPort);
 
     // Rimp
     checkProperty(d, rimpRepository);

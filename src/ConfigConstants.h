@@ -26,11 +26,6 @@
 #define serverPort (char*)"server:port\0"
 #define daemonizeServer (char*)"server:daemonize\0"
 
-// Monitor properties
-#define monitorUri (char*)"monitor:uri\0"
-#define redisHost (char*)"monitor:redisHost\0"
-#define redisPort (char*)"monitor:redisPort\0"
-
 // Rimp properties
 #define rimpRepository (char*)"rimp:repository\0"
 #define rimpAutoBackup (char*)"rimp:autoBackup\0"
