@@ -9,6 +9,7 @@
 #include <libvirt/virterror.h>
 #include <string>
 #include <sstream>
+#include <iomanip> 
 
 #include <ExecUtils.h>
 
@@ -250,6 +251,21 @@ bool LibvirtService::existPrimaryDisk(const DomainInfo& domainInfo)
     LOG("Primary disk of domain '%s' %s", domainInfo.name.c_str(), exist ? "exist" : "does not exist");
     delete[] writable;
     return exist;
+}
+
+string LibvirtService::to_string(const double value)
+{
+    std::stringstream ss;
+    ss << std::fixed << value;
+    std::string str = ss.str();
+    std::size_t dot = str.find(".");
+
+    if (dot != std::string::npos)
+    {
+        return str.substr(0, dot);
+    }
+
+    return str;
 }
 
 // Public methods
@@ -796,8 +812,8 @@ void LibvirtService::createDisk(const virConnectPtr conn, const string& poolName
     ostringstream xml;
     xml << "<volume>";
     xml << "<name>" << name << "</name>";
-    xml << "<capacity unit='KB'>" << capacityInKb << "</capacity>";
-    xml << "<allocation unit='KB'>" << allocationInKb << "</allocation>";
+    xml << "<capacity unit='KB'>" << to_string(capacityInKb) << "</capacity>";
+    xml << "<allocation unit='KB'>" << to_string(allocationInKb) << "</allocation>";
     xml << "<target>";
     xml << "<format type='" << format << "' />";
     xml << "<permissions>";
