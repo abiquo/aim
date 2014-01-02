@@ -46,6 +46,7 @@ class LibvirtService : public Service
         string parseTargetPath(const std::string& xmlDesc);
         void parseSourceHostAndDir(const std::string& xmlDesc, std::string& host, std::string& dir);
         string stringBetween(const std::string& input, const std::string& startPattern, const std::string& endPattern);
+        string to_string(const double value);
 
     public:
         LibvirtService();
