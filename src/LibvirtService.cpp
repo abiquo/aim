@@ -63,6 +63,14 @@ DomainInfo LibvirtService::getDomainInfo(const virConnectPtr conn, const virDoma
         throwLastKnownError(conn);
     }
 
+    
+    bool jobInProgress = false;
+    virDomainJobInfo jobInfo;
+    if (virDomainGetJobInfo(domain, &jobInfo) == 0)
+    {
+        jobInProgress = (jobInfo.type != 0);
+    }
+  
     const char *name = virDomainGetName(domain);
     if (name == NULL)
     {
@@ -85,13 +93,14 @@ DomainInfo LibvirtService::getDomainInfo(const virConnectPtr conn, const virDoma
     }
 
     DomainInfo domainInfo;
-    domainInfo.name            = string(name);              // the domain name
-    domainInfo.uuid            = string(uuid);              // the domain UUID
-    domainInfo.state           = toDomainState(info.state); // the running state, one of virDomainState
-    domainInfo.numberVirtCpu   = info.nrVirtCpu;            // the number of virtual CPUs for the domain 
-    domainInfo.memory          = info.memory;               // the memory in KBytes used by the domain
+    domainInfo.name            = string(name);
+    domainInfo.uuid            = string(uuid);
+    domainInfo.state           = jobInProgress ? DomainState::UNKNOWN : toDomainState(info.state);
+    domainInfo.numberVirtCpu   = info.nrVirtCpu;            
+    domainInfo.memory          = info.memory; // KBytes
     domainInfo.xmlDesc         = string(xml);
 
+    LOG("Domain '%s' in state '%d' jobInProgress => '%s'", name, domainInfo.state, jobInProgress ? "true" : "false");
     return domainInfo;
 }
 
