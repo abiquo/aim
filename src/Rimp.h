@@ -50,7 +50,7 @@ public:
     Rimp();
     ~Rimp();
 
-    virtual bool initialize(dictionary * configuration);
+    virtual bool initialize(INIReader configuration);
     virtual bool cleanup();
     virtual bool start();
     virtual bool stop();

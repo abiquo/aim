@@ -1,17 +1,19 @@
 #include <Aim.h>
 
 #include <thrift/protocol/TBinaryProtocol.h>
-#include <thrift/server/TThreadedServer.h>
+#include <thrift/server/TServer.h>
+#include <thrift/server/TNonblockingServer.h>
 #include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
+#include <thrift/concurrency/ThreadManager.h>
+#include <thrift/concurrency/PosixThreadFactory.h>
 
+#include <cstdlib>
+#include <cctype>
 #include <getopt.h>
-#include <iniparser.h>
-#include <dictionary.h>
 
 #include <AimServer.h>
 #include <Service.h>
-#include <ConfigConstants.h>
 #include <Macros.h>
 #include <Debug.h>
 
@@ -22,65 +24,54 @@
 #include <version.h>
 #include <asciilogo.h>
 
-#define checkProperty(c, e) if (!existProperty(c, e)) { LOG("Missing configuration property '%s'", e); return false; }
-#define existProperty(c, e) (iniparser_find_entry(c, e) != 0)
+#include <INIReader.h>
+
 #define logservice(action, name, current, all) LOG("[%d/%d] %s %s service", current, all, action, name)
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
 using namespace ::apache::thrift::transport;
 using namespace ::apache::thrift::server;
+using namespace ::apache::thrift::concurrency;
 
 using namespace std;
+
+bool daemonizeServer = false;
+int threads = DEFAULT_THREADS;
 
 int main(int argc, char **argv)
 {
     // Parse command line arguments
-    dictionary *commandLineConfiguration = iniparser_new(); 
-    const char* configFilename = parseArguments(argc, argv, commandLineConfiguration);
-
+    const char* configFilename = parseArguments(argc, argv);
     if (emptyString(configFilename))
     {
         configFilename = DEFAULT_CONFIG;
     }
 
-    // Load configuration file
-    configuration = iniparser_load(configFilename);
+    // Print aim's logo
+    PRINT_ASCII_LOGO(aim_version);
 
-    if (configuration == NULL)
+    // Load configuration file
+    LOG("Reading configuration from '%s' file", configFilename);
+    INIReader configuration(configFilename);
+    if (configuration.ParseError() < 0)
     {
         LOG("Unable to load '%s'", configFilename);
         exit(EXIT_FAILURE);
     }
 
-    // Overlay configuration with command line arguments
-    iniparser_merge(commandLineConfiguration, configuration);
-    iniparser_freedict(commandLineConfiguration);
-
     // Daemonize
-    if (existProperty(configuration, daemonizeServer))
+    if (daemonizeServer)
     {
         daemonize();
     }
 
-    // Print aim's logo
-    PRINT_ASCII_LOGO(aim_version);
-
     // Print configuration summary
-    LOG("Configuration from '%s'", configFilename);
-    
-    if (!checkConfiguration(configuration))
-    {
-        exit(EXIT_FAILURE);
-    }
-
-    printConfiguration(configuration);
+    int serverPort = configuration.GetInteger("server", "port", 60606);
 
     // Aim server initialization
     LOG("Initializing AIM v%s", aim_version);
     shared_ptr<TProcessor> processor(new AimProcessor(aimHandler));
-    shared_ptr<TServerTransport> serverTransport(new TServerSocket(getIntProperty(configuration, serverPort)));
-    shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
     shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
 
     // Aim services initialization and start
@@ -115,10 +106,14 @@ int main(int argc, char **argv)
     signal(SIGTERM, deinitialize);
 
     // Main loop
-    LOG("Aim listening at port %d", getIntProperty(configuration, serverPort));
-    TThreadedServer server(processor, serverTransport, transportFactory, protocolFactory);
+    LOG("Aim listening at port %d using %d threads", serverPort, threads);
+    shared_ptr<ThreadManager> threadManager = ThreadManager::newSimpleThreadManager(threads);
+    shared_ptr<PosixThreadFactory> threadFactory = shared_ptr<PosixThreadFactory>(new PosixThreadFactory());
+    threadManager->threadFactory(threadFactory);
+    threadManager->start();
+    TNonblockingServer server(processor, protocolFactory, serverPort, threadManager);
     server.serve();
-
+    
     exit(EXIT_FAILURE);
 }
 
@@ -143,15 +138,13 @@ void deinitialize(int param)
         }
     }
 
-    iniparser_freedict(configuration);
-
     LOG("Bye!");
     exit(EXIT_SUCCESS);
 }
 
-const char * parseArguments(int argc, char **argv, dictionary *d)
+const char * parseArguments(int argc, char **argv)
 {
-    int next_opt, ret;
+    int next_opt;
     const char * filename = "\0";
 
     while ((next_opt = getopt_long(argc, argv, short_opt, long_opt, NULL)) != -1)
@@ -167,22 +160,19 @@ const char * parseArguments(int argc, char **argv, dictionary *d)
                 filename = optarg;
                 break;
 
-            case 'p':
-                ret = iniparser_setstring(d, serverPort, optarg);
-                break;
-
-            case 'r':
-                ret = iniparser_setstring(d, rimpRepository, optarg);
-                break;
-
             case 'd':
-                ret = iniparser_setstring(d, daemonizeServer, daemonizeServer);
+                daemonizeServer = true;
                 break;
 
             case 'v':
                 printf("AIM server version %s\n", aim_version);
                 printf("  Git: %s\n  Build: %s\n  Platform: %s\n", git_revision, build_date, build_platform);
                 exit(EXIT_SUCCESS);
+
+            case 't':
+                threads = atoi(optarg);
+                if (threads <= 0) { threads = DEFAULT_THREADS; }
+                break;
 
             default:
                 printUsage(argv[0]);
@@ -198,31 +188,9 @@ void printUsage(const char* program)
     printf("Usage: %s options\n", program);
     printf( "    -h --help                       Show this help\n"
             "    -c --config-file=<file>         Alternate configuration file\n"
-            "    -p --port=<port>                Port to bind\n"
             "    -d --daemon                     Run as daemon\n"
-            "    -u --uri=<uri>                  Hypervisor URI\n"
-            "    -r --repository=<repository>    Repository export location\n"
-            "    -v --version                    Show AIM server version\n" );
-}
-
-void printConfiguration(dictionary * d)
-{
-    iniparser_dumpfields(d, stderr); 
-}
-
-bool checkConfiguration(dictionary * d)
-{
-    // Server
-    checkProperty(d, serverPort);
-
-    // Rimp
-    checkProperty(d, rimpRepository);
-
-    // VLan
-    checkProperty(d, vlanIfConfigCmd);
-    checkProperty(d, vlanBrctlCmd);
-
-    return true;
+            "    -v --version                    Show AIM server version\n"
+            "    -t --threads                    Maximum threads to handle requests\n" );
 }
 
 static void daemonize(void)

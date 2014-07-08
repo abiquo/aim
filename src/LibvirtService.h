@@ -33,8 +33,6 @@ using namespace std;
 class LibvirtService : public Service
 {
     private:
-        static string connectionUrl;
-
         virDomainPtr getDomainByName(virConnectPtr conn, const string& name) throw (LibvirtException);
         DomainInfo getDomainInfo(const virConnectPtr conn, const virDomainPtr domain) throw (LibvirtException);
         DomainState::type toDomainState(unsigned char state);
@@ -52,9 +50,9 @@ class LibvirtService : public Service
         LibvirtService();
         ~LibvirtService();
 
-        void throwLastKnownError(const virConnectPtr conn);
+        void throwLastKnownError();
 
-        virtual bool initialize(dictionary * configuration);
+        virtual bool initialize(INIReader configuration);
         virtual bool cleanup();
         virtual bool start();
         virtual bool stop();

@@ -77,7 +77,7 @@ class VLan: public Service
         VLan();
         ~VLan();
 
-        virtual bool initialize(dictionary * configuration);
+        virtual bool initialize(INIReader configuration);
         virtual bool cleanup();
         virtual bool start();
         virtual bool stop();

@@ -1,5 +1,4 @@
 #include <VLan.h>
-#include <ConfigConstants.h>
 #include <Debug.h>
 #include <Macros.h>
 #include <ExecUtils.h>
@@ -14,23 +13,9 @@ VLan::~VLan()
 {
 }
 
-bool VLan::initialize(dictionary * configuration)
+bool VLan::initialize(INIReader configuration)
 {
-    ifconfig = getStringProperty(configuration, vlanIfConfigCmd);
-    brctl = getStringProperty(configuration, vlanBrctlCmd);
-
-    bool ok = true;
-
-    ok &= commandExist(ifconfig);
-    ok &= commandExist(brctl);
-
-    if (!ok)
-    {
-        LOG("Some required command is missing, check:\n\t%s\n\t%s", 
-                ifconfig.c_str(), brctl.c_str());
-    }
-
-    return ok;
+    return true;
 }
 
 bool VLan::start()

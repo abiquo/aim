@@ -34,7 +34,7 @@ using namespace std;
 class StorageService : public Service
 {
     protected:
-        string iscsiInitiatorNameFile;
+        string iqnValue;
 
     public:
         StorageService();
@@ -42,7 +42,7 @@ class StorageService : public Service
 
         void throwError(const string& message);
 
-        virtual bool initialize(dictionary * configuration);
+        virtual bool initialize(INIReader configuration);
         virtual bool cleanup();
         virtual bool start();
         virtual bool stop();
