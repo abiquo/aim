@@ -22,9 +22,7 @@
 #ifndef SERVICE_H
 #define SERVICE_H
 
-#include <iniparser.h>
-#include <dictionary.h>
-
+#include <INIReader.h>
 #include <string>
 
 using namespace std;
@@ -46,7 +44,7 @@ class Service
         const char* getName() { return name; }
 
         // Control methods called by the server
-        virtual bool initialize(dictionary * configuration) = 0;
+        virtual bool initialize(INIReader configuration) = 0;
         virtual bool cleanup() = 0;
         virtual bool start() = 0;
         virtual bool stop() = 0;

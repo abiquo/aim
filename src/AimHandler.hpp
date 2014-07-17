@@ -40,7 +40,6 @@ class AimHandler: virtual public AimIf
         Rimp* rimp;
         VLan* vlan;
         StorageService* storage;
-        LibvirtService* libvirt;
 
     public:
         AimHandler()
@@ -48,7 +47,6 @@ class AimHandler: virtual public AimIf
             rimp = new Rimp();
             vlan = new VLan();
             storage = new StorageService();
-            libvirt = new LibvirtService();
         }
 
         vector<Service*> getServices()
@@ -58,7 +56,6 @@ class AimHandler: virtual public AimIf
             services.push_back(rimp);
             services.push_back(vlan);
             services.push_back(storage);
-            services.push_back(libvirt);
 
             return services;
         }
@@ -130,287 +127,325 @@ class AimHandler: virtual public AimIf
 
         void getNodeInfo(NodeInfo& _return)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->getNodeInfo(_return, conn);
-                libvirt->disconnect(conn);
+                libvirt.getNodeInfo(_return, conn);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void getDomains(std::vector<DomainInfo> & _return)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->getDomains(_return, conn);
-                libvirt->disconnect(conn);
+                libvirt.getDomains(_return, conn);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void defineDomain(const std::string& xmlDesc)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->defineDomain(conn, xmlDesc);
-                libvirt->disconnect(conn);
+                libvirt.defineDomain(conn, xmlDesc);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void undefineDomain(const std::string& domainName)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->undefineDomain(conn, domainName);
-                libvirt->disconnect(conn);
+                libvirt.undefineDomain(conn, domainName);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         bool existDomain(const std::string& domainName)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                bool exist = libvirt->existDomain(conn, domainName);
-                libvirt->disconnect(conn);
+                bool exist = libvirt.existDomain(conn, domainName);
+                libvirt.disconnect(conn);
                 return exist;
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 return false;
             }
         }
 
         DomainState::type getDomainState(const std::string& domainName)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                DomainState::type state = libvirt->getDomainState(conn, domainName);
-                libvirt->disconnect(conn);
+                DomainState::type state = libvirt.getDomainState(conn, domainName);
+                libvirt.disconnect(conn);
                 return state;
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void getDomainInfo(DomainInfo& _return, const std::string& domainName)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->getDomainInfo(_return, conn, domainName);
-                libvirt->disconnect(conn);
+                libvirt.getDomainInfo(_return, conn, domainName);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void powerOn(const std::string& domainName)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->powerOn(conn, domainName);
-                libvirt->disconnect(conn);
+                libvirt.powerOn(conn, domainName);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void powerOff(const std::string& domainName)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->powerOff(conn, domainName);
-                libvirt->disconnect(conn);
+                libvirt.powerOff(conn, domainName);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void reset(const std::string& domainName)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->reset(conn, domainName);
-                libvirt->disconnect(conn);
+                libvirt.reset(conn, domainName);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void pause(const std::string& domainName)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->pause(conn, domainName);
-                libvirt->disconnect(conn);
+                libvirt.pause(conn, domainName);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void resume(const std::string& domainName)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->resume(conn, domainName);
-                libvirt->disconnect(conn);
+                libvirt.resume(conn, domainName);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void createISCSIStoragePool(const std::string& name, const std::string& host, const std::string& iqn, const std::string& targetPath)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->createISCSIStoragePool(conn, name, host, iqn, targetPath);
-                libvirt->disconnect(conn);
+                libvirt.createISCSIStoragePool(conn, name, host, iqn, targetPath);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void createNFSStoragePool(const std::string& name, const std::string& host, const std::string& dir, const std::string& targetPath)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->createNFSStoragePool(conn, name, host, dir, targetPath);
-                libvirt->disconnect(conn);
+                libvirt.createNFSStoragePool(conn, name, host, dir, targetPath);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void createDirStoragePool(const std::string& name, const std::string& targetPath)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->createDirStoragePool(conn, name, targetPath);
-                libvirt->disconnect(conn);
+                libvirt.createDirStoragePool(conn, name, targetPath);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void createDisk(const std::string& poolName, const std::string& name, double capacityInKb, double allocationInKb, const std::string& format)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->createDisk(conn, poolName, name, capacityInKb, allocationInKb, format);
-                libvirt->disconnect(conn);
+                libvirt.createDisk(conn, poolName, name, capacityInKb, allocationInKb, format);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void deleteDisk(const std::string& poolName, const std::string& name)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->deleteDisk(conn, poolName, name);
-                libvirt->disconnect(conn);
+                libvirt.deleteDisk(conn, poolName, name);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void resizeVol(const std::string& poolName, const std::string& name, const double capacityInKb)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->resizeVol(conn, poolName, name, capacityInKb);
-                libvirt->disconnect(conn);
+                libvirt.resizeVol(conn, poolName, name, capacityInKb);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }
 
         void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb)
         {
-            virConnectPtr conn = libvirt->connect();
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
             try
             {
-                libvirt->resizeDisk(conn, domainName, diskPath, diskSizeInKb);
-                libvirt->disconnect(conn);
+                libvirt.resizeDisk(conn, domainName, diskPath, diskSizeInKb);
+                libvirt.disconnect(conn);
             }
             catch (...)
             {
-                libvirt->disconnect(conn);
+                libvirt.disconnect(conn);
                 throw;
             }
         }

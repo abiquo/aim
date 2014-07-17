@@ -1,18 +1,8 @@
-Abiquo Infrastructure Management (AIM)
-======================================
+# Abiquo Infrastructure Management (AIM)
 
-The Abiquo Infrastructure Management (AIM) is a collection of services that manage the deployment of virtual machines, the local event system and the vlan management. AIM must be installed in each node machine that works with the following hypervisors:
+The Abiquo Infrastructure Management (AIM) is a collection of services that manage the deployment of virtual machines, the local event system and the vlan management. AIM must be installed in each node machine that works with the KVM hypervisor.
 
-* KVM
-* XEN
-
-Building
---------
-
-Go [here](http://wiki.abiquo.com/display/ABI17/Building+thrift+based+AIM+on+CentOS5)
-
-Architecture
-------------
+## Services
 
 There are five three services available:
 
@@ -24,86 +14,53 @@ scripts_.
 * Storage service manages the iSCSI storage configuration.
 * Libvirt service provides access to the libvirt API.
 
-'ifcfg-abiquo_3' bridge configuration file
-------------------------------------------
+## Configuration
+
+    [server]
+    port = 60606
+    
+    [rimp]
+    repository = /opt/nfs-devel
+    autoBackup = false
+    autoRestore = false
+
+### Rimp properties
+
+* repository, repository mount point
+* autoBackup, on undeploy if autoBackup=true, then disk is backed up rather than deleted from the datastore .
+* autoRestore, on deploy if autoRestore=true, then disk is restored from a previous backed up disk rather than copied from repository.
+
+## Command line arguments
+
+    [root@localhost ~]# abiquo-aim --help
+    Usage: abiquo-aim options
+    -h --help                       Show this help
+    -c --config-file=<file>         Alternate configuration file
+    -d --daemon                     Run as daemon
+    -v --version                    Show AIM server version
+    -t --threads                    Maximum threads to handle requests
+
+## Defaults
+
+By default the server is listening at *60606* port, starts a thread pool of *4* threads and loads the configuration file named *aim.ini*
+
+## Logs
+
+AIM writes log messages in the stderr and /var/log/messages
+
+## VLAN configuration examples
+
+*'ifcfg-abiquo_3' bridge configuration file*
 
     DEVICE=abiquo_3
     TYPE=Bridge
     BOOTPROTO=none
     ONBOOT=yes
     
-'ifcfg-abiquo_eth2.3' VLAN configuration file
----------------------------------------------
+*'ifcfg-abiquo_eth2.3' VLAN configuration file*
 
     VLAN=yes
     DEVICE=eth2.3
     BOOTPROTO=none
     ONBOOT=yes
     BRIDGE=abiquo_3
-
-Configuration
--------------
-
-    [server]
-    port = 60606
-    
-    [monitor]
-    uri = "qemu+tcp:///system"
-    redisHost = 10.60.1.203
-    redisPort = 6379
-    
-    [rimp]
-    repository = /opt/nfs-devel
-    autoBackup = false
-    autoRestore = false
-    
-    [vlan]
-    ifconfigCmd = /sbin/ifconfig
-    vconfigCmd = /sbin/vconfig
-    brctlCmd = /usr/sbin/brctl
-
-EventsMonitor properties
-------------------------
-
-* uri, the URI of the hypervisor to monitorize
-* redisHost and redisPort, where is redis listening
-
-Rimp properties
----------------
-
-* repository, repository mount point
-* autoBackup, on undeploy if autoBackup=true, then disk is backed up rather than deleted from the datastore .
-* autoRestore, on deploy if autoRestore=true, then disk is restored from a previous backed up disk rather than copied from repository.
-* datastoreValidTypes, optional, default value is _ext2,ext3,ext4,nfs,nfs4,xfs,smbf_. CSV list of valid datastore devices when checking the /etc/mtab/#mnt_type.  
-
-Vlan properties
----------------
-
-The correct path in the system for ifconfig, vconfig and brctl commands.
-
-* ifconfigCmd
-* vconfigCmd
-* brctlCmd
-
-Command line arguments
-----------------------
-
-    [root@localhost ]# ./aim --help
-    Usage: ./aim options
-    -h --help                       Show this help
-    -c --config-file=<file>         Alternate configuration file
-    -p --port=<port>                Port to bind
-    -d --daemon                     Run as daemon
-    -u --uri=<uri>                  Hypervisor URI
-    -r --repository=<repository>    Repository mount point
-    -v --version                    Show AIM server version
-
-Defaults
---------
-
-By default the server is listening at *60606* port and loads a configuration file named *aim.ini*
-
-Logs
-----
-
-AIM writes log messages in the stderr and /var/log/messages

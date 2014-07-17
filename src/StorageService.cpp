@@ -4,28 +4,31 @@
 #include <ExecUtils.h>
 #include <aim_types.h>
 
-#include <iniparser.h>
-#include <dictionary.h>
-
 #include <sstream>
 
 StorageService::StorageService() : Service("Storage")
 {
-    iscsiInitiatorNameFile = ISCSI_DEFAULT_INITIATOR_NAME_FILE;
 }
 
 StorageService::~StorageService()
 {
 }
 
-bool StorageService::initialize(dictionary * configuration)
+bool StorageService::initialize(INIReader configuration)
 {
-    dictionary* d = iniparser_load(iscsiInitiatorNameFile.c_str());
+    INIReader reader(ISCSI_DEFAULT_INITIATOR_NAME_FILE);    
+    bool initialized = (reader.ParseError() >= 0);
 
-    bool initialized = (d != NULL);
+    LOG("Reading ISCSI initiator IQN from '%s' file", ISCSI_DEFAULT_INITIATOR_NAME_FILE);
 
-    iniparser_freedict(d);
+    if (!initialized)
+    {
+        LOG("Unable to load ISCSI initiator IQN");
+        return false;
+    }
 
+    iqnValue = reader.Get("", "InitiatorName", "");
+    LOG("ISCSI initiator IQN: '%s'", iqnValue.c_str());
     return initialized;
 }
 
@@ -54,21 +57,8 @@ void StorageService::throwError(const string& message)
 
 void StorageService::getInitiatorIQN(string& iqn)
 {
-    char entryName[] = ":InitiatorName";
-    dictionary* d = iniparser_load(iscsiInitiatorNameFile.c_str());
-    iqn = "";
-
-    if (d == NULL)
-    {
-        LOG("Unable to load %s. The IQN returned will be empty.", iscsiInitiatorNameFile.c_str());
-    }
-
-    if (iniparser_find_entry(d, entryName) != 0)
-    {
-        iqn = getStringProperty(d, entryName);
-    }
-
-    LOG("Request for node ISCSI initiator iqn = '%s'", iqn.c_str());
+    iqn = iqnValue;
+    LOG("Request for node ISCSI initiator IQN ('%s')", iqn.c_str());
 }
 
 void StorageService::rescanISCSI(const vector<string>& targets)

@@ -1,10 +1,6 @@
 #include <LibvirtService.h>
-#include <ConfigConstants.h>
 #include <Debug.h>
 #include <Macros.h>
-
-#include <iniparser.h>
-#include <dictionary.h>
 
 #include <libvirt/virterror.h>
 #include <string>
@@ -27,8 +23,6 @@
 
 using namespace boost::filesystem;
 
-string LibvirtService::connectionUrl = "";
-
 LibvirtService::LibvirtService() : Service("Libvirt")
 {
 }
@@ -44,7 +38,7 @@ virDomainPtr LibvirtService::getDomainByName(const virConnectPtr conn, const std
     virDomainPtr domain = virDomainLookupByName(conn, name.c_str());
     if (domain == NULL)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
     return domain;
 }
@@ -53,43 +47,43 @@ DomainInfo LibvirtService::getDomainInfo(const virConnectPtr conn, const virDoma
 {
     if (domain == NULL)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     virDomainInfo info;
     if (virDomainGetInfo(domain, &info) < 0)
     {
         virDomainFree(domain);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
-    
     bool jobInProgress = false;
     virDomainJobInfo jobInfo;
     if (virDomainGetJobInfo(domain, &jobInfo) == 0)
     {
         jobInProgress = (jobInfo.type != 0);
     }
-  
+ 
     const char *name = virDomainGetName(domain);
     if (name == NULL)
     {
         virDomainFree(domain);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     const char *xml = virDomainGetXMLDesc(domain, 0);
     if (xml == NULL)
     {
         virDomainFree(domain);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
-    
+
     char uuid[VIR_UUID_STRING_BUFLEN];
     if (virDomainGetUUIDString(domain, uuid) < 0)
     {
+        free((char*) xml);
         virDomainFree(domain);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     DomainInfo domainInfo;
@@ -99,6 +93,8 @@ DomainInfo LibvirtService::getDomainInfo(const virConnectPtr conn, const virDoma
     domainInfo.numberVirtCpu   = info.nrVirtCpu;            
     domainInfo.memory          = info.memory; // KBytes
     domainInfo.xmlDesc         = string(xml);
+   
+    free((char*) xml); 
 
     LOG("Domain '%s' in state '%d' jobInProgress => '%s'", name, domainInfo.state, jobInProgress ? "true" : "false");
     return domainInfo;
@@ -192,7 +188,7 @@ void LibvirtService::defineStoragePool(const virConnectPtr conn, const std::stri
     virStoragePoolPtr storagePool = virStoragePoolDefineXML(conn, xmlDesc.c_str(), 0);
     if (storagePool == NULL)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     LOG("Set storage pool autostart");
@@ -200,7 +196,7 @@ void LibvirtService::defineStoragePool(const virConnectPtr conn, const std::stri
     {
         virStoragePoolUndefine(storagePool);
         virStoragePoolFree(storagePool);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     LOG("Activate storage pool");
@@ -208,7 +204,7 @@ void LibvirtService::defineStoragePool(const virConnectPtr conn, const std::stri
     {
         virStoragePoolUndefine(storagePool);
         virStoragePoolFree(storagePool);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     LOG("Storage pool defined, created and activated");
@@ -279,7 +275,7 @@ string LibvirtService::to_string(const double value)
 
 // Public methods
 
-bool LibvirtService::initialize(dictionary* configuration)
+bool LibvirtService::initialize(INIReader configuration)
 {
     return true;
 }
@@ -299,9 +295,9 @@ bool LibvirtService::cleanup()
     return true;
 }
 
-void LibvirtService::throwLastKnownError(const virConnectPtr conn)
+void LibvirtService::throwLastKnownError()
 {
-    virErrorPtr error = virConnGetLastError(conn);
+    virErrorPtr error = virSaveLastError();
 
     if (error == NULL)
     {
@@ -311,7 +307,7 @@ void LibvirtService::throwLastKnownError(const virConnectPtr conn)
         LOG(exception.msg.c_str());
         throw exception;
     }
-
+    
     LibvirtException exception;
     exception.code   = error->code;
     exception.domain = error->domain;
@@ -322,19 +318,22 @@ void LibvirtService::throwLastKnownError(const virConnectPtr conn)
     exception.str3   = error->str3 == NULL ? "" : string(error->str3);
     exception.int1   = error->int1;
     exception.int2   = error->int2;
-    LOG("LibvirtError '%d' level: '%d' message: '%s'", exception.code, exception.level, exception.msg.c_str());
 
+    virFreeError(error);
+    virResetLastError();
+   
+    LOG("LibvirtError '%d' level: '%d' message: '%s'", exception.code, exception.level, exception.msg.c_str());
     throw exception;
 }
 
 virConnectPtr LibvirtService::connect() throw (LibvirtException)
 {
-    virConnectPtr conn = virConnectOpen(LibvirtService::connectionUrl.c_str());
+    virConnectPtr conn = virConnectOpen(NULL);
     if (conn == NULL)
     {
         LibvirtException exception;
         exception.code = CONNECTION_ERROR_CODE;
-        exception.msg = "Could not connect to " + LibvirtService::connectionUrl;
+        exception.msg = "Could not connect to local libvirt";
         LOG(exception.msg.c_str());
         throw exception;
     }
@@ -343,9 +342,9 @@ virConnectPtr LibvirtService::connect() throw (LibvirtException)
 
 void LibvirtService::disconnect(const virConnectPtr conn)
 {
-    if (virConnectClose(conn) < 0)
+    if(conn != NULL && virConnectClose(conn))
     {
-        LOG(("Error closing connection: " + LibvirtService::connectionUrl).c_str());
+        LOG("Error closing connection to local libvirt");
     }
 }
 
@@ -355,19 +354,20 @@ void LibvirtService::getNodeInfo(NodeInfo& _return, const virConnectPtr conn) th
     virNodeInfo info;
     if (virNodeGetInfo(conn, &info) < 0)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
-    
+   
     char *name = virConnectGetHostname(conn);
     if (name == NULL)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     unsigned long version;
     if (virConnectGetLibVersion(conn, &version) < 0)
     {
-        throwLastKnownError(conn);
+        free((char*) name);
+        throwLastKnownError();
     }
 
     _return.name    = string(name); // system hostname
@@ -376,7 +376,7 @@ void LibvirtService::getNodeInfo(NodeInfo& _return, const virConnectPtr conn) th
     _return.sockets = info.sockets; // number of CPU sockets per node
     _return.memory  = info.memory;  // memory size in kilobytes
 
-    free(name);
+    free((char*) name);
 }
 
 void LibvirtService::getDomains(std::vector<DomainInfo> & _return, const virConnectPtr conn) throw (LibvirtException)
@@ -387,14 +387,16 @@ void LibvirtService::getDomains(std::vector<DomainInfo> & _return, const virConn
     int ret = virConnectListAllDomains(conn, &domains, 0);
     if (ret < 0)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     for (int i = 0; i < ret; i++)
     {
         try
         {
+            
             DomainInfo domainInfo = getDomainInfo(conn, domains[i]);
+            
             if (existPrimaryDisk(domainInfo))
             {
                 _return.push_back(domainInfo);
@@ -418,7 +420,7 @@ void LibvirtService::defineDomain(const virConnectPtr conn, const std::string& x
     virDomainPtr domain = virDomainDefineXML(conn, xmlDesc.c_str());
     if (domain == NULL)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     virDomainFree(domain);
@@ -435,13 +437,13 @@ void LibvirtService::undefineDomain(const virConnectPtr conn, const std::string&
     if (managed == -1)
     {
         virDomainFree(domain);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
     int snapshots = virDomainSnapshotNum(domain, 0);
     if (snapshots == -1)
     {
         virDomainFree(domain);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     // Set all the flags required to properly undefine the domain
@@ -460,7 +462,7 @@ void LibvirtService::undefineDomain(const virConnectPtr conn, const std::string&
 
     if (ret < 0)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 }
 
@@ -488,7 +490,7 @@ DomainState::type LibvirtService::getDomainState(const virConnectPtr conn, const
     if (virDomainGetInfo(domain, &info) < 0)
     {
         virDomainFree(domain);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     DomainState::type result = toDomainState(info.state);
@@ -516,7 +518,7 @@ void LibvirtService::powerOn(const virConnectPtr conn, const std::string& domain
     
     if (ret < 0)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }   
 }
 
@@ -530,7 +532,7 @@ void LibvirtService::powerOff(const virConnectPtr conn, const std::string& domai
     
     if (ret < 0)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 }
 
@@ -544,7 +546,7 @@ void LibvirtService::reset(const virConnectPtr conn, const std::string& domainNa
     
     if (ret < 0)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 }
 
@@ -558,7 +560,7 @@ void LibvirtService::pause(const virConnectPtr conn, const std::string& domainNa
     
     if (ret < 0)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 }
 
@@ -572,7 +574,7 @@ void LibvirtService::resume(const virConnectPtr conn, const std::string& domainN
     
     if (ret < 0)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 }
 
@@ -586,7 +588,7 @@ void LibvirtService::createISCSIStoragePool(const virConnectPtr conn, const std:
     int ret = virConnectListAllStoragePools(conn, &pools, VIR_CONNECT_LIST_STORAGE_POOLS_ISCSI);
     if (ret < 0)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     LOG("Creck if the iSCSI storage pool (host='%s', iqn='%s') is already defined", host.c_str(), iqn.c_str());
@@ -599,6 +601,7 @@ void LibvirtService::createISCSIStoragePool(const virConnectPtr conn, const std:
         {
             string _iqn = parseDevicePath(string(xml));
             defined = (_iqn.compare(iqn) == 0);
+            free((char *) xml);
             LOG("Found iqn='%s'. Match=%s", _iqn.c_str(), defined ? "True" : "False");
         }
         virStoragePoolFree(pools[i]);
@@ -656,7 +659,7 @@ void LibvirtService::createNFSStoragePool(const virConnectPtr conn, const std::s
     int ret = virConnectListAllStoragePools(conn, &pools, VIR_CONNECT_LIST_STORAGE_POOLS_NETFS);
     if (ret < 0)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     LOG("Creck if the NFS storage pool (host='%s', dir='%s') is already defined", host.c_str(), dir.c_str());
@@ -671,6 +674,7 @@ void LibvirtService::createNFSStoragePool(const virConnectPtr conn, const std::s
             string _dir= "";
             parseSourceHostAndDir(string(xml), _host, _dir);
             defined = (host.compare(_host) == 0) && (dir.compare(_dir) ==0);
+            free((char *) xml);
             LOG("Found host='%s' dir='%s'. Match=%s", _host.c_str(), _dir.c_str(), defined ? "True" : "False");
         }
         virStoragePoolFree(pools[i]);
@@ -725,7 +729,7 @@ void LibvirtService::createDirStoragePool(const virConnectPtr conn, const std::s
     int ret = virConnectListAllStoragePools(conn, &pools, VIR_CONNECT_LIST_STORAGE_POOLS_DIR);
     if (ret < 0)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     LOG("Creck if the DIR storage pool (targetPath='%s') is already defined", targetPath.c_str());
@@ -738,6 +742,7 @@ void LibvirtService::createDirStoragePool(const virConnectPtr conn, const std::s
         {
             string _path = parseTargetPath(string(xml));
             defined = comparePaths(_path, targetPath); // (_path.compare(targetPath) == 0);
+            free((char*) xml);
             LOG("Found directory='%s'. Match=%s", _path.c_str(), defined ? "True" : "False");
         }
         virStoragePoolFree(pools[i]);
@@ -807,7 +812,7 @@ void LibvirtService::createDisk(const virConnectPtr conn, const string& poolName
     virStoragePoolPtr pool = virStoragePoolLookupByName(conn, poolName.c_str());
     if (pool == NULL)
     {
-         throwLastKnownError(conn);
+         throwLastKnownError();
     }
 
     virStorageVolPtr vol = virStorageVolLookupByName(pool, name.c_str());
@@ -815,7 +820,7 @@ void LibvirtService::createDisk(const virConnectPtr conn, const string& poolName
     {
         virStorageVolFree(vol);
         virStoragePoolFree(pool);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     ostringstream xml;
@@ -839,7 +844,7 @@ void LibvirtService::createDisk(const virConnectPtr conn, const string& poolName
 
     if (vol == NULL)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     virStorageVolFree(vol);
@@ -854,7 +859,7 @@ void LibvirtService::deleteDisk(const virConnectPtr conn, const string& poolName
     virStoragePoolPtr pool = virStoragePoolLookupByName(conn, poolName.c_str());
     if (pool == NULL)
     {
-         throwLastKnownError(conn);
+         throwLastKnownError();
     }
 
     virStorageVolPtr vol = virStorageVolLookupByName(pool, name.c_str());
@@ -864,7 +869,7 @@ void LibvirtService::deleteDisk(const virConnectPtr conn, const string& poolName
         {
             virStorageVolFree(vol);
             virStoragePoolFree(pool);
-            throwLastKnownError(conn);
+            throwLastKnownError();
         }
 
         virStorageVolFree(vol);
@@ -882,21 +887,21 @@ void LibvirtService::resizeVol(const virConnectPtr conn, const string& poolName,
     virStoragePoolPtr pool = virStoragePoolLookupByName(conn, poolName.c_str());
     if (pool == NULL)
     {
-         throwLastKnownError(conn);
+         throwLastKnownError();
     }
 
     virStorageVolPtr vol = virStorageVolLookupByName(pool, name.c_str());
     if (vol == NULL)
     {
         virStoragePoolFree(pool);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     if (virStorageVolResize(vol, capacityInKb * 1024, 0) < 0)
     {
         virStorageVolFree(vol);
         virStoragePoolFree(pool);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     virStorageVolFree(vol);
@@ -919,7 +924,7 @@ void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& dom
     if (virDomainGetInfo(domain, &info) < 0)
     {
         virDomainFree(domain);
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 
     DomainState::type state = toDomainState(info.state);
@@ -931,7 +936,7 @@ void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& dom
         if (virDomainCreate(domain) < 0)
         {
             virDomainFree(domain);
-            throwLastKnownError(conn);
+            throwLastKnownError();
         }
     }
 
@@ -944,7 +949,7 @@ void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& dom
         if (virDomainDestroy(domain) < 0)
         {
             virDomainFree(domain);
-            throwLastKnownError(conn);
+            throwLastKnownError();
         }
     }
 
@@ -952,7 +957,7 @@ void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& dom
 
     if (result < 0)
     {
-        throwLastKnownError(conn);
+        throwLastKnownError();
     }
 }
 

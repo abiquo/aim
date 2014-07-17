@@ -1,14 +1,10 @@
 #include <Rimp.h>
 #include <RimpUtils.h>
-#include <ConfigConstants.h>
 #include <Debug.h>
 #include <Macros.h>
 #include <boost/algorithm/string.hpp>
 
 #include <aim_types.h>
-
-#define TRUE_CHAR "TRUE\0"
-#define holdsTrueValue(propChar) (propChar != NULL && strcasecmp(propChar, TRUE_CHAR) == 0)
 
 Rimp::Rimp() : Service("Rimp")
 {
@@ -20,85 +16,80 @@ Rimp::~Rimp()
 
 bool Rimp::start()
 {
-    LOG("[DEBUG] [RIMP] start");
     return true;
 }
 
 bool Rimp::stop()
 {
-    LOG("[DEBUG] [RIMP] stop");
     return true;
 }
 
 bool Rimp::cleanup()
 {
-    LOG("[DEBUG] [RIMP] cleanup");
     return true;
-}
-
-void printValidTypes(const vector<string> validTypes)
-{
-    LOG("[DEBUG] [RIMP] List of valid device types to filter datastores");
-
-    for (int i = 0; (i < (int) validTypes.size()); i++)
-    {
-        LOG("- %s",  validTypes[i].c_str());
-    }
 }
 
 vector<string> defaultValidTypeVector()
 {
-  vector<string> types;
+    vector<string> types;
 
-  types.push_back(string("ext2"));
-  types.push_back(string("ext3"));
-  types.push_back(string("ext4"));
-  types.push_back(string("nfs"));
-  types.push_back(string("nfs4"));
-  types.push_back(string("xfs"));
-  types.push_back(string("smbfs"));
+    types.push_back(string("ext2"));
+    types.push_back(string("ext3"));
+    types.push_back(string("ext4"));
+    types.push_back(string("nfs"));
+    types.push_back(string("nfs4"));
+    types.push_back(string("xfs"));
+    types.push_back(string("smbfs"));
 
-  return types;
+    return types;
 }
 
-bool Rimp::initialize(dictionary * configuration)
+bool Rimp::initialize(INIReader configuration)
 {
-    const char* repository_c = getStringProperty(configuration, rimpRepository);
-    const char* autobackup_c = getStringProperty(configuration, rimpAutoBackup);
-    const char* autorestore_c = getStringProperty(configuration, rimpAutoRestore);
-    const char* rimpDatastoreValidTypes_c = getStringProperty(configuration, rimpDatastoreValidTypes);
+    repository = configuration.Get("rimp", "repository", "");
+    autobackup = configuration.GetBoolean("rimp", "autoBackup", false);
+    autorestore = configuration.GetBoolean("rimp", "autoRestore", false);
+    string dsTypes = configuration.Get("rimp", "datastoreValidTypes", "");
 
-    if (repository_c == NULL || strlen(repository_c) < 2)
+    if (repository.size() < 2)
     {
         LOG("[ERROR] [RIMP] Initialization fails :\n"
                 "\tcan not read the ''repository'' configuration element "
                 "\tset [rimp]\nrepository = XXXX ");
-
         return false;
     }
 
-    autobackup = holdsTrueValue(autobackup_c);
-    autorestore = holdsTrueValue(autorestore_c);
-    repository = string(repository_c);
-    
     // check ends with '/'
     if (repository.at(repository.size() - 1) != '/')
     {
         repository = repository.append("/");
     }
     
-    if(rimpDatastoreValidTypes_c == NULL)
+    if(dsTypes.size() == 0)
     {
         validTypes = defaultValidTypeVector();
     }
     else
     {
-        boost::split(validTypes, rimpDatastoreValidTypes_c, boost::is_any_of(","));
+        boost::split(validTypes, dsTypes, boost::is_any_of(","));
     }
 
-    printValidTypes(validTypes);
+    // Print config values
+    LOG("[DEBUG] Repository: '%s'", repository.c_str());
+    LOG("[DEBUG] Auto-backup: %s", autobackup ? "on" : "off");
+    LOG("[DEBUG] Auto-restore: %s", autorestore ? "on" : "off");
 
-    //return checkRepository(repository); // Don't check at start
+    // Print datastore valid devices
+    ostringstream ss;
+    
+    for (int i = 0; (i < (int) validTypes.size()-1); i++)
+    {
+        ss << validTypes[i] << ", ";
+    }
+    
+    ss << validTypes.back();
+
+    LOG("[DEBUG] Valid device types to filter datastores: %s", ss.str().c_str());
     return true;
 }
 
@@ -109,9 +100,9 @@ void Rimp::checkRimpConfiguration()
         string error("Invalid ''repository'' property configuration : ");
         error = error.append(repository);
 
-        RimpException rexecption;
-        rexecption.description = error;
-        throw rexecption;
+        RimpException rexception;
+        rexception.description = error;
+        throw rexception;
     }
 }
 
@@ -142,13 +133,13 @@ int64_t Rimp::getDiskFileSize(const std::string& virtualImageDatastorePath)
     // Check the file exist and can be read
     if (access(virtualImageDatastorePath.c_str(), F_OK | R_OK) == -1)
     {
-        RimpException rexecption;
+        RimpException rexception;
         string error ("File does not exist at [");
         error = error.append(virtualImageDatastorePath).append("]");
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
+        rexception.description = error;
+        throw rexception;
     }
 
     return getFileSize(virtualImageDatastorePath);
@@ -159,7 +150,7 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
         const std::string& virtualMachineUUID)
 {
     string error("");
-    RimpException rexecption;
+    RimpException rexception;
 
     // check datastore path end with '/'
     if (datastore.at(datastore.size() - 1) != '/')
@@ -172,8 +163,8 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
     {
         error = error.append("Provided ''datastore'' :").append(datastore).append(" can not be used");
         LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
+        rexception.description = error;
+        throw rexception;
     }
 
     LOG("[DEBUG] [RIMP] Instantiating virtual image [%s] for virtual machine [%s]",
@@ -188,8 +179,8 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
         error = error.append("Source file does not exist at [").append(viRepositoryPath).append("]");
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
+        rexception.description = error;
+        throw rexception;
     }
 
     unsigned long int viSize = getFileSize(viRepositoryPath);
@@ -231,8 +222,8 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
                 error = error.append("Can not move :").append(viDatastorePathBackup).append(" to :").append(viDatastorePath).append("\nCaused by :").append(renameError2);
 
                 LOG("[ERROR] [RIMP] %s", error.c_str());
-                rexecption.description = error;
-                throw rexecption;
+                rexception.description = error;
+                throw rexception;
             }
 
             LOG("[INFO] [RIMP] Recovered virtual image instance for virtual machine [%s]", virtualMachineUUID.c_str());
@@ -249,8 +240,8 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
         error = error.append(viRepositoryPath).append(" to :").append(datastore);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
+        rexception.description = error;
+        throw rexception;
     }
 
     string copyError2 = fileCopy(viRepositoryPath, viDatastorePath);
@@ -260,8 +251,8 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
         error = error.append("Can not copy to :").append(viDatastorePath).append("\nCaused by :").append(copyError2);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
+        rexception.description = error;
+        throw rexception;
     }
 
     LOG("[INFO] [RIMP] Created virtual image instance for virtual machine [%s]", virtualMachineUUID.c_str());
@@ -270,7 +261,7 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
 void Rimp::deleteVirtualImageFromDatastore(std::string& datastore, const std::string& virtualMachineUUID)
 {
     string error("");
-    RimpException rexecption;
+    RimpException rexception;
 
     // check datastore path end with '/'
     if (datastore.at(datastore.size() - 1) != '/')
@@ -283,8 +274,8 @@ void Rimp::deleteVirtualImageFromDatastore(std::string& datastore, const std::st
     {
         error = error.append("Provided ''datastore'' :").append(datastore).append(" can not be used");
         LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
+        rexception.description = error;
+        throw rexception;
     }
 
     LOG("[DEBUG] [RIMP] Deleting virtual machine [%s]", virtualMachineUUID.c_str());
@@ -323,8 +314,8 @@ void Rimp::deleteVirtualImageFromDatastore(std::string& datastore, const std::st
             error = error.append("Can not move :").append(viDatastorePath).append(" to :").append(viDatastorePathBackup).append("\nCaused by :").append(renameError2);
 
             LOG("[ERROR] [RIMP] %s", error.c_str());
-            rexecption.description = error;
-            throw rexecption;
+            rexception.description = error;
+            throw rexception;
         }
 
         LOG("[INFO] [RIMP] Backedup virtual machine [%s]", virtualMachineUUID.c_str());
@@ -340,7 +331,7 @@ void Rimp::copyFromDatastoreToRepository(const std::string& virtualMachineUUID, 
         const std::string& destinationRepositoryPathIn, const std::string& sourceDatastorePathIn)
 {
     string error("");
-    RimpException rexecption;
+    RimpException rexception;
 
     checkRimpConfiguration();
 
@@ -377,8 +368,8 @@ void Rimp::copyFromDatastoreToRepository(const std::string& virtualMachineUUID, 
             error = error.append(destinationRepositoryPath).append(" Caused by: ").append(strerror(errno));
 
             LOG("[ERROR] [RIMP] %s", error.c_str());
-            rexecption.description = error;
-            throw rexecption;
+            rexception.description = error;
+            throw rexception;
         }
     }
 
@@ -392,8 +383,8 @@ void Rimp::copyFromDatastoreToRepository(const std::string& virtualMachineUUID, 
         error = error.append(viDatastoreSource);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
+        rexception.description = error;
+        throw rexception;
     }
 
     string viRepositoryDestination(destinationRepositoryPath);
@@ -406,8 +397,8 @@ void Rimp::copyFromDatastoreToRepository(const std::string& virtualMachineUUID, 
         error = error.append(viRepositoryDestination);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
+        rexception.description = error;
+        throw rexception;
     }
 
     // Checking there are enough free space to copy
@@ -420,8 +411,8 @@ void Rimp::copyFromDatastoreToRepository(const std::string& virtualMachineUUID, 
         error = error.append(viDatastoreSource).append(" to :").append(viRepositoryDestination);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
+        rexception.description = error;
+        throw rexception;
     }
 
     string errorCopy = fileCopy(viDatastoreSource, viRepositoryDestination);
@@ -431,8 +422,8 @@ void Rimp::copyFromDatastoreToRepository(const std::string& virtualMachineUUID, 
         error = error.append(viRepositoryDestination).append("\nCaused by :").append(errorCopy);
 
         LOG("[ERROR] [RIMP] %s", error.c_str());
-        rexecption.description = error;
-        throw rexecption;
+        rexception.description = error;
+        throw rexception;
     }
 
     LOG("[INFO] [RIMP] Created snapshot [%s] from virtual machine [%s]", snapshot.c_str(), virtualMachineUUID.c_str());
