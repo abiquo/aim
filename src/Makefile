@@ -9,6 +9,8 @@ GEN_SRC = aim_constants.cpp \
 		StringUtils.cpp \
 		StorageService.cpp \
 		LibvirtService.cpp \
+		MetricCollector.cpp \
+		MetricService.cpp \
 		ExecUtils.cpp \
 		pugixml/pugixml.cpp \
 		inih/ini.c \
@@ -28,9 +30,10 @@ VIRT_INC = /usr/include/libvirt
 CURL_INC = /usr/include/curl
 PUGIXML_INC = ./pugixml
 INIH_INC = ./inih
+SQLITE_INC = /usr/include/sqlite3
 
 # Include and link paths
-INC_PATH = -I$(USR_INC) -I$(USRLOCAL_INC) -I$(VIRT_INC) -I$(CURL_INC) -I$(PUGIXML_INC) -I$(INIH_INC) -I.
+INC_PATH = -I$(USR_INC) -I$(USRLOCAL_INC) -I$(VIRT_INC) -I$(CURL_INC) -I$(PUGIXML_INC) -I$(INIH_INC) -I$(SQLITE_INC) -I.
 LD_PATH = -L/lib64 -L/usr/lib64 -L/usr/local/lib
 
 # Compiler and linker flags
@@ -39,7 +42,7 @@ THRIFT_FLAGS = -DHAVE_NETINET_IN_H -DHAVE_INTTYPES_H
 CC = g++
 CFLAGS = -Wall
 CXXFLAGS = -Wall $(THRIFT_FLAGS) $(INC_PATH)
-LDFLAGS = $(LD_PATH) -lpthread -lvirt -lthrift -lthriftnb -levent -lcurl -luuid -lboost_filesystem -lboost_thread-mt
+LDFLAGS = $(LD_PATH) -lpthread -lvirt -lthrift -lthriftnb -levent -lcurl -luuid -lboost_filesystem -lboost_thread-mt -lsqlite3
 
 
 all: aim

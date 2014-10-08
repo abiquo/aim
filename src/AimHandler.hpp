@@ -27,6 +27,7 @@
 #include <VLan.h>
 #include <StorageService.h>
 #include <LibvirtService.h>
+#include <MetricService.h>
 
 #include <vector>
 
@@ -40,6 +41,7 @@ class AimHandler: virtual public AimIf
         Rimp* rimp;
         VLan* vlan;
         StorageService* storage;
+        MetricService* metrics;
 
     public:
         AimHandler()
@@ -47,6 +49,7 @@ class AimHandler: virtual public AimIf
             rimp = new Rimp();
             vlan = new VLan();
             storage = new StorageService();
+            metrics = new MetricService();
         }
 
         vector<Service*> getServices()
@@ -56,6 +59,7 @@ class AimHandler: virtual public AimIf
             services.push_back(rimp);
             services.push_back(vlan);
             services.push_back(storage);
+            services.push_back(metrics);
 
             return services;
         }
