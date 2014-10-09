@@ -15,7 +15,10 @@ bool MetricService::initialize(INIReader configuration)
 
 bool MetricService::start()
 {
-    MetricCollector collector(5, 30);
+    MetricCollector collector(/* collect every seconds */ 60, /* refresh domains each seconds */ 30);
+    if (collector.initialize(/* domain stats database */ "/opt/test.db") != COLLECTOR_OK) {
+        return false;
+    }
     collectorThread = boost::thread(collector);
     return true;
 }

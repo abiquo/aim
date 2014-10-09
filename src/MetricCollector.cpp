@@ -1,42 +1,60 @@
 #include <MetricCollector.h>
-#include <Debug.h>
-#include <Macros.h>
 
-#include <ctime>
-
-#include <boost/thread.hpp>
-#include <sqlite3.h>
-
-/*
-    unsigned long long cpu_time;
-    unsigned long used_mem;
-    unsigned long long vcpu_time;
-    unsigned short vcpu_number; 
-    long long disk_rd_requests;
-    long long disk_rd_bytes;
-    long long disk_wr_requests;
-    long long disk_wr_bytes;
-    long long if_rx_bytes;
-    long long if_rx_packets; 
-    long long if_rx_errors;
-    long long if_rx_drops;
-    long long if_tx_bytes;
-    long long if_tx_packets;
-    long long if_tx_errors;
-    long long if_tx_drops;
-*/
-MetricCollector::MetricCollector(int collectFrequency, int refreshFrequency) 
-: collect_frequency(collectFrequency) , refresh_frequency(refreshFrequency)
-{ 
+static int callback(void *NotUsed, int argc, char **argv, char **azColName)
+{
+    for (int i = 0; i < argc; i++) {
+        LOG("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+    }
+    return 0;
 }
 
+static int execute(sqlite3 *db, const char *sql)
+{
+    char *zErrMsg = 0;
+    int rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+    if (rc != SQLITE_OK) {
+        LOG("SQL error[%d]: %s", rc, zErrMsg);
+        sqlite3_free(zErrMsg);
+    }
+    return rc;
+}
+
+MetricCollector::MetricCollector(int collectFrequency, int refreshFrequency) : 
+    collect_frequency(collectFrequency), 
+    refresh_frequency(refreshFrequency)
+{ }
+
 MetricCollector::~MetricCollector() { }
+
+int MetricCollector::initialize(const char *databaseFile)
+{
+    database = string(databaseFile);
+
+    if (collect_frequency < MIN_COLLECT_FREQ_SECS) {
+        LOG("Collect frequency must be >= %d seconds", MIN_COLLECT_FREQ_SECS);
+        collect_frequency = MIN_COLLECT_FREQ_SECS;
+    }
+
+    rows = 3600 / collect_frequency;
+
+    sqlite3 *db;
+    if (sqlite3_open(database.c_str(), &db)) {
+        LOG("Cannot open database '%s'", database.c_str());
+        return COLLECTOR_CANTOPEN;
+    }
+
+    execute(db, SQL_CREATE_STATS); 
+    sqlite3_close(db);
+
+    LOG("Stats collector config: {collect=%ds, refresh=%ds, database='%s', rows=%d}", 
+            collect_frequency, refresh_frequency, database.c_str(), rows);
+    return COLLECTOR_OK;
+}
 
 void MetricCollector::operator()()
 {
     boost::posix_time::seconds delay(collect_frequency);
     vector<Domain> domains;
-    LOG("Entering statistics collection loop...");
 
     std::time_t now, last_refresh(0);
 
@@ -53,7 +71,7 @@ void MetricCollector::operator()()
 
         // Read and submit statistics
         read_statistics(domains);
-
+        
         boost::this_thread::sleep(delay);
     }
 }
@@ -62,10 +80,14 @@ void MetricCollector::parse_xml_dump(char *xml, Domain &domain)
 {
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load_buffer_inplace(xml, strlen(xml));
-    // TODO result?
-   
-    parse_dev_attribute(doc, "/domain/devices/disk/target[@dev]", domain.devices);
-    parse_dev_attribute(doc, "/domain/devices/interface/target[@dev]", domain.interfaces);
+ 
+    if (result) {
+        parse_dev_attribute(doc, "/domain/devices/disk/target[@dev]", domain.devices);
+        parse_dev_attribute(doc, "/domain/devices/interface/target[@dev]", domain.interfaces);
+    }
+    else {
+        LOG("Error loading XML '%s'. Cause: '%s'", xml, result.description());
+    }
 }
 
 void MetricCollector::parse_dev_attribute(pugi::xml_document &doc, const char *xpath, vector<string> &collection)
@@ -82,7 +104,7 @@ void MetricCollector::parse_dev_attribute(pugi::xml_document &doc, const char *x
     }
     catch (...)
     {
-        // TODO
+        LOG("Error while parsing xml with '%s' xpath expression", xpath);
     }
 }
 
@@ -119,15 +141,13 @@ void MetricCollector::refresh(vector<Domain> &domains)
     }
 }
 
-void MetricCollector::read_domain_stats(const virDomainPtr domain, const virDomainInfo& domainInfo)
+void MetricCollector::read_domain_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, Stats& stats)
 {
-    // CPU
-    LOG("\tcpu_time = %lu", /* unsigned long long */ domainInfo.cpuTime);
-
-    // Memory
-    LOG("\tused_mem (KBytes) = %lu", /* unsigned long */ domainInfo.memory);
-    
-    // VCPU
+    stats.cpu_time = domainInfo.cpuTime; // CPU time
+    stats.used_mem = domainInfo.memory; // Used memory
+    stats.vcpu_number = domainInfo.nrVirtCpu; // Number of vcpus
+   
+    // VCPU time
     virVcpuInfoPtr vinfo = static_cast<virVcpuInfoPtr>(malloc(domainInfo.nrVirtCpu * sizeof(virVcpuInfoPtr)));
 
     if (virDomainGetVcpus(domain, vinfo, domainInfo.nrVirtCpu, NULL, 0) >= 0)
@@ -138,13 +158,11 @@ void MetricCollector::read_domain_stats(const virDomainPtr domain, const virDoma
             vcpu += vinfo[j].cpuTime;
         }
 
-        LOG("\tvcpu_time = %lu", vcpu / domainInfo.nrVirtCpu); 
+        stats.vcpu_time = vcpu / domainInfo.nrVirtCpu; 
     }
-
-    LOG("\tvcpu_number = %d", domainInfo.nrVirtCpu);
 }
 
-void MetricCollector::read_disk_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, vector<string> devices)
+void MetricCollector::read_disk_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, vector<string> devices, Stats& stats)
 {
     long long rd_req=0, wr_req=0, rd_bytes=0, wr_bytes=0;
 
@@ -168,13 +186,13 @@ void MetricCollector::read_disk_stats(const virDomainPtr domain, const virDomain
         wr_bytes /= devices.size();
     }
 
-    LOG("\tdisk_rd_requests = %d", rd_req);
-    LOG("\tdisk_rd_bytes = %d", rd_bytes);
-    LOG("\tdisk_wr_requests = %d", wr_req);
-    LOG("\tdisk_wr_bytes = %d", wr_bytes);
+    stats.disk_rd_requests = rd_req;
+    stats.disk_rd_bytes = rd_bytes;
+    stats.disk_wr_requests = wr_req;
+    stats.disk_wr_bytes = wr_bytes;
 }
 
-void MetricCollector::read_interface_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, vector<string> interfaces)
+void MetricCollector::read_interface_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, vector<string> interfaces, Stats& stats)
 {
     long long rx_bytes=0, rx_packets=0, rx_errs=0, rx_drop=0, tx_bytes=0, tx_packets=0, tx_errs=0, tx_drop=0;
 
@@ -206,14 +224,14 @@ void MetricCollector::read_interface_stats(const virDomainPtr domain, const virD
         tx_drop /= interfaces.size();
     }
 
-    LOG("\tif_rx_bytes = %d", rx_bytes);
-    LOG("\tif_rx_packets = %d", rx_packets);
-    LOG("\tif_rx_errors = %d", rx_errs);
-    LOG("\tif_rx_drops = %d", rx_drop);
-    LOG("\tif_tx_bytes = %d", tx_bytes);
-    LOG("\tif_tx_packets = %d", tx_packets);
-    LOG("\tif_tx_errors = %d", tx_errs);
-    LOG("\tif_tx_drops = %d", tx_drop);
+    stats.if_rx_bytes = rx_bytes;
+    stats.if_rx_packets = rx_packets;
+    stats.if_rx_errors = rx_errs;
+    stats.if_rx_drops = rx_drop;
+    stats.if_tx_bytes = tx_bytes;
+    stats.if_tx_packets = tx_packets;
+    stats.if_tx_errors = tx_errs;
+    stats.if_tx_drops = tx_drop;
 }
 
 void MetricCollector::read_statistics(vector<Domain> domains)
@@ -229,26 +247,63 @@ void MetricCollector::read_statistics(vector<Domain> domains)
                 continue;
             }
 
-            LOG("Statistics for '%s' domain", uuid);
-
             virDomainInfo domainInfo; 
             if (virDomainGetInfo(domainPtr, &domainInfo) >= 0)
             {
-                read_domain_stats(domainPtr, domainInfo);
-                read_disk_stats(domainPtr, domainInfo, domains[i].devices);
-                read_interface_stats(domainPtr, domainInfo, domains[i].interfaces);
+                std::time_t epoch;
+                std::time(&epoch);
+
+                Stats stats;
+                stats.uuid = string(uuid);
+
+                read_domain_stats(domainPtr, domainInfo, stats);
+                read_disk_stats(domainPtr, domainInfo, domains[i].devices, stats);
+                read_interface_stats(domainPtr, domainInfo, domains[i].interfaces, stats);
+            
+                insert(epoch, stats);
             }
 
             virDomainFree(domainPtr);
         }
 
         virConnectClose(conn);
-
-        sqlite3 *db;
-        int rc = sqlite3_open("/opt/test.db", &db);
     }
     else
     {
         LOG("Unable to connect to libvirt");
     }
+}
+
+void MetricCollector::insert(std::time_t &timestamp, const Stats &stats)
+{
+    sqlite3 *db;
+    if (sqlite3_open(database.c_str(), &db)) {
+        LOG("Cannot open database '%s'", database.c_str());
+        return;
+    }
+
+    // Insert new stats
+    std::ostringstream ss;
+    ss << "insert into domain_stats values('" << stats.uuid << "',";
+    ss << timestamp << "," << stats.cpu_time << "," << stats.used_mem << ",";
+    ss << stats.vcpu_time << "," << stats.vcpu_number << ",";
+    ss << stats.disk_rd_requests << "," << stats.disk_rd_bytes << ",";
+    ss << stats.disk_wr_requests << "," << stats.disk_wr_bytes << ",";
+    ss << stats.if_rx_bytes << "," << stats.if_rx_packets << ",";
+    ss << stats.if_rx_errors << "," << stats.if_rx_drops << ",";
+    ss << stats.if_tx_bytes << "," << stats.if_tx_packets << ",";
+    ss << stats.if_tx_errors << "," << stats.if_tx_drops << ");";
+
+    execute(db, ss.str().c_str());
+ 
+    // Truncate stats
+    ss.str(std::string());
+    ss << "delete from domain_stats where";
+    ss << " (select count(*) from domain_stats where uuid='" << stats.uuid << "') >" << rows;
+    ss << " and timestamp=(select min(timestamp) from domain_stats where uuid='" << stats.uuid << "')";
+    ss << " and uuid='" << stats.uuid << "';";
+
+    execute(db, ss.str().c_str());
+
+    sqlite3_close(db);
 }
