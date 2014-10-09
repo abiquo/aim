@@ -1,5 +1,4 @@
 #include <MetricService.h>
-#include <MetricCollector.h>
 
 #include <Debug.h>
 #include <Macros.h>
@@ -10,15 +9,19 @@ MetricService::~MetricService() { }
 
 bool MetricService::initialize(INIReader configuration)
 {
+    int collectFreq = configuration.GetInteger("stats", "collectFreqSeconds", 60);
+    int refreshFreq = configuration.GetInteger("stats", "refreshFreqSeconds", 30);
+    string database = configuration.Get("stats", "database", "/var/lib/abiquo-aim");
+
+    if (collector.initialize(collectFreq, refreshFreq, database.c_str()) != COLLECTOR_OK) {
+        return false;
+    }
+
     return true;
 }
 
 bool MetricService::start()
 {
-    MetricCollector collector(/* collect every seconds */ 60, /* refresh domains each seconds */ 30);
-    if (collector.initialize(/* domain stats database */ "/opt/test.db") != COLLECTOR_OK) {
-        return false;
-    }
     collectorThread = boost::thread(collector);
     return true;
 }

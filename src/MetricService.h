@@ -22,6 +22,8 @@
 #ifndef METRIC_SERVICE_H
 #define METRIC_SERVICE_H
 
+#include <MetricCollector.h>
+
 #include <string>
 #include <Service.h>
 #include <aim_types.h>
@@ -33,6 +35,7 @@ class MetricService : public Service
 {
     private:
         boost::thread collectorThread;
+        MetricCollector collector;
 
     public:
         MetricService();

@@ -109,10 +109,10 @@ class MetricCollector
         void insert(std::time_t &timestamp, const Stats &stats);
 
     public:
-        MetricCollector(int collectFrequency, int refreshFrequency);
+        MetricCollector();
         ~MetricCollector();
         
-        int initialize(const char *databaseFile);
+        int initialize(int collectFrequencySecs, int refreshFrequencySecs, const char *databaseFile);
         void operator()();
 };
 

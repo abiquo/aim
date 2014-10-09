@@ -19,17 +19,15 @@ static int execute(sqlite3 *db, const char *sql)
     return rc;
 }
 
-MetricCollector::MetricCollector(int collectFrequency, int refreshFrequency) : 
-    collect_frequency(collectFrequency), 
-    refresh_frequency(refreshFrequency)
-{ }
+MetricCollector::MetricCollector() { }
 
 MetricCollector::~MetricCollector() { }
 
-int MetricCollector::initialize(const char *databaseFile)
+int MetricCollector::initialize(int collectFrequencySecs, int refreshFrequencySecs, const char *databaseFile)
 {
     database = string(databaseFile);
-
+    collect_frequency = collectFrequencySecs;
+    refresh_frequency = refreshFrequencySecs;
     if (collect_frequency < MIN_COLLECT_FREQ_SECS) {
         LOG("Collect frequency must be >= %d seconds", MIN_COLLECT_FREQ_SECS);
         collect_frequency = MIN_COLLECT_FREQ_SECS;
