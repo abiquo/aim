@@ -116,7 +116,13 @@ void MetricCollector::refresh(vector<Domain> &domains)
                 virDomainFree(domainsPtr[i]);
                 continue; 
             }
-           
+          
+            const char *name = virDomainGetName(domainsPtr[i]);
+            if (name == NULL) {
+                virDomainFree(domainsPtr[i]);
+                continue;
+            }
+
             char *xml = virDomainGetXMLDesc(domainsPtr[i], 0);
             if (xml == NULL) { 
                 virDomainFree(domainsPtr[i]);
@@ -125,6 +131,7 @@ void MetricCollector::refresh(vector<Domain> &domains)
             
             Domain domain;
             domain.uuid = string(uuid);
+            domain.name = string(name);
             parse_xml_dump(xml, domain);
             domains.push_back(domain);
 
@@ -249,8 +256,8 @@ void MetricCollector::read_statistics(vector<Domain> domains)
                 std::time(&epoch);
 
                 Stats stats;
-                stats.uuid = string(uuid);
-
+                stats.uuid = domains[i].uuid;
+                stats.name = domains[i].name;
                 read_domain_stats(domainPtr, domainInfo, stats);
                 read_disk_stats(domainPtr, domainInfo, domains[i].devices, stats);
                 read_interface_stats(domainPtr, domainInfo, domains[i].interfaces, stats);
@@ -278,9 +285,8 @@ void MetricCollector::insert_stats(std::time_t &timestamp, const Stats &stats)
         return;
     }
 
-    // Insert new stats
     std::ostringstream ss;
-    ss << "insert into domain_stats values('" << stats.uuid << "',";
+    ss << "insert into domain_stats values('" << stats.uuid << "','" << stats.name << "',";
     ss << timestamp << "," << stats.cpu_time << "," << stats.used_mem << ",";
     ss << stats.vcpu_time << "," << stats.vcpu_number << ",";
     ss << stats.disk_rd_requests << "," << stats.disk_rd_bytes << ",";
@@ -291,6 +297,7 @@ void MetricCollector::insert_stats(std::time_t &timestamp, const Stats &stats)
     ss << stats.if_tx_errors << "," << stats.if_tx_drops << ");";
 
     execute(db, ss.str().c_str());
+    sqlite3_close(db);
 }
 
 void MetricCollector::truncate_stats()
@@ -298,7 +305,6 @@ void MetricCollector::truncate_stats()
     std::time_t now;
     std::time(&now);
 
-    // Truncate stats
     std::ostringstream ss;
     ss << "delete from domain_stats where timestamp < " << (now - 3600);
 

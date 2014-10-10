@@ -46,6 +46,7 @@ class AimIf {
   virtual void deleteDisk(const std::string& poolName, const std::string& name) = 0;
   virtual void resizeVol(const std::string& poolName, const std::string& name, const double capacityInKb) = 0;
   virtual void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb) = 0;
+  virtual void getDatapoints(std::vector<Measure> & _return, const std::string& domainName, const int32_t timestamp) = 0;
 };
 
 class AimIfFactory {
@@ -169,6 +170,9 @@ class AimNull : virtual public AimIf {
     return;
   }
   void resizeDisk(const std::string& /* domainName */, const std::string& /* diskPath */, const double /* diskSizeInKb */) {
+    return;
+  }
+  void getDatapoints(std::vector<Measure> & /* _return */, const std::string& /* domainName */, const int32_t /* timestamp */) {
     return;
   }
 };
@@ -3737,6 +3741,123 @@ class Aim_resizeDisk_presult {
 
 };
 
+typedef struct _Aim_getDatapoints_args__isset {
+  _Aim_getDatapoints_args__isset() : domainName(false), timestamp(false) {}
+  bool domainName;
+  bool timestamp;
+} _Aim_getDatapoints_args__isset;
+
+class Aim_getDatapoints_args {
+ public:
+
+  Aim_getDatapoints_args() : domainName(), timestamp(0) {
+  }
+
+  virtual ~Aim_getDatapoints_args() throw() {}
+
+  std::string domainName;
+  int32_t timestamp;
+
+  _Aim_getDatapoints_args__isset __isset;
+
+  void __set_domainName(const std::string& val) {
+    domainName = val;
+  }
+
+  void __set_timestamp(const int32_t val) {
+    timestamp = val;
+  }
+
+  bool operator == (const Aim_getDatapoints_args & rhs) const
+  {
+    if (!(domainName == rhs.domainName))
+      return false;
+    if (!(timestamp == rhs.timestamp))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_getDatapoints_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_getDatapoints_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Aim_getDatapoints_pargs {
+ public:
+
+
+  virtual ~Aim_getDatapoints_pargs() throw() {}
+
+  const std::string* domainName;
+  const int32_t* timestamp;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_getDatapoints_result__isset {
+  _Aim_getDatapoints_result__isset() : success(false) {}
+  bool success;
+} _Aim_getDatapoints_result__isset;
+
+class Aim_getDatapoints_result {
+ public:
+
+  Aim_getDatapoints_result() {
+  }
+
+  virtual ~Aim_getDatapoints_result() throw() {}
+
+  std::vector<Measure>  success;
+
+  _Aim_getDatapoints_result__isset __isset;
+
+  void __set_success(const std::vector<Measure> & val) {
+    success = val;
+  }
+
+  bool operator == (const Aim_getDatapoints_result & rhs) const
+  {
+    if (!(success == rhs.success))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_getDatapoints_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_getDatapoints_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_getDatapoints_presult__isset {
+  _Aim_getDatapoints_presult__isset() : success(false) {}
+  bool success;
+} _Aim_getDatapoints_presult__isset;
+
+class Aim_getDatapoints_presult {
+ public:
+
+
+  virtual ~Aim_getDatapoints_presult() throw() {}
+
+  std::vector<Measure> * success;
+
+  _Aim_getDatapoints_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
 class AimClient : virtual public AimIf {
  public:
   AimClient(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> prot) :
@@ -3850,6 +3971,9 @@ class AimClient : virtual public AimIf {
   void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb);
   void send_resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb);
   void recv_resizeDisk();
+  void getDatapoints(std::vector<Measure> & _return, const std::string& domainName, const int32_t timestamp);
+  void send_getDatapoints(const std::string& domainName, const int32_t timestamp);
+  void recv_getDatapoints(std::vector<Measure> & _return);
  protected:
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
@@ -3896,6 +4020,7 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_deleteDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_resizeVol(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_resizeDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getDatapoints(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   AimProcessor(boost::shared_ptr<AimIf> iface) :
     iface_(iface) {
@@ -3930,6 +4055,7 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["deleteDisk"] = &AimProcessor::process_deleteDisk;
     processMap_["resizeVol"] = &AimProcessor::process_resizeVol;
     processMap_["resizeDisk"] = &AimProcessor::process_resizeDisk;
+    processMap_["getDatapoints"] = &AimProcessor::process_getDatapoints;
   }
 
   virtual ~AimProcessor() {}
@@ -4241,6 +4367,16 @@ class AimMultiface : virtual public AimIf {
       ifaces_[i]->resizeDisk(domainName, diskPath, diskSizeInKb);
     }
     ifaces_[i]->resizeDisk(domainName, diskPath, diskSizeInKb);
+  }
+
+  void getDatapoints(std::vector<Measure> & _return, const std::string& domainName, const int32_t timestamp) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->getDatapoints(_return, domainName, timestamp);
+    }
+    ifaces_[i]->getDatapoints(_return, domainName, timestamp);
+    return;
   }
 
 };

@@ -10,6 +10,7 @@ GEN_SRC = aim_constants.cpp \
 		StorageService.cpp \
 		LibvirtService.cpp \
 		MetricCollector.cpp \
+		MetricPollster.cpp \
 		MetricService.cpp \
 		ExecUtils.cpp \
 		pugixml/pugixml.cpp \

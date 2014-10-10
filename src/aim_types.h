@@ -319,6 +319,108 @@ class DomainInfo {
 
 void swap(DomainInfo &a, DomainInfo &b);
 
+typedef struct _Datapoint__isset {
+  _Datapoint__isset() : timestamp(false), value(false) {}
+  bool timestamp;
+  bool value;
+} _Datapoint__isset;
+
+class Datapoint {
+ public:
+
+  static const char* ascii_fingerprint; // = "9C2A05F173B50306037BDE9AE30E1B99";
+  static const uint8_t binary_fingerprint[16]; // = {0x9C,0x2A,0x05,0xF1,0x73,0xB5,0x03,0x06,0x03,0x7B,0xDE,0x9A,0xE3,0x0E,0x1B,0x99};
+
+  Datapoint() : timestamp(0), value(0) {
+  }
+
+  virtual ~Datapoint() throw() {}
+
+  int32_t timestamp;
+  int64_t value;
+
+  _Datapoint__isset __isset;
+
+  void __set_timestamp(const int32_t val) {
+    timestamp = val;
+  }
+
+  void __set_value(const int64_t val) {
+    value = val;
+  }
+
+  bool operator == (const Datapoint & rhs) const
+  {
+    if (!(timestamp == rhs.timestamp))
+      return false;
+    if (!(value == rhs.value))
+      return false;
+    return true;
+  }
+  bool operator != (const Datapoint &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Datapoint & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+void swap(Datapoint &a, Datapoint &b);
+
+typedef struct _Measure__isset {
+  _Measure__isset() : metric(false), datapoints(false) {}
+  bool metric;
+  bool datapoints;
+} _Measure__isset;
+
+class Measure {
+ public:
+
+  static const char* ascii_fingerprint; // = "64A25FF614B1FACF48B494E4EFA5EED7";
+  static const uint8_t binary_fingerprint[16]; // = {0x64,0xA2,0x5F,0xF6,0x14,0xB1,0xFA,0xCF,0x48,0xB4,0x94,0xE4,0xEF,0xA5,0xEE,0xD7};
+
+  Measure() : metric() {
+  }
+
+  virtual ~Measure() throw() {}
+
+  std::string metric;
+  std::vector<Datapoint>  datapoints;
+
+  _Measure__isset __isset;
+
+  void __set_metric(const std::string& val) {
+    metric = val;
+  }
+
+  void __set_datapoints(const std::vector<Datapoint> & val) {
+    datapoints = val;
+  }
+
+  bool operator == (const Measure & rhs) const
+  {
+    if (!(metric == rhs.metric))
+      return false;
+    if (!(datapoints == rhs.datapoints))
+      return false;
+    return true;
+  }
+  bool operator != (const Measure &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Measure & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+void swap(Measure &a, Measure &b);
+
 typedef struct _RimpException__isset {
   _RimpException__isset() : description(false) {}
   bool description;

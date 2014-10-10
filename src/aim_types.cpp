@@ -469,6 +469,176 @@ void swap(DomainInfo &a, DomainInfo &b) {
   swap(a.__isset, b.__isset);
 }
 
+const char* Datapoint::ascii_fingerprint = "9C2A05F173B50306037BDE9AE30E1B99";
+const uint8_t Datapoint::binary_fingerprint[16] = {0x9C,0x2A,0x05,0xF1,0x73,0xB5,0x03,0x06,0x03,0x7B,0xDE,0x9A,0xE3,0x0E,0x1B,0x99};
+
+uint32_t Datapoint::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->timestamp);
+          this->__isset.timestamp = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_I64) {
+          xfer += iprot->readI64(this->value);
+          this->__isset.value = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Datapoint::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Datapoint");
+
+  xfer += oprot->writeFieldBegin("timestamp", ::apache::thrift::protocol::T_I32, 1);
+  xfer += oprot->writeI32(this->timestamp);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("value", ::apache::thrift::protocol::T_I64, 2);
+  xfer += oprot->writeI64(this->value);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+void swap(Datapoint &a, Datapoint &b) {
+  using ::std::swap;
+  swap(a.timestamp, b.timestamp);
+  swap(a.value, b.value);
+  swap(a.__isset, b.__isset);
+}
+
+const char* Measure::ascii_fingerprint = "64A25FF614B1FACF48B494E4EFA5EED7";
+const uint8_t Measure::binary_fingerprint[16] = {0x64,0xA2,0x5F,0xF6,0x14,0xB1,0xFA,0xCF,0x48,0xB4,0x94,0xE4,0xEF,0xA5,0xEE,0xD7};
+
+uint32_t Measure::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->metric);
+          this->__isset.metric = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->datapoints.clear();
+            uint32_t _size1;
+            ::apache::thrift::protocol::TType _etype4;
+            xfer += iprot->readListBegin(_etype4, _size1);
+            this->datapoints.resize(_size1);
+            uint32_t _i5;
+            for (_i5 = 0; _i5 < _size1; ++_i5)
+            {
+              xfer += this->datapoints[_i5].read(iprot);
+            }
+            xfer += iprot->readListEnd();
+          }
+          this->__isset.datapoints = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Measure::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Measure");
+
+  xfer += oprot->writeFieldBegin("metric", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->metric);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("datapoints", ::apache::thrift::protocol::T_LIST, 2);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->datapoints.size()));
+    std::vector<Datapoint> ::const_iterator _iter6;
+    for (_iter6 = this->datapoints.begin(); _iter6 != this->datapoints.end(); ++_iter6)
+    {
+      xfer += (*_iter6).write(oprot);
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+void swap(Measure &a, Measure &b) {
+  using ::std::swap;
+  swap(a.metric, b.metric);
+  swap(a.datapoints, b.datapoints);
+  swap(a.__isset, b.__isset);
+}
+
 const char* RimpException::ascii_fingerprint = "EFB929595D312AC8F305D5A794CFEDA1";
 const uint8_t RimpException::binary_fingerprint[16] = {0xEF,0xB9,0x29,0x59,0x5D,0x31,0x2A,0xC8,0xF3,0x05,0xD5,0xA7,0x94,0xCF,0xED,0xA1};
 

@@ -19,40 +19,40 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef METRIC_SERVICE_H
-#define METRIC_SERVICE_H
-
-#include <MetricCollector.h>
-#include <MetricPollster.h>
+#ifndef METRIC_POLLSTER_H
+#define METRIC_POLLSTER_H
 
 #include <Debug.h>
-#include <Macros.h>
 
-#include <string>
-#include <Service.h>
-#include <aim_types.h>
-#include <boost/thread.hpp>
 #include <vector>
+#include <string>
+#include <ctime>
+
+#include <sqlite3.h>
+
+#include <aim_types.h>
 
 using namespace std;
 
-class MetricService : public Service
+/* beginning of return codes */
+#define POLLSTER_OK        0
+#define POLLSTER_CANTOPEN  1
+/* end of return codes */
+
+class MetricPollster
 {
     private:
-        boost::thread collectorThread;
-        MetricCollector collector;
-        MetricPollster pollster;
+        string database;
+
+        Measure create_measure(string name);
+        Datapoint create_datapoint(int timestamp, long value);
 
     public:
-        MetricService();
-        ~MetricService();
+        MetricPollster();
+        ~MetricPollster();
 
-        void getDatapoints(vector<Measure> &_result, string domainName, int from);
-
-        virtual bool initialize(INIReader configuration);
-        virtual bool cleanup();
-        virtual bool start();
-        virtual bool stop();
+        int initialize(const char* databaseFile);
+        void get_datapoints(string &name, int start, vector<Measure> &_return);
 };
 
 #endif

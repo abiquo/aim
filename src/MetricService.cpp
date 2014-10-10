@@ -1,8 +1,5 @@
 #include <MetricService.h>
 
-#include <Debug.h>
-#include <Macros.h>
-
 MetricService::MetricService() : Service("Metrics") { }
 
 MetricService::~MetricService() { }
@@ -14,6 +11,10 @@ bool MetricService::initialize(INIReader configuration)
     string database = configuration.Get("stats", "database", "/var/lib/abiquo-aim");
 
     if (collector.initialize(collectFreq, refreshFreq, database.c_str()) != COLLECTOR_OK) {
+        return false;
+    }
+
+    if (pollster.initialize(database.c_str()) != POLLSTER_OK) {
         return false;
     }
 
@@ -36,4 +37,9 @@ bool MetricService::stop()
 bool MetricService::cleanup()
 {
     return true;
+}
+
+void MetricService::getDatapoints(vector<Measure> &_result, string domainName, int from)
+{
+    pollster.get_datapoints(domainName, from, _result);
 }

@@ -46,6 +46,7 @@ using namespace std;
 
 const static char * SQL_CREATE_STATS =  "CREATE TABLE domain_stats(" \
                                         "uuid               TEXT    NOT NULL," \
+                                        "name               TEXT    NOT NULL," \
                                         "timestamp          INTEGER NOT NULL," \
                                         "cpu_time           INTEGER," \
                                         "used_mem           INTEGER," \
@@ -73,6 +74,7 @@ class MetricCollector
         struct Domain
         {
             string uuid;
+            string name;
             vector<string> devices;
             vector<string> interfaces;
         };
@@ -80,6 +82,7 @@ class MetricCollector
         struct Stats
         {
             string uuid;
+            string name;
             unsigned long long cpu_time;
             unsigned long used_mem;
             unsigned long long vcpu_time;

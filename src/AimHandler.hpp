@@ -453,6 +453,11 @@ class AimHandler: virtual public AimIf
                 throw;
             }
         }
+
+        void getDatapoints(std::vector<Measure, std::allocator<Measure> >& measures, const std::string& domainName, int32_t timestamp)
+        {
+            metrics->getDatapoints(measures, domainName, timestamp);
+        }
 };
 
 #endif
