@@ -68,7 +68,6 @@ class MetricCollector
     private:
         int collect_frequency;
         int refresh_frequency;
-        int rows;
         string database;
 
         struct Domain
@@ -106,7 +105,8 @@ class MetricCollector
         void read_disk_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, vector<string> devices, Stats& stats);
         void read_interface_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, vector<string> interfaces, Stats& stats);
         void read_statistics(vector<Domain> domains);
-        void insert(std::time_t &timestamp, const Stats &stats);
+        void insert_stats(std::time_t &timestamp, const Stats &stats);
+        void truncate_stats();
 
     public:
         MetricCollector();

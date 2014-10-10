@@ -3,7 +3,7 @@
 static int callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
     for (int i = 0; i < argc; i++) {
-        LOG("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+        LOG("%s = %s", azColName[i], argv[i] ? argv[i] : "NULL");
     }
     return 0;
 }
@@ -33,8 +33,6 @@ int MetricCollector::initialize(int collectFrequencySecs, int refreshFrequencySe
         collect_frequency = MIN_COLLECT_FREQ_SECS;
     }
 
-    rows = 3600 / collect_frequency;
-
     sqlite3 *db;
     if (sqlite3_open(database.c_str(), &db)) {
         LOG("Cannot open database '%s'", database.c_str());
@@ -44,8 +42,7 @@ int MetricCollector::initialize(int collectFrequencySecs, int refreshFrequencySe
     execute(db, SQL_CREATE_STATS); 
     sqlite3_close(db);
 
-    LOG("Stats collector config: {collect=%ds, refresh=%ds, database='%s', rows=%d}", 
-            collect_frequency, refresh_frequency, database.c_str(), rows);
+    LOG("Stats collector config: {collect=%ds, refresh=%ds, database='%s'}", collect_frequency, refresh_frequency, database.c_str());
     return COLLECTOR_OK;
 }
 
@@ -258,12 +255,13 @@ void MetricCollector::read_statistics(vector<Domain> domains)
                 read_disk_stats(domainPtr, domainInfo, domains[i].devices, stats);
                 read_interface_stats(domainPtr, domainInfo, domains[i].interfaces, stats);
             
-                insert(epoch, stats);
+                insert_stats(epoch, stats);
             }
 
             virDomainFree(domainPtr);
         }
 
+        truncate_stats();
         virConnectClose(conn);
     }
     else
@@ -272,11 +270,11 @@ void MetricCollector::read_statistics(vector<Domain> domains)
     }
 }
 
-void MetricCollector::insert(std::time_t &timestamp, const Stats &stats)
+void MetricCollector::insert_stats(std::time_t &timestamp, const Stats &stats)
 {
     sqlite3 *db;
     if (sqlite3_open(database.c_str(), &db)) {
-        LOG("Cannot open database '%s'", database.c_str());
+        LOG("Insert stats error, cannot open database '%s'", database.c_str());
         return;
     }
 
@@ -293,15 +291,23 @@ void MetricCollector::insert(std::time_t &timestamp, const Stats &stats)
     ss << stats.if_tx_errors << "," << stats.if_tx_drops << ");";
 
     execute(db, ss.str().c_str());
- 
+}
+
+void MetricCollector::truncate_stats()
+{
+    std::time_t now;
+    std::time(&now);
+
     // Truncate stats
-    ss.str(std::string());
-    ss << "delete from domain_stats where";
-    ss << " (select count(*) from domain_stats where uuid='" << stats.uuid << "') >" << rows;
-    ss << " and timestamp=(select min(timestamp) from domain_stats where uuid='" << stats.uuid << "')";
-    ss << " and uuid='" << stats.uuid << "';";
+    std::ostringstream ss;
+    ss << "delete from domain_stats where timestamp < " << (now - 3600000);
+
+    sqlite3 *db;
+    if (sqlite3_open(database.c_str(), &db)) {
+        LOG("Trancate stats error, cannot open database '%s'", database.c_str());
+        return;
+    }
 
     execute(db, ss.str().c_str());
-
     sqlite3_close(db);
 }
