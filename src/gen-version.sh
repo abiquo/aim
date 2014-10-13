@@ -1,6 +1,6 @@
 #!/bin/sh
 
-AIM_VERSION=2.4.0-dev
+AIM_VERSION=2.4.0
 
 
 BUILD_PLATFORM=`uname -srm`
