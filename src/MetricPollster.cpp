@@ -48,7 +48,7 @@ void MetricPollster::get_datapoints(string& name, int start, vector<Measure> &_r
     const char *zTail;
 
     int rc = sqlite3_prepare(db,
-            "select * from domain_stats where uuid=? and timestamp >= ?;", 
+            "select * from domain_stats where name=? and timestamp >= ?;", 
             -1, &stmt, &zTail);
     
     if (rc != SQLITE_OK) {
