@@ -8,7 +8,7 @@ bool MetricService::initialize(INIReader configuration)
 {
     int collectFreq = configuration.GetInteger("stats", "collectFreqSeconds", 60);
     int refreshFreq = configuration.GetInteger("stats", "refreshFreqSeconds", 30);
-    string database = configuration.Get("stats", "database", "/var/lib/abiquo-aim");
+    string database = configuration.Get("stats", "database", "/var/lib/abiquo-aim.db");
 
     if (collector.initialize(collectFreq, refreshFreq, database.c_str()) != COLLECTOR_OK) {
         return false;

@@ -150,12 +150,13 @@ void MetricCollector::read_domain_stats(const virDomainPtr domain, const virDoma
     stats.vcpu_number = domainInfo.nrVirtCpu; // Number of vcpus
    
     // VCPU time
-    virVcpuInfoPtr vinfo = static_cast<virVcpuInfoPtr>(malloc(domainInfo.nrVirtCpu * sizeof(virVcpuInfoPtr)));
-
-    if (virDomainGetVcpus(domain, vinfo, domainInfo.nrVirtCpu, NULL, 0) >= 0)
+    virVcpuInfo vinfo[stats.vcpu_number];
+    int max_vcpus = virDomainGetVcpus(domain, vinfo, stats.vcpu_number, NULL, 0);
+   
+    if (max_vcpus >= 0)
     {
         unsigned long long vcpu = 0;
-        for (int j = 0; j < domainInfo.nrVirtCpu; j++)
+        for (int j = 0; j < max_vcpus; j++)
         {
             vcpu += vinfo[j].cpuTime;
         }
