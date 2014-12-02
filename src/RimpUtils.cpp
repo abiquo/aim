@@ -40,7 +40,7 @@ string getDatastoreUuidFolderMark(const string& rootMountPoint)
   {
     if (is_directory(*itr))
     {
-      string lea = itr->leaf();
+      string lea = itr->path().filename().string();
 
       if (lea.at(lea.size() - 1) == '/')
       {
@@ -317,7 +317,7 @@ unsigned long int getTotalSpaceOn(const string& dir)
 
 unsigned long int getFileSize(const string& filename)
 {
-  path p (filename, native);
+  path p (filename);
 
   return file_size(p) / 1024;
 }
@@ -380,8 +380,8 @@ string fileCopy(const string& source, const string& target)
 
   try
   {
-    path psource (source.c_str(), native);
-    path ptarget (target.c_str(), native);
+    path psource (source.c_str());
+    path ptarget (target.c_str());
 
     copy_file(psource, ptarget);
 
@@ -412,8 +412,8 @@ string fileRename(const string& source, const string& target)
 
   try
   {
-    path psource (source.c_str(), native);
-    path ptarget (target.c_str(), native);
+    path psource (source.c_str());
+    path ptarget (target.c_str());
 
     rename(psource, ptarget);
 
