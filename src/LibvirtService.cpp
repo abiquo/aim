@@ -372,7 +372,7 @@ void LibvirtService::getNodeInfo(NodeInfo& _return, const virConnectPtr conn) th
 
     _return.name    = string(name); // system hostname
     _return.version = version;      // libvirt version, have the format major * 1,000,000 + minor * 1,000 + release
-    _return.cores   = info.cores;   // number of cores per socket
+    _return.cores   = info.sockets * info.nodes * info.cores; // core count = "CPU socket(s)" * "NUMA cell(s)" * "Cores x socket(s)" 
     _return.sockets = info.sockets; // number of CPU sockets per node
     _return.memory  = info.memory;  // memory size in kilobytes
 
