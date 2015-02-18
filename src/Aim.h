@@ -22,6 +22,7 @@ class AimIf {
   virtual void copyFromRepositoryToDatastore(const std::string& virtualImageRepositoryPath, const std::string& datastorePath, const std::string& virtualMachineUUID) = 0;
   virtual void deleteVirtualImageFromDatastore(const std::string& datastorePath, const std::string& virtualMachineUUID) = 0;
   virtual void copyFromDatastoreToRepository(const std::string& virtualMachineUUID, const std::string& snapshot, const std::string& destinationRepositoryPath, const std::string& sourceDatastorePath) = 0;
+  virtual void instanceDisk(const std::string& source, const std::string& destination) = 0;
   virtual void createVLAN(const int32_t vlanTag, const std::string& vlanInterface, const std::string& bridgeInterface) = 0;
   virtual void deleteVLAN(const int32_t vlanTag, const std::string& vlanInterface, const std::string& bridgeInterface) = 0;
   virtual void checkVLANConfiguration() = 0;
@@ -96,6 +97,9 @@ class AimNull : virtual public AimIf {
     return;
   }
   void copyFromDatastoreToRepository(const std::string& /* virtualMachineUUID */, const std::string& /* snapshot */, const std::string& /* destinationRepositoryPath */, const std::string& /* sourceDatastorePath */) {
+    return;
+  }
+  void instanceDisk(const std::string& /* source */, const std::string& /* destination */) {
     return;
   }
   void createVLAN(const int32_t /* vlanTag */, const std::string& /* vlanInterface */, const std::string& /* bridgeInterface */) {
@@ -970,6 +974,123 @@ class Aim_copyFromDatastoreToRepository_presult {
   RimpException re;
 
   _Aim_copyFromDatastoreToRepository_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
+typedef struct _Aim_instanceDisk_args__isset {
+  _Aim_instanceDisk_args__isset() : source(false), destination(false) {}
+  bool source;
+  bool destination;
+} _Aim_instanceDisk_args__isset;
+
+class Aim_instanceDisk_args {
+ public:
+
+  Aim_instanceDisk_args() : source(), destination() {
+  }
+
+  virtual ~Aim_instanceDisk_args() throw() {}
+
+  std::string source;
+  std::string destination;
+
+  _Aim_instanceDisk_args__isset __isset;
+
+  void __set_source(const std::string& val) {
+    source = val;
+  }
+
+  void __set_destination(const std::string& val) {
+    destination = val;
+  }
+
+  bool operator == (const Aim_instanceDisk_args & rhs) const
+  {
+    if (!(source == rhs.source))
+      return false;
+    if (!(destination == rhs.destination))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_instanceDisk_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_instanceDisk_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Aim_instanceDisk_pargs {
+ public:
+
+
+  virtual ~Aim_instanceDisk_pargs() throw() {}
+
+  const std::string* source;
+  const std::string* destination;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_instanceDisk_result__isset {
+  _Aim_instanceDisk_result__isset() : re(false) {}
+  bool re;
+} _Aim_instanceDisk_result__isset;
+
+class Aim_instanceDisk_result {
+ public:
+
+  Aim_instanceDisk_result() {
+  }
+
+  virtual ~Aim_instanceDisk_result() throw() {}
+
+  RimpException re;
+
+  _Aim_instanceDisk_result__isset __isset;
+
+  void __set_re(const RimpException& val) {
+    re = val;
+  }
+
+  bool operator == (const Aim_instanceDisk_result & rhs) const
+  {
+    if (!(re == rhs.re))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_instanceDisk_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_instanceDisk_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_instanceDisk_presult__isset {
+  _Aim_instanceDisk_presult__isset() : re(false) {}
+  bool re;
+} _Aim_instanceDisk_presult__isset;
+
+class Aim_instanceDisk_presult {
+ public:
+
+
+  virtual ~Aim_instanceDisk_presult() throw() {}
+
+  RimpException re;
+
+  _Aim_instanceDisk_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -3899,6 +4020,9 @@ class AimClient : virtual public AimIf {
   void copyFromDatastoreToRepository(const std::string& virtualMachineUUID, const std::string& snapshot, const std::string& destinationRepositoryPath, const std::string& sourceDatastorePath);
   void send_copyFromDatastoreToRepository(const std::string& virtualMachineUUID, const std::string& snapshot, const std::string& destinationRepositoryPath, const std::string& sourceDatastorePath);
   void recv_copyFromDatastoreToRepository();
+  void instanceDisk(const std::string& source, const std::string& destination);
+  void send_instanceDisk(const std::string& source, const std::string& destination);
+  void recv_instanceDisk();
   void createVLAN(const int32_t vlanTag, const std::string& vlanInterface, const std::string& bridgeInterface);
   void send_createVLAN(const int32_t vlanTag, const std::string& vlanInterface, const std::string& bridgeInterface);
   void recv_createVLAN();
@@ -3996,6 +4120,7 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_copyFromRepositoryToDatastore(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_deleteVirtualImageFromDatastore(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_copyFromDatastoreToRepository(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_instanceDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_createVLAN(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_deleteVLAN(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_checkVLANConfiguration(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
@@ -4031,6 +4156,7 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["copyFromRepositoryToDatastore"] = &AimProcessor::process_copyFromRepositoryToDatastore;
     processMap_["deleteVirtualImageFromDatastore"] = &AimProcessor::process_deleteVirtualImageFromDatastore;
     processMap_["copyFromDatastoreToRepository"] = &AimProcessor::process_copyFromDatastoreToRepository;
+    processMap_["instanceDisk"] = &AimProcessor::process_instanceDisk;
     processMap_["createVLAN"] = &AimProcessor::process_createVLAN;
     processMap_["deleteVLAN"] = &AimProcessor::process_deleteVLAN;
     processMap_["checkVLANConfiguration"] = &AimProcessor::process_checkVLANConfiguration;
@@ -4147,6 +4273,15 @@ class AimMultiface : virtual public AimIf {
       ifaces_[i]->copyFromDatastoreToRepository(virtualMachineUUID, snapshot, destinationRepositoryPath, sourceDatastorePath);
     }
     ifaces_[i]->copyFromDatastoreToRepository(virtualMachineUUID, snapshot, destinationRepositoryPath, sourceDatastorePath);
+  }
+
+  void instanceDisk(const std::string& source, const std::string& destination) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->instanceDisk(source, destination);
+    }
+    ifaces_[i]->instanceDisk(source, destination);
   }
 
   void createVLAN(const int32_t vlanTag, const std::string& vlanInterface, const std::string& bridgeInterface) {

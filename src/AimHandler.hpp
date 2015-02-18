@@ -458,6 +458,11 @@ class AimHandler: virtual public AimIf
         {
             metrics->getDatapoints(measures, domainName, timestamp);
         }
+
+        void instanceDisk(const std::string& source, const std::string& destination)
+        {
+            rimp->copy(source, destination);
+        }
 };
 
 #endif

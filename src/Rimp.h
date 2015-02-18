@@ -122,6 +122,8 @@ public:
      * */
     virtual void copyFromDatastoreToRepository(const std::string& virtualMachineUUID, const std::string& snapshot,
             const std::string& destinationRepositoryPath, const std::string& sourceDatastorePath);
+
+    virtual void copy(const std::string& source, const std::string& destination);
 };
 
 #endif

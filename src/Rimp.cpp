@@ -3,8 +3,11 @@
 #include <Debug.h>
 #include <Macros.h>
 #include <boost/algorithm/string.hpp>
+#include <iostream>
+#include <string>
 
 #include <aim_types.h>
+
 
 Rimp::Rimp() : Service("Rimp")
 {
@@ -214,7 +217,7 @@ void Rimp::copyFromRepositoryToDatastore(const std::string& virtualImageReposito
         viDatastorePathBackup = viDatastorePathBackup.append(virtualMachineUUID);
         if (access(viDatastorePathBackup.c_str(), F_OK | R_OK) == 0)
         {
-            // Then perform a recovery rather then a full deploy.
+            // Then perform a recovery rather then a fullDestination deploy.
             string renameError2 = fileRename(viDatastorePathBackup, viDatastorePath);
 
             if (!renameError2.empty())
@@ -306,7 +309,7 @@ void Rimp::deleteVirtualImageFromDatastore(std::string& datastore, const std::st
             remove(viDatastorePathBackup.c_str());
         }
 
-        // Then perform a recovery rather then a full deploy.
+        // Then perform a recovery rather then a fullDestination deploy.
         string renameError2 = fileRename( viDatastorePath, viDatastorePathBackup);
 
         if (!renameError2.empty())
@@ -427,4 +430,96 @@ void Rimp::copyFromDatastoreToRepository(const std::string& virtualMachineUUID, 
     }
 
     LOG("[INFO] [RIMP] Created snapshot [%s] from virtual machine [%s]", snapshot.c_str(), virtualMachineUUID.c_str());
+}
+
+void Rimp::copy(const std::string& source, const std::string& destination)
+{
+    checkRimpConfiguration();
+
+    // Get directory from destination filename
+    string fullDestination = string(repository).append(destination);
+    size_t found = fullDestination.find_last_of("/\\");
+    string destinationPath = fullDestination.substr(0, found);
+
+    LOG("[RIMP] Copying '%s' to '%s'", source.c_str(), fullDestination.c_str());
+
+    // Check destination repository folder exist and can be written
+    if (access(destinationPath.c_str(), F_OK | W_OK) == -1)
+    {
+        int err = mkdir(destinationPath.c_str(), S_IRWXU | S_IRWXG);
+
+        if (err == -1)
+        {
+            string error("");
+            error = error.append("Can not create destination folder at :");
+            error = error.append(destinationPath).append(" Caused by: ").append(strerror(errno));
+
+            LOG("[ERROR] [RIMP] %s", error.c_str());
+
+            RimpException rexception;
+            rexception.description = error;
+            throw rexception;
+        }
+    }
+
+    // Check source file exist and can be read
+    if (access(source.c_str(), F_OK | R_OK) == -1)
+    {
+        string error("");
+        error = error.append("Source file does not exist or can not be read: ");
+        error = error.append(source);
+
+        LOG("[ERROR] [RIMP] %s", error.c_str());
+
+        RimpException rexception;
+        rexception.description = error;
+        throw rexception;
+    }
+
+    // Check target path do not exist
+    if (access(fullDestination.c_str(), F_OK) == 0)
+    {
+        string error("");
+        error = error.append("Destination already exists: ");
+        error = error.append(fullDestination);
+
+        LOG("[ERROR] [RIMP] %s", error.c_str());
+
+        RimpException rexception;
+        rexception.description = error;
+        throw rexception;
+    }
+
+    // Checking there are enough free space to copy
+    unsigned long int viSize = getFileSize(source);
+    unsigned long int repositoryFreeSize = getFreeSpaceOn(destinationPath);
+
+    if (repositoryFreeSize < viSize)
+    {
+        string error("");
+        error = error.append("There is no enough space left to copy the file: ");
+        error = error.append(source).append(" to :").append(destinationPath);
+
+        LOG("[ERROR] [RIMP] %s", error.c_str());
+
+        RimpException rexception;
+        rexception.description = error;
+        throw rexception;
+    }
+
+    string errorCopy = fileCopy(source, fullDestination);
+    if (!errorCopy.empty())
+    {
+        string error("");
+        error = error.append("Can not copy to: ");
+        error = error.append(fullDestination).append("\nCaused by :").append(errorCopy);
+
+        LOG("[ERROR] [RIMP] %s", error.c_str());
+
+        RimpException rexception;
+        rexception.description = error;
+        throw rexception;
+    }
+
+     LOG("[RIMP] File '%s' copied", fullDestination.c_str());
 }
