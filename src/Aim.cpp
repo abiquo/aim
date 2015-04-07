@@ -400,14 +400,14 @@ uint32_t Aim_getDatastores_result::read(::apache::thrift::protocol::TProtocol* i
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size7;
-            ::apache::thrift::protocol::TType _etype10;
-            xfer += iprot->readListBegin(_etype10, _size7);
-            this->success.resize(_size7);
-            uint32_t _i11;
-            for (_i11 = 0; _i11 < _size7; ++_i11)
+            uint32_t _size15;
+            ::apache::thrift::protocol::TType _etype18;
+            xfer += iprot->readListBegin(_etype18, _size15);
+            this->success.resize(_size15);
+            uint32_t _i19;
+            for (_i19 = 0; _i19 < _size15; ++_i19)
             {
-              xfer += this->success[_i11].read(iprot);
+              xfer += this->success[_i19].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -446,10 +446,10 @@ uint32_t Aim_getDatastores_result::write(::apache::thrift::protocol::TProtocol* 
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<Datastore> ::const_iterator _iter12;
-      for (_iter12 = this->success.begin(); _iter12 != this->success.end(); ++_iter12)
+      std::vector<Datastore> ::const_iterator _iter20;
+      for (_iter20 = this->success.begin(); _iter20 != this->success.end(); ++_iter20)
       {
-        xfer += (*_iter12).write(oprot);
+        xfer += (*_iter20).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -488,14 +488,14 @@ uint32_t Aim_getDatastores_presult::read(::apache::thrift::protocol::TProtocol* 
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size13;
-            ::apache::thrift::protocol::TType _etype16;
-            xfer += iprot->readListBegin(_etype16, _size13);
-            (*(this->success)).resize(_size13);
-            uint32_t _i17;
-            for (_i17 = 0; _i17 < _size13; ++_i17)
+            uint32_t _size21;
+            ::apache::thrift::protocol::TType _etype24;
+            xfer += iprot->readListBegin(_etype24, _size21);
+            (*(this->success)).resize(_size21);
+            uint32_t _i25;
+            for (_i25 = 0; _i25 < _size21; ++_i25)
             {
-              xfer += (*(this->success))[_i17].read(iprot);
+              xfer += (*(this->success))[_i25].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -593,14 +593,14 @@ uint32_t Aim_getNetInterfaces_result::read(::apache::thrift::protocol::TProtocol
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size18;
-            ::apache::thrift::protocol::TType _etype21;
-            xfer += iprot->readListBegin(_etype21, _size18);
-            this->success.resize(_size18);
-            uint32_t _i22;
-            for (_i22 = 0; _i22 < _size18; ++_i22)
+            uint32_t _size26;
+            ::apache::thrift::protocol::TType _etype29;
+            xfer += iprot->readListBegin(_etype29, _size26);
+            this->success.resize(_size26);
+            uint32_t _i30;
+            for (_i30 = 0; _i30 < _size26; ++_i30)
             {
-              xfer += this->success[_i22].read(iprot);
+              xfer += this->success[_i30].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -639,10 +639,10 @@ uint32_t Aim_getNetInterfaces_result::write(::apache::thrift::protocol::TProtoco
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<NetInterface> ::const_iterator _iter23;
-      for (_iter23 = this->success.begin(); _iter23 != this->success.end(); ++_iter23)
+      std::vector<NetInterface> ::const_iterator _iter31;
+      for (_iter31 = this->success.begin(); _iter31 != this->success.end(); ++_iter31)
       {
-        xfer += (*_iter23).write(oprot);
+        xfer += (*_iter31).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -681,14 +681,14 @@ uint32_t Aim_getNetInterfaces_presult::read(::apache::thrift::protocol::TProtoco
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size24;
-            ::apache::thrift::protocol::TType _etype27;
-            xfer += iprot->readListBegin(_etype27, _size24);
-            (*(this->success)).resize(_size24);
-            uint32_t _i28;
-            for (_i28 = 0; _i28 < _size24; ++_i28)
+            uint32_t _size32;
+            ::apache::thrift::protocol::TType _etype35;
+            xfer += iprot->readListBegin(_etype35, _size32);
+            (*(this->success)).resize(_size32);
+            uint32_t _i36;
+            for (_i36 = 0; _i36 < _size32; ++_i36)
             {
-              xfer += (*(this->success))[_i28].read(iprot);
+              xfer += (*(this->success))[_i36].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -2191,14 +2191,14 @@ uint32_t Aim_rescanISCSI_args::read(::apache::thrift::protocol::TProtocol* iprot
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->targets.clear();
-            uint32_t _size29;
-            ::apache::thrift::protocol::TType _etype32;
-            xfer += iprot->readListBegin(_etype32, _size29);
-            this->targets.resize(_size29);
-            uint32_t _i33;
-            for (_i33 = 0; _i33 < _size29; ++_i33)
+            uint32_t _size37;
+            ::apache::thrift::protocol::TType _etype40;
+            xfer += iprot->readListBegin(_etype40, _size37);
+            this->targets.resize(_size37);
+            uint32_t _i41;
+            for (_i41 = 0; _i41 < _size37; ++_i41)
             {
-              xfer += iprot->readString(this->targets[_i33]);
+              xfer += iprot->readString(this->targets[_i41]);
             }
             xfer += iprot->readListEnd();
           }
@@ -2226,10 +2226,10 @@ uint32_t Aim_rescanISCSI_args::write(::apache::thrift::protocol::TProtocol* opro
   xfer += oprot->writeFieldBegin("targets", ::apache::thrift::protocol::T_LIST, 1);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->targets.size()));
-    std::vector<std::string> ::const_iterator _iter34;
-    for (_iter34 = this->targets.begin(); _iter34 != this->targets.end(); ++_iter34)
+    std::vector<std::string> ::const_iterator _iter42;
+    for (_iter42 = this->targets.begin(); _iter42 != this->targets.end(); ++_iter42)
     {
-      xfer += oprot->writeString((*_iter34));
+      xfer += oprot->writeString((*_iter42));
     }
     xfer += oprot->writeListEnd();
   }
@@ -2247,10 +2247,10 @@ uint32_t Aim_rescanISCSI_pargs::write(::apache::thrift::protocol::TProtocol* opr
   xfer += oprot->writeFieldBegin("targets", ::apache::thrift::protocol::T_LIST, 1);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>((*(this->targets)).size()));
-    std::vector<std::string> ::const_iterator _iter35;
-    for (_iter35 = (*(this->targets)).begin(); _iter35 != (*(this->targets)).end(); ++_iter35)
+    std::vector<std::string> ::const_iterator _iter43;
+    for (_iter43 = (*(this->targets)).begin(); _iter43 != (*(this->targets)).end(); ++_iter43)
     {
-      xfer += oprot->writeString((*_iter35));
+      xfer += oprot->writeString((*_iter43));
     }
     xfer += oprot->writeListEnd();
   }
@@ -3092,9 +3092,9 @@ uint32_t Aim_getDomainState_result::read(::apache::thrift::protocol::TProtocol* 
     {
       case 0:
         if (ftype == ::apache::thrift::protocol::T_I32) {
-          int32_t ecast36;
-          xfer += iprot->readI32(ecast36);
-          this->success = (DomainState::type)ecast36;
+          int32_t ecast44;
+          xfer += iprot->readI32(ecast44);
+          this->success = (DomainState::type)ecast44;
           this->__isset.success = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -3162,9 +3162,9 @@ uint32_t Aim_getDomainState_presult::read(::apache::thrift::protocol::TProtocol*
     {
       case 0:
         if (ftype == ::apache::thrift::protocol::T_I32) {
-          int32_t ecast37;
-          xfer += iprot->readI32(ecast37);
-          (*(this->success)) = (DomainState::type)ecast37;
+          int32_t ecast45;
+          xfer += iprot->readI32(ecast45);
+          (*(this->success)) = (DomainState::type)ecast45;
           this->__isset.success = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -3441,14 +3441,14 @@ uint32_t Aim_getDomains_result::read(::apache::thrift::protocol::TProtocol* ipro
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size38;
-            ::apache::thrift::protocol::TType _etype41;
-            xfer += iprot->readListBegin(_etype41, _size38);
-            this->success.resize(_size38);
-            uint32_t _i42;
-            for (_i42 = 0; _i42 < _size38; ++_i42)
+            uint32_t _size46;
+            ::apache::thrift::protocol::TType _etype49;
+            xfer += iprot->readListBegin(_etype49, _size46);
+            this->success.resize(_size46);
+            uint32_t _i50;
+            for (_i50 = 0; _i50 < _size46; ++_i50)
             {
-              xfer += this->success[_i42].read(iprot);
+              xfer += this->success[_i50].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -3487,10 +3487,10 @@ uint32_t Aim_getDomains_result::write(::apache::thrift::protocol::TProtocol* opr
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<DomainInfo> ::const_iterator _iter43;
-      for (_iter43 = this->success.begin(); _iter43 != this->success.end(); ++_iter43)
+      std::vector<DomainInfo> ::const_iterator _iter51;
+      for (_iter51 = this->success.begin(); _iter51 != this->success.end(); ++_iter51)
       {
-        xfer += (*_iter43).write(oprot);
+        xfer += (*_iter51).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -3529,14 +3529,14 @@ uint32_t Aim_getDomains_presult::read(::apache::thrift::protocol::TProtocol* ipr
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size44;
-            ::apache::thrift::protocol::TType _etype47;
-            xfer += iprot->readListBegin(_etype47, _size44);
-            (*(this->success)).resize(_size44);
-            uint32_t _i48;
-            for (_i48 = 0; _i48 < _size44; ++_i48)
+            uint32_t _size52;
+            ::apache::thrift::protocol::TType _etype55;
+            xfer += iprot->readListBegin(_etype55, _size52);
+            (*(this->success)).resize(_size52);
+            uint32_t _i56;
+            for (_i56 = 0; _i56 < _size52; ++_i56)
             {
-              xfer += (*(this->success))[_i48].read(iprot);
+              xfer += (*(this->success))[_i56].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -5871,14 +5871,14 @@ uint32_t Aim_getDatapoints_result::read(::apache::thrift::protocol::TProtocol* i
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size49;
-            ::apache::thrift::protocol::TType _etype52;
-            xfer += iprot->readListBegin(_etype52, _size49);
-            this->success.resize(_size49);
-            uint32_t _i53;
-            for (_i53 = 0; _i53 < _size49; ++_i53)
+            uint32_t _size57;
+            ::apache::thrift::protocol::TType _etype60;
+            xfer += iprot->readListBegin(_etype60, _size57);
+            this->success.resize(_size57);
+            uint32_t _i61;
+            for (_i61 = 0; _i61 < _size57; ++_i61)
             {
-              xfer += this->success[_i53].read(iprot);
+              xfer += this->success[_i61].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -5909,10 +5909,10 @@ uint32_t Aim_getDatapoints_result::write(::apache::thrift::protocol::TProtocol* 
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<Measure> ::const_iterator _iter54;
-      for (_iter54 = this->success.begin(); _iter54 != this->success.end(); ++_iter54)
+      std::vector<Measure> ::const_iterator _iter62;
+      for (_iter62 = this->success.begin(); _iter62 != this->success.end(); ++_iter62)
       {
-        xfer += (*_iter54).write(oprot);
+        xfer += (*_iter62).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -5947,14 +5947,14 @@ uint32_t Aim_getDatapoints_presult::read(::apache::thrift::protocol::TProtocol* 
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size55;
-            ::apache::thrift::protocol::TType _etype58;
-            xfer += iprot->readListBegin(_etype58, _size55);
-            (*(this->success)).resize(_size55);
-            uint32_t _i59;
-            for (_i59 = 0; _i59 < _size55; ++_i59)
+            uint32_t _size63;
+            ::apache::thrift::protocol::TType _etype66;
+            xfer += iprot->readListBegin(_etype66, _size63);
+            (*(this->success)).resize(_size63);
+            uint32_t _i67;
+            for (_i67 = 0; _i67 < _size63; ++_i67)
             {
-              xfer += (*(this->success))[_i59].read(iprot);
+              xfer += (*(this->success))[_i67].read(iprot);
             }
             xfer += iprot->readListEnd();
           }

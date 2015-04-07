@@ -544,8 +544,8 @@ void swap(Datapoint &a, Datapoint &b) {
   swap(a.__isset, b.__isset);
 }
 
-const char* Measure::ascii_fingerprint = "64A25FF614B1FACF48B494E4EFA5EED7";
-const uint8_t Measure::binary_fingerprint[16] = {0x64,0xA2,0x5F,0xF6,0x14,0xB1,0xFA,0xCF,0x48,0xB4,0x94,0xE4,0xEF,0xA5,0xEE,0xD7};
+const char* Measure::ascii_fingerprint = "0B28A7DB51DEEB464CE586F13C2EC47D";
+const uint8_t Measure::binary_fingerprint[16] = {0x0B,0x28,0xA7,0xDB,0x51,0xDE,0xEB,0x46,0x4C,0xE5,0x86,0xF1,0x3C,0x2E,0xC4,0x7D};
 
 uint32_t Measure::read(::apache::thrift::protocol::TProtocol* iprot) {
 
@@ -595,6 +595,29 @@ uint32_t Measure::read(::apache::thrift::protocol::TProtocol* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_MAP) {
+          {
+            this->dimensions.clear();
+            uint32_t _size6;
+            ::apache::thrift::protocol::TType _ktype7;
+            ::apache::thrift::protocol::TType _vtype8;
+            xfer += iprot->readMapBegin(_ktype7, _vtype8, _size6);
+            uint32_t _i10;
+            for (_i10 = 0; _i10 < _size6; ++_i10)
+            {
+              std::string _key11;
+              xfer += iprot->readString(_key11);
+              std::string& _val12 = this->dimensions[_key11];
+              xfer += iprot->readString(_val12);
+            }
+            xfer += iprot->readMapEnd();
+          }
+          this->__isset.dimensions = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -618,12 +641,25 @@ uint32_t Measure::write(::apache::thrift::protocol::TProtocol* oprot) const {
   xfer += oprot->writeFieldBegin("datapoints", ::apache::thrift::protocol::T_LIST, 2);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->datapoints.size()));
-    std::vector<Datapoint> ::const_iterator _iter6;
-    for (_iter6 = this->datapoints.begin(); _iter6 != this->datapoints.end(); ++_iter6)
+    std::vector<Datapoint> ::const_iterator _iter13;
+    for (_iter13 = this->datapoints.begin(); _iter13 != this->datapoints.end(); ++_iter13)
     {
-      xfer += (*_iter6).write(oprot);
+      xfer += (*_iter13).write(oprot);
     }
     xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("dimensions", ::apache::thrift::protocol::T_MAP, 3);
+  {
+    xfer += oprot->writeMapBegin(::apache::thrift::protocol::T_STRING, ::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->dimensions.size()));
+    std::map<std::string, std::string> ::const_iterator _iter14;
+    for (_iter14 = this->dimensions.begin(); _iter14 != this->dimensions.end(); ++_iter14)
+    {
+      xfer += oprot->writeString(_iter14->first);
+      xfer += oprot->writeString(_iter14->second);
+    }
+    xfer += oprot->writeMapEnd();
   }
   xfer += oprot->writeFieldEnd();
 
@@ -636,6 +672,7 @@ void swap(Measure &a, Measure &b) {
   using ::std::swap;
   swap(a.metric, b.metric);
   swap(a.datapoints, b.datapoints);
+  swap(a.dimensions, b.dimensions);
   swap(a.__isset, b.__isset);
 }
 

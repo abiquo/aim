@@ -39,7 +39,7 @@ int MetricCollector::initialize(int collectFrequencySecs, int refreshFrequencySe
         return COLLECTOR_CANTOPEN;
     }
 
-    execute(db, SQL_CREATE_STATS); 
+    execute(db, SQL_CREATE_STATS);
     sqlite3_close(db);
 
     LOG("Stats collector config: {collect=%ds, refresh=%ds, database='%s'}", collect_frequency, refresh_frequency, database.c_str());
@@ -143,15 +143,16 @@ void MetricCollector::refresh(vector<Domain> &domains)
     }
 }
 
-void MetricCollector::read_domain_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, Stats& stats)
+void MetricCollector::read_domain_stats(const string uuid, const string name, 
+    const virDomainPtr domain, const virDomainInfo& domainInfo, vector<Stat> &stats)
 {
-    stats.cpu_time = domainInfo.cpuTime; // CPU time
-    stats.used_mem = domainInfo.memory; // Used memory
-    stats.vcpu_number = domainInfo.nrVirtCpu; // Number of vcpus
+    stats.push_back(stat(uuid, name, "cpu_time", "", "", domainInfo.cpuTime)); // CPU time
+    stats.push_back(stat(uuid, name, "used_mem", "", "", domainInfo.memory)); // Used memory
+    stats.push_back(stat(uuid, name, "vcpu_number", "", "", domainInfo.nrVirtCpu)); // Number of vcpus
    
     // VCPU time
-    virVcpuInfo vinfo[stats.vcpu_number];
-    int max_vcpus = virDomainGetVcpus(domain, vinfo, stats.vcpu_number, NULL, 0);
+    virVcpuInfo vinfo[domainInfo.nrVirtCpu];
+    int max_vcpus = virDomainGetVcpus(domain, vinfo, domainInfo.nrVirtCpu, NULL, 0);
    
     if (max_vcpus >= 0)
     {
@@ -161,80 +162,44 @@ void MetricCollector::read_domain_stats(const virDomainPtr domain, const virDoma
             vcpu += vinfo[j].cpuTime;
         }
 
-        stats.vcpu_time = vcpu / domainInfo.nrVirtCpu; 
+        stats.push_back(stat(uuid, name, "vcpu_time", "", "", vcpu / domainInfo.nrVirtCpu));
     }
 }
 
-void MetricCollector::read_disk_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, vector<string> devices, Stats& stats)
+void MetricCollector::read_disk_stats(const string uuid, const string name, 
+    const virDomainPtr domain, const virDomainInfo& domainInfo, vector<string> devices, vector<Stat> &stats)
 {
-    long long rd_req=0, wr_req=0, rd_bytes=0, wr_bytes=0;
-
     for (std::size_t i = 0; i < devices.size(); i++)
     {
-        _virDomainBlockStats stats;
-        if (virDomainBlockStats(domain, devices[i].c_str(), &stats, sizeof stats) >= 0)
+        _virDomainBlockStats domainBlockStats;
+        if (virDomainBlockStats(domain, devices[i].c_str(), &domainBlockStats, sizeof domainBlockStats) >= 0)
         {
-            if (stats.rd_req != -1) { rd_req += stats.rd_req; }
-            if (stats.wr_req != -1) { wr_req += stats.wr_req; }
-            if (stats.rd_bytes != -1) { rd_bytes += stats.rd_bytes; }
-            if (stats.wr_bytes != -1) { wr_bytes += stats.wr_bytes; }
+            if (domainBlockStats.rd_req != -1)   { stats.push_back(stat(uuid, name, "disk_rd_requests", "device", devices[i], domainBlockStats.rd_req)); }
+            if (domainBlockStats.wr_req != -1)   { stats.push_back(stat(uuid, name, "disk_rw_requests", "device", devices[i], domainBlockStats.wr_req)); }
+            if (domainBlockStats.rd_bytes != -1) { stats.push_back(stat(uuid, name, "disk_rd_bytes", "device", devices[i], domainBlockStats.rd_bytes));  }
+            if (domainBlockStats.wr_bytes != -1) { stats.push_back(stat(uuid, name, "disk_wr_bytes", "device", devices[i], domainBlockStats.wr_bytes));  }
         }
     }
-
-    if (!devices.empty())
-    {
-        rd_req /= devices.size();
-        wr_req /= devices.size();
-        rd_bytes /= devices.size();
-        wr_bytes /= devices.size();
-    }
-
-    stats.disk_rd_requests = rd_req;
-    stats.disk_rd_bytes = rd_bytes;
-    stats.disk_wr_requests = wr_req;
-    stats.disk_wr_bytes = wr_bytes;
 }
 
-void MetricCollector::read_interface_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, vector<string> interfaces, Stats& stats)
+void MetricCollector::read_interface_stats(const string uuid, const string name, 
+    const virDomainPtr domain, const virDomainInfo& domainInfo, vector<string> interfaces, vector<Stat> &stats)
 {
-    long long rx_bytes=0, rx_packets=0, rx_errs=0, rx_drop=0, tx_bytes=0, tx_packets=0, tx_errs=0, tx_drop=0;
-
     for (std::size_t i = 0; i < interfaces.size(); i++)
     {
-        _virDomainInterfaceStats stats;
-        if (virDomainInterfaceStats(domain, interfaces[i].c_str(), &stats, sizeof stats) >= 0)
+        _virDomainInterfaceStats domainInterfaceStats;
+        if (virDomainInterfaceStats(domain, interfaces[i].c_str(), &domainInterfaceStats, sizeof domainInterfaceStats) >= 0)
         {
-            if (stats.rx_bytes != -1) { rx_bytes += stats.rx_bytes; }
-            if (stats.rx_packets != -1) { rx_packets += stats.rx_packets; }
-            if (stats.rx_errs != -1) { rx_errs += stats.rx_errs; }
-            if (stats.rx_drop != -1) { rx_drop += stats.rx_drop; }
-            if (stats.tx_bytes != -1) { tx_bytes += stats.tx_bytes; }
-            if (stats.tx_packets != -1) { tx_packets += stats.tx_packets; }
-            if (stats.tx_errs != -1) { tx_errs += stats.tx_errs; }
-            if (stats.tx_drop != -1) { tx_drop += stats.tx_drop; }          
+            if (domainInterfaceStats.rx_bytes != -1)    { stats.push_back(stat(uuid, name, "if_rx_bytes", "interface", interfaces[i], domainInterfaceStats.rx_bytes));     }
+            if (domainInterfaceStats.rx_packets != -1)  { stats.push_back(stat(uuid, name, "if_rx_packets", "interface", interfaces[i], domainInterfaceStats.rx_packets)); }
+            if (domainInterfaceStats.rx_errs != -1)     { stats.push_back(stat(uuid, name, "if_rx_errors", "interface", interfaces[i], domainInterfaceStats.rx_errs));     }
+            if (domainInterfaceStats.rx_drop != -1)     { stats.push_back(stat(uuid, name, "if_rx_drops", "interface", interfaces[i], domainInterfaceStats.rx_drop));      }
+            if (domainInterfaceStats.tx_bytes != -1)    { stats.push_back(stat(uuid, name, "if_tx_bytes", "interface", interfaces[i], domainInterfaceStats.tx_bytes));     }
+            if (domainInterfaceStats.tx_packets != -1)  { stats.push_back(stat(uuid, name, "if_tx_packets", "interface", interfaces[i], domainInterfaceStats.tx_packets)); }
+            if (domainInterfaceStats.tx_errs != -1)     { stats.push_back(stat(uuid, name, "if_tx_errors", "interface", interfaces[i], domainInterfaceStats.tx_errs));     }
+            if (domainInterfaceStats.tx_drop != -1)     { stats.push_back(stat(uuid, name, "if_tx_drops", "interface", interfaces[i], domainInterfaceStats.tx_drop));      }          
         }
     }
-
-    if (!interfaces.empty())
-    {
-        rx_bytes /= interfaces.size();
-        rx_packets /= interfaces.size();
-        rx_errs /= interfaces.size();
-        rx_drop /= interfaces.size();
-        tx_bytes /= interfaces.size();
-        tx_packets /= interfaces.size();
-        tx_errs /= interfaces.size();
-        tx_drop /= interfaces.size();
-    }
-
-    stats.if_rx_bytes = rx_bytes;
-    stats.if_rx_packets = rx_packets;
-    stats.if_rx_errors = rx_errs;
-    stats.if_rx_drops = rx_drop;
-    stats.if_tx_bytes = tx_bytes;
-    stats.if_tx_packets = tx_packets;
-    stats.if_tx_errors = tx_errs;
-    stats.if_tx_drops = tx_drop;
 }
 
 void MetricCollector::read_statistics(vector<Domain> domains)
@@ -251,19 +216,17 @@ void MetricCollector::read_statistics(vector<Domain> domains)
             }
 
             virDomainInfo domainInfo; 
+            vector<Stat> domainStats;
             if (virDomainGetInfo(domainPtr, &domainInfo) >= 0)
             {
                 std::time_t epoch;
                 std::time(&epoch);
 
-                Stats stats;
-                stats.uuid = domains[i].uuid;
-                stats.name = domains[i].name;
-                read_domain_stats(domainPtr, domainInfo, stats);
-                read_disk_stats(domainPtr, domainInfo, domains[i].devices, stats);
-                read_interface_stats(domainPtr, domainInfo, domains[i].interfaces, stats);
+                read_domain_stats(domains[i].uuid, domains[i].name, domainPtr, domainInfo, domainStats);
+                read_disk_stats(domains[i].uuid, domains[i].name, domainPtr, domainInfo, domains[i].devices, domainStats);
+                read_interface_stats(domains[i].uuid, domains[i].name, domainPtr, domainInfo, domains[i].interfaces, domainStats);
             
-                insert_stats(epoch, stats);
+                insert_stats(epoch, domainStats);
             }
 
             virDomainFree(domainPtr);
@@ -278,7 +241,7 @@ void MetricCollector::read_statistics(vector<Domain> domains)
     }
 }
 
-void MetricCollector::insert_stats(std::time_t &timestamp, const Stats &stats)
+void MetricCollector::insert_stats(std::time_t &timestamp, const vector<Stat> &domainStats)
 {
     sqlite3 *db;
     if (sqlite3_open(database.c_str(), &db)) {
@@ -286,18 +249,22 @@ void MetricCollector::insert_stats(std::time_t &timestamp, const Stats &stats)
         return;
     }
 
-    std::ostringstream ss;
-    ss << "insert into domain_stats values('" << stats.uuid << "','" << stats.name << "',";
-    ss << timestamp << "," << stats.cpu_time << "," << stats.used_mem << ",";
-    ss << stats.vcpu_time << "," << stats.vcpu_number << ",";
-    ss << stats.disk_rd_requests << "," << stats.disk_rd_bytes << ",";
-    ss << stats.disk_wr_requests << "," << stats.disk_wr_bytes << ",";
-    ss << stats.if_rx_bytes << "," << stats.if_rx_packets << ",";
-    ss << stats.if_rx_errors << "," << stats.if_rx_drops << ",";
-    ss << stats.if_tx_bytes << "," << stats.if_tx_packets << ",";
-    ss << stats.if_tx_errors << "," << stats.if_tx_drops << ");";
+    for (std::size_t i = 0; i < domainStats.size(); i++)
+    {
+        Stat stat = domainStats[i];
 
-    execute(db, ss.str().c_str());
+        std::ostringstream ss;
+        ss << "insert into stats values('" << stat.uuid << "','" << stat.name << "','" << stat.metric << "',";
+        ss << timestamp << ",";
+        if (stat.value_type == 0)       { ss << stat.ull << ","; }
+        else if (stat.value_type == 1)  { ss << stat.ul << ",";  }
+        else if (stat.value_type == 2)  { ss << stat.us << ",";  }
+        else if (stat.value_type == 3)  { ss << stat.ll << ",";  }
+        ss << "'" << stat.dimension_name << "','" << stat.dimension_value << "');";
+
+        execute(db, ss.str().c_str());
+    }
+
     sqlite3_close(db);
 }
 
@@ -317,4 +284,60 @@ void MetricCollector::truncate_stats()
 
     execute(db, ss.str().c_str());
     sqlite3_close(db);
+}
+
+MetricCollector::Stat MetricCollector::stat(const string &uuid, const string &name, const string &metric, const string &dname, const string &dvalue,
+                unsigned long long value)
+{
+    Stat stat;
+    stat.uuid = uuid;
+    stat.name = name;
+    stat.metric = metric;
+    stat.dimension_name = dname;
+    stat.dimension_value = dvalue;
+    stat.ull = value;
+    stat.value_type = 0;
+    return stat;
+}
+
+MetricCollector::Stat MetricCollector::stat(const string &uuid, const string &name, const string &metric, const string &dname, const string &dvalue,
+                unsigned long value)
+{
+    Stat stat;
+    stat.uuid = uuid;
+    stat.name = name;
+    stat.metric = metric;
+    stat.dimension_name = dname;
+    stat.dimension_value = dvalue;
+    stat.ul = value;
+    stat.value_type=1;
+    return stat;
+}
+
+MetricCollector::Stat MetricCollector::stat(const string &uuid, const string &name, const string &metric, const string &dname, const string &dvalue,
+                unsigned short value)
+{
+    Stat stat;
+    stat.uuid = uuid;
+    stat.name = name;
+    stat.metric = metric;
+    stat.dimension_name = dname;
+    stat.dimension_value = dvalue;
+    stat.us = value;
+    stat.value_type = 2;
+    return stat;
+}
+
+MetricCollector::Stat MetricCollector::stat(const string &uuid, const string &name, const string &metric, const string &dname, const string &dvalue,
+                long long value)
+{
+    Stat stat;
+    stat.uuid = uuid;
+    stat.name = name;
+    stat.metric = metric;
+    stat.dimension_name = dname;
+    stat.dimension_value = dvalue;
+    stat.ll = value;
+    stat.value_type = 3;
+    return stat;
 }

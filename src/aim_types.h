@@ -371,16 +371,17 @@ class Datapoint {
 void swap(Datapoint &a, Datapoint &b);
 
 typedef struct _Measure__isset {
-  _Measure__isset() : metric(false), datapoints(false) {}
+  _Measure__isset() : metric(false), datapoints(false), dimensions(false) {}
   bool metric;
   bool datapoints;
+  bool dimensions;
 } _Measure__isset;
 
 class Measure {
  public:
 
-  static const char* ascii_fingerprint; // = "64A25FF614B1FACF48B494E4EFA5EED7";
-  static const uint8_t binary_fingerprint[16]; // = {0x64,0xA2,0x5F,0xF6,0x14,0xB1,0xFA,0xCF,0x48,0xB4,0x94,0xE4,0xEF,0xA5,0xEE,0xD7};
+  static const char* ascii_fingerprint; // = "0B28A7DB51DEEB464CE586F13C2EC47D";
+  static const uint8_t binary_fingerprint[16]; // = {0x0B,0x28,0xA7,0xDB,0x51,0xDE,0xEB,0x46,0x4C,0xE5,0x86,0xF1,0x3C,0x2E,0xC4,0x7D};
 
   Measure() : metric() {
   }
@@ -389,6 +390,7 @@ class Measure {
 
   std::string metric;
   std::vector<Datapoint>  datapoints;
+  std::map<std::string, std::string>  dimensions;
 
   _Measure__isset __isset;
 
@@ -400,11 +402,17 @@ class Measure {
     datapoints = val;
   }
 
+  void __set_dimensions(const std::map<std::string, std::string> & val) {
+    dimensions = val;
+  }
+
   bool operator == (const Measure & rhs) const
   {
     if (!(metric == rhs.metric))
       return false;
     if (!(datapoints == rhs.datapoints))
+      return false;
+    if (!(dimensions == rhs.dimensions))
       return false;
     return true;
   }

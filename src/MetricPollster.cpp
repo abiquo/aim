@@ -48,7 +48,7 @@ void MetricPollster::get_datapoints(string& name, int start, vector<Measure> &_r
     const char *zTail;
 
     int rc = sqlite3_prepare(db,
-            "select * from domain_stats where name=? and timestamp >= ?;", 
+            "select * from stats where name=? and timestamp >= ?;", 
             -1, &stmt, &zTail);
     
     if (rc != SQLITE_OK) {
@@ -67,61 +67,20 @@ void MetricPollster::get_datapoints(string& name, int start, vector<Measure> &_r
         LOG("Unable to bind start timestamp, SQL error code: %d", rc);
         return;
     }
-    
-    Measure cpu_time = create_measure("cpu_time"); 
-    Measure used_mem = create_measure("used_mem");
-    Measure vcpu_time = create_measure("vcpu_time");
-    Measure vcpu_number = create_measure("vcpu_number"); 
-    Measure disk_rd_requests = create_measure("disk_rd_requests");
-    Measure disk_rd_bytes = create_measure("disk_rd_bytes");
-    Measure disk_wr_requests = create_measure("disk_wr_requests");
-    Measure disk_wr_bytes = create_measure("disk_wr_bytes");
-    Measure if_rx_bytes = create_measure("if_rx_bytes");
-    Measure if_rx_packets = create_measure("if_rx_packets"); 
-    Measure if_rx_errors = create_measure("if_rx_errors");
-    Measure if_rx_drops = create_measure("if_rx_drops");
-    Measure if_tx_bytes = create_measure("if_tx_bytes");
-    Measure if_tx_packets = create_measure("if_tx_packets");
-    Measure if_tx_errors = create_measure("if_tx_errors");
-    Measure if_tx_drops = create_measure("if_tx_drops");
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
-        long timestamp = sqlite3_column_int(stmt, 2); 
-        cpu_time.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 3)));
-        used_mem.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 4)));
-        vcpu_time.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 5)));
-        vcpu_number.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 6))); 
-        disk_rd_requests.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 7)));
-        disk_rd_bytes.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 8)));
-        disk_wr_requests.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 9)));
-        disk_wr_bytes.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 10)));
-        if_rx_bytes.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 11)));
-        if_rx_packets.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 12))); 
-        if_rx_errors.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 13)));
-        if_rx_drops.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 14)));
-        if_tx_bytes.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 15)));
-        if_tx_packets.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 16)));
-        if_tx_errors.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 17)));
-        if_tx_drops.datapoints.push_back(create_datapoint(timestamp, sqlite3_column_int64(stmt, 18)));
+        string metric = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
+        long timestamp = sqlite3_column_int(stmt, 3);
+        long value = sqlite3_column_int64(stmt, 4);
+        string dn = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5)));
+        string dv = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6)));
+
+        Measure measure = create_measure(metric);
+        measure.dimensions[dn] = dv;
+        measure.datapoints.push_back(create_datapoint(timestamp, value));
+        _return.push_back(measure);
     } 
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
-
-    _return.push_back(cpu_time);
-    _return.push_back(used_mem);
-    _return.push_back(vcpu_time);
-    _return.push_back(vcpu_number); 
-    _return.push_back(disk_rd_requests);
-    _return.push_back(disk_rd_bytes);
-    _return.push_back(disk_wr_requests);
-    _return.push_back(disk_wr_bytes);
-    _return.push_back(if_rx_bytes);
-    _return.push_back(if_rx_packets); 
-    _return.push_back(if_rx_errors);
-    _return.push_back(if_rx_drops);
-    _return.push_back(if_tx_bytes);
-    _return.push_back(if_tx_packets);
-    _return.push_back(if_tx_errors);
-    _return.push_back(if_tx_drops);
 } 

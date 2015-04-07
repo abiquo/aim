@@ -44,26 +44,15 @@
 
 using namespace std;
 
-const static char * SQL_CREATE_STATS =  "CREATE TABLE domain_stats(" \
+const static char * SQL_CREATE_STATS =  "CREATE TABLE stats(" \
                                         "uuid               TEXT    NOT NULL," \
                                         "name               TEXT    NOT NULL," \
+                                        "metric             TEXT    NOT NULL," \
                                         "timestamp          INTEGER NOT NULL," \
-                                        "cpu_time           INTEGER," \
-                                        "used_mem           INTEGER," \
-                                        "vcpu_time          INTEGER," \
-                                        "vcpu_number        INTEGER," \
-                                        "disk_rd_requests   INTEGER," \
-                                        "disk_rd_bytes      INTEGER," \
-                                        "disk_wr_requests   INTEGER," \
-                                        "disk_wr_bytes      INTEGER," \
-                                        "if_rx_bytes        INTEGER," \
-                                        "if_rx_packets      INTEGER," \
-                                        "if_rx_errors       INTEGER," \
-                                        "if_rx_drops        INTEGER," \
-                                        "if_tx_bytes        INTEGER," \
-                                        "if_tx_packets      INTEGER," \
-                                        "if_tx_errors       INTEGER," \
-                                        "if_tx_drops        INTEGER);";
+                                        "value              INTEGER NOT NULL," \
+                                        "dimension_name     TEXT," \
+                                        "dimension_value    TEXT);";
+
 class MetricCollector
 {
     private:
@@ -79,38 +68,40 @@ class MetricCollector
             vector<string> interfaces;
         };
 
-        struct Stats
+        struct Stat
         {
             string uuid;
             string name;
-            unsigned long long cpu_time;
-            unsigned long used_mem;
-            unsigned long long vcpu_time;
-            unsigned short vcpu_number; 
-            long long disk_rd_requests;
-            long long disk_rd_bytes;
-            long long disk_wr_requests;
-            long long disk_wr_bytes;
-            long long if_rx_bytes;
-            long long if_rx_packets; 
-            long long if_rx_errors;
-            long long if_rx_drops;
-            long long if_tx_bytes;
-            long long if_tx_packets;
-            long long if_tx_errors;
-            long long if_tx_drops;
+            string metric;
+            string dimension_name;
+            string dimension_value;
+            int value_type;
+            unsigned long long ull; // value_type=0
+            unsigned long ul;       // value_type=1
+            unsigned short us;      // value_type=2
+            long long ll;           // value_type=3
         };
 
         void parse_xml_dump(char *xml, Domain &domain);
         void parse_dev_attribute(pugi::xml_document &doc, const char *xpath, vector<string> &collection);
         void refresh(vector<Domain> &domains);
-        void read_domain_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, Stats& stats);
-        void read_disk_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, vector<string> devices, Stats& stats);
-        void read_interface_stats(const virDomainPtr domain, const virDomainInfo& domainInfo, vector<string> interfaces, Stats& stats);
+        void read_domain_stats(const string uuid, const string name, const virDomainPtr domain, const virDomainInfo& domainInfo, 
+                vector<Stat> &stats);
+        void read_disk_stats(const string uuid, const string name, const virDomainPtr domain, const virDomainInfo& domainInfo, 
+                vector<string> devices, vector<Stat> &stat);
+        void read_interface_stats(const string uuid, const string name, const virDomainPtr domain, const virDomainInfo& domainInfo, 
+                vector<string> interfaces, vector<Stat> &stats);
         void read_statistics(vector<Domain> domains);
-        void insert_stats(std::time_t &timestamp, const Stats &stats);
+        void insert_stats(std::time_t &timestamp, const vector<Stat> &domainStats);
         void truncate_stats();
-
+        Stat stat(const string &uuid, const string &name, const string &metric, const string &dname, const string &dvalue,
+                unsigned long long value);
+        Stat stat(const string &uuid, const string &name, const string &metric, const string &dname, const string &dvalue,
+                unsigned long value);
+        Stat stat(const string &uuid, const string &name, const string &metric, const string &dname, const string &dvalue,
+                unsigned short value);
+        Stat stat(const string &uuid, const string &name, const string &metric, const string &dname, const string &dvalue,
+                long long value);
     public:
         MetricCollector();
         ~MetricCollector();
