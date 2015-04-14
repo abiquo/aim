@@ -961,3 +961,23 @@ void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& dom
     }
 }
 
+void LibvirtService::getDomainBlockInfo(const virConnectPtr conn, const string& domainName, 
+    const string& diskPath, DomainBlockInfo& _return) throw (LibvirtException)
+{
+    virDomainBlockInfo info;
+    virDomainPtr domain = getDomainByName(conn, domainName);
+
+    if (virDomainGetBlockInfo(domain, diskPath.c_str(), &info, 0) < 0)
+    {
+        virDomainFree(domain);
+        throwLastKnownError();
+    }
+
+    // All in bytes
+    _return.diskPath = diskPath;
+    _return.capacity = info.capacity;
+    _return.allocation = info.allocation;
+    _return.physical = info.physical;
+
+    virDomainFree(domain);
+}

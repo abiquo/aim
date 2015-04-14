@@ -429,6 +429,73 @@ class Measure {
 
 void swap(Measure &a, Measure &b);
 
+typedef struct _DomainBlockInfo__isset {
+  _DomainBlockInfo__isset() : capacity(false), allocation(false), physical(false), diskPath(false) {}
+  bool capacity;
+  bool allocation;
+  bool physical;
+  bool diskPath;
+} _DomainBlockInfo__isset;
+
+class DomainBlockInfo {
+ public:
+
+  static const char* ascii_fingerprint; // = "4A712C500E54918CFBA57A70D875BC7B";
+  static const uint8_t binary_fingerprint[16]; // = {0x4A,0x71,0x2C,0x50,0x0E,0x54,0x91,0x8C,0xFB,0xA5,0x7A,0x70,0xD8,0x75,0xBC,0x7B};
+
+  DomainBlockInfo() : capacity(0), allocation(0), physical(0), diskPath() {
+  }
+
+  virtual ~DomainBlockInfo() throw() {}
+
+  int64_t capacity;
+  int64_t allocation;
+  int64_t physical;
+  std::string diskPath;
+
+  _DomainBlockInfo__isset __isset;
+
+  void __set_capacity(const int64_t val) {
+    capacity = val;
+  }
+
+  void __set_allocation(const int64_t val) {
+    allocation = val;
+  }
+
+  void __set_physical(const int64_t val) {
+    physical = val;
+  }
+
+  void __set_diskPath(const std::string& val) {
+    diskPath = val;
+  }
+
+  bool operator == (const DomainBlockInfo & rhs) const
+  {
+    if (!(capacity == rhs.capacity))
+      return false;
+    if (!(allocation == rhs.allocation))
+      return false;
+    if (!(physical == rhs.physical))
+      return false;
+    if (!(diskPath == rhs.diskPath))
+      return false;
+    return true;
+  }
+  bool operator != (const DomainBlockInfo &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const DomainBlockInfo & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+void swap(DomainBlockInfo &a, DomainBlockInfo &b);
+
 typedef struct _RimpException__isset {
   _RimpException__isset() : description(false) {}
   bool description;

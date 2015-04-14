@@ -676,6 +676,107 @@ void swap(Measure &a, Measure &b) {
   swap(a.__isset, b.__isset);
 }
 
+const char* DomainBlockInfo::ascii_fingerprint = "4A712C500E54918CFBA57A70D875BC7B";
+const uint8_t DomainBlockInfo::binary_fingerprint[16] = {0x4A,0x71,0x2C,0x50,0x0E,0x54,0x91,0x8C,0xFB,0xA5,0x7A,0x70,0xD8,0x75,0xBC,0x7B};
+
+uint32_t DomainBlockInfo::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_I64) {
+          xfer += iprot->readI64(this->capacity);
+          this->__isset.capacity = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_I64) {
+          xfer += iprot->readI64(this->allocation);
+          this->__isset.allocation = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_I64) {
+          xfer += iprot->readI64(this->physical);
+          this->__isset.physical = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->diskPath);
+          this->__isset.diskPath = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t DomainBlockInfo::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("DomainBlockInfo");
+
+  xfer += oprot->writeFieldBegin("capacity", ::apache::thrift::protocol::T_I64, 1);
+  xfer += oprot->writeI64(this->capacity);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("allocation", ::apache::thrift::protocol::T_I64, 2);
+  xfer += oprot->writeI64(this->allocation);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("physical", ::apache::thrift::protocol::T_I64, 3);
+  xfer += oprot->writeI64(this->physical);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("diskPath", ::apache::thrift::protocol::T_STRING, 4);
+  xfer += oprot->writeString(this->diskPath);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+void swap(DomainBlockInfo &a, DomainBlockInfo &b) {
+  using ::std::swap;
+  swap(a.capacity, b.capacity);
+  swap(a.allocation, b.allocation);
+  swap(a.physical, b.physical);
+  swap(a.diskPath, b.diskPath);
+  swap(a.__isset, b.__isset);
+}
+
 const char* RimpException::ascii_fingerprint = "EFB929595D312AC8F305D5A794CFEDA1";
 const uint8_t RimpException::binary_fingerprint[16] = {0xEF,0xB9,0x29,0x59,0x5D,0x31,0x2A,0xC8,0xF3,0x05,0xD5,0xA7,0x94,0xCF,0xED,0xA1};
 

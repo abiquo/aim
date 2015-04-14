@@ -85,6 +85,7 @@ class LibvirtService : public Service
         void deleteDisk(const virConnectPtr conn, const string& poolName, const string& name) throw (LibvirtException);
         void resizeVol(const virConnectPtr conn, const string& poolName, const string& name, const double capacityInKb) throw (LibvirtException);
         void resizeDisk(const virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException);
+        void getDomainBlockInfo(const virConnectPtr conn, const string& domainName, const string& diskPath, DomainBlockInfo& _return) throw (LibvirtException);
 };
 
 #endif

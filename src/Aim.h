@@ -47,6 +47,7 @@ class AimIf {
   virtual void deleteDisk(const std::string& poolName, const std::string& name) = 0;
   virtual void resizeVol(const std::string& poolName, const std::string& name, const double capacityInKb) = 0;
   virtual void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb) = 0;
+  virtual void getDomainBlockInfo(DomainBlockInfo& _return, const std::string& domainName, const std::string& diskPath) = 0;
   virtual void getDatapoints(std::vector<Measure> & _return, const std::string& domainName, const int32_t timestamp) = 0;
 };
 
@@ -174,6 +175,9 @@ class AimNull : virtual public AimIf {
     return;
   }
   void resizeDisk(const std::string& /* domainName */, const std::string& /* diskPath */, const double /* diskSizeInKb */) {
+    return;
+  }
+  void getDomainBlockInfo(DomainBlockInfo& /* _return */, const std::string& /* domainName */, const std::string& /* diskPath */) {
     return;
   }
   void getDatapoints(std::vector<Measure> & /* _return */, const std::string& /* domainName */, const int32_t /* timestamp */) {
@@ -3862,6 +3866,133 @@ class Aim_resizeDisk_presult {
 
 };
 
+typedef struct _Aim_getDomainBlockInfo_args__isset {
+  _Aim_getDomainBlockInfo_args__isset() : domainName(false), diskPath(false) {}
+  bool domainName;
+  bool diskPath;
+} _Aim_getDomainBlockInfo_args__isset;
+
+class Aim_getDomainBlockInfo_args {
+ public:
+
+  Aim_getDomainBlockInfo_args() : domainName(), diskPath() {
+  }
+
+  virtual ~Aim_getDomainBlockInfo_args() throw() {}
+
+  std::string domainName;
+  std::string diskPath;
+
+  _Aim_getDomainBlockInfo_args__isset __isset;
+
+  void __set_domainName(const std::string& val) {
+    domainName = val;
+  }
+
+  void __set_diskPath(const std::string& val) {
+    diskPath = val;
+  }
+
+  bool operator == (const Aim_getDomainBlockInfo_args & rhs) const
+  {
+    if (!(domainName == rhs.domainName))
+      return false;
+    if (!(diskPath == rhs.diskPath))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_getDomainBlockInfo_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_getDomainBlockInfo_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Aim_getDomainBlockInfo_pargs {
+ public:
+
+
+  virtual ~Aim_getDomainBlockInfo_pargs() throw() {}
+
+  const std::string* domainName;
+  const std::string* diskPath;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_getDomainBlockInfo_result__isset {
+  _Aim_getDomainBlockInfo_result__isset() : success(false), libvirtException(false) {}
+  bool success;
+  bool libvirtException;
+} _Aim_getDomainBlockInfo_result__isset;
+
+class Aim_getDomainBlockInfo_result {
+ public:
+
+  Aim_getDomainBlockInfo_result() {
+  }
+
+  virtual ~Aim_getDomainBlockInfo_result() throw() {}
+
+  DomainBlockInfo success;
+  LibvirtException libvirtException;
+
+  _Aim_getDomainBlockInfo_result__isset __isset;
+
+  void __set_success(const DomainBlockInfo& val) {
+    success = val;
+  }
+
+  void __set_libvirtException(const LibvirtException& val) {
+    libvirtException = val;
+  }
+
+  bool operator == (const Aim_getDomainBlockInfo_result & rhs) const
+  {
+    if (!(success == rhs.success))
+      return false;
+    if (!(libvirtException == rhs.libvirtException))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_getDomainBlockInfo_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_getDomainBlockInfo_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_getDomainBlockInfo_presult__isset {
+  _Aim_getDomainBlockInfo_presult__isset() : success(false), libvirtException(false) {}
+  bool success;
+  bool libvirtException;
+} _Aim_getDomainBlockInfo_presult__isset;
+
+class Aim_getDomainBlockInfo_presult {
+ public:
+
+
+  virtual ~Aim_getDomainBlockInfo_presult() throw() {}
+
+  DomainBlockInfo* success;
+  LibvirtException libvirtException;
+
+  _Aim_getDomainBlockInfo_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
 typedef struct _Aim_getDatapoints_args__isset {
   _Aim_getDatapoints_args__isset() : domainName(false), timestamp(false) {}
   bool domainName;
@@ -4095,6 +4226,9 @@ class AimClient : virtual public AimIf {
   void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb);
   void send_resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb);
   void recv_resizeDisk();
+  void getDomainBlockInfo(DomainBlockInfo& _return, const std::string& domainName, const std::string& diskPath);
+  void send_getDomainBlockInfo(const std::string& domainName, const std::string& diskPath);
+  void recv_getDomainBlockInfo(DomainBlockInfo& _return);
   void getDatapoints(std::vector<Measure> & _return, const std::string& domainName, const int32_t timestamp);
   void send_getDatapoints(const std::string& domainName, const int32_t timestamp);
   void recv_getDatapoints(std::vector<Measure> & _return);
@@ -4145,6 +4279,7 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_deleteDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_resizeVol(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_resizeDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getDomainBlockInfo(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_getDatapoints(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   AimProcessor(boost::shared_ptr<AimIf> iface) :
@@ -4181,6 +4316,7 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["deleteDisk"] = &AimProcessor::process_deleteDisk;
     processMap_["resizeVol"] = &AimProcessor::process_resizeVol;
     processMap_["resizeDisk"] = &AimProcessor::process_resizeDisk;
+    processMap_["getDomainBlockInfo"] = &AimProcessor::process_getDomainBlockInfo;
     processMap_["getDatapoints"] = &AimProcessor::process_getDatapoints;
   }
 
@@ -4502,6 +4638,16 @@ class AimMultiface : virtual public AimIf {
       ifaces_[i]->resizeDisk(domainName, diskPath, diskSizeInKb);
     }
     ifaces_[i]->resizeDisk(domainName, diskPath, diskSizeInKb);
+  }
+
+  void getDomainBlockInfo(DomainBlockInfo& _return, const std::string& domainName, const std::string& diskPath) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->getDomainBlockInfo(_return, domainName, diskPath);
+    }
+    ifaces_[i]->getDomainBlockInfo(_return, domainName, diskPath);
+    return;
   }
 
   void getDatapoints(std::vector<Measure> & _return, const std::string& domainName, const int32_t timestamp) {

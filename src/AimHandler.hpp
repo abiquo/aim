@@ -463,6 +463,23 @@ class AimHandler: virtual public AimIf
         {
             rimp->copy(source, destination);
         }
+
+        void getDomainBlockInfo(DomainBlockInfo& _return, const std::string& domainName, const std::string& diskPath)
+        {
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
+            try
+            {
+                libvirt.getDomainBlockInfo(conn, domainName, diskPath, _return);
+                libvirt.disconnect(conn);
+            }
+            catch (...)
+            {
+                libvirt.disconnect(conn);
+                throw;
+            }
+        }
 };
 
 #endif
