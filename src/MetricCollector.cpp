@@ -274,7 +274,7 @@ void MetricCollector::truncate_stats()
     std::time(&now);
 
     std::ostringstream ss;
-    ss << "delete from domain_stats where timestamp < " << (now - 3600);
+    ss << "delete from stats where timestamp < " << (now - 3600);
 
     sqlite3 *db;
     if (sqlite3_open(database.c_str(), &db)) {
