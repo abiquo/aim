@@ -53,18 +53,23 @@ void MetricPollster::get_datapoints(string& name, int start, vector<Measure> &_r
     
     if (rc != SQLITE_OK) {
         LOG("Unable to prepare statement, SQL error code: %d", rc);
+        sqlite3_close(db);
         return;
     }
 
     rc = sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
     if (rc != SQLITE_OK) {
         LOG("Unable to bind domain name, SQL error code: %d", rc);
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);   
         return;
     }
     
     rc = sqlite3_bind_int(stmt, 2, start);
     if (rc != SQLITE_OK) {
         LOG("Unable to bind start timestamp, SQL error code: %d", rc);
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
         return;
     }
 
