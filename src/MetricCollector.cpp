@@ -207,6 +207,7 @@ void MetricCollector::read_statistics(vector<Domain> domains)
     virConnectPtr conn = virConnectOpenReadOnly(NULL);
     if (conn != NULL)
     {
+        LOG("Collecting domain statistics...");
         for (std::size_t i = 0; i < domains.size(); i++)
         {
             const char *uuid = domains[i].uuid.c_str();
@@ -232,7 +233,10 @@ void MetricCollector::read_statistics(vector<Domain> domains)
             virDomainFree(domainPtr);
         }
 
+        LOG("Truncation of domain statistics..."); 
         truncate_stats();
+
+        LOG("Recollection of domain statistics done");
         virConnectClose(conn);
     }
     else

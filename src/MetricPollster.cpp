@@ -38,8 +38,10 @@ Datapoint MetricPollster::create_datapoint(int timestamp, long value)
 
 void MetricPollster::get_datapoints(string& name, int start, vector<Measure> &_return)
 {
+    LOG("Getting datapoints for domain %s...", name.c_str());
+
     sqlite3 *db;
-    if (sqlite3_open(database.c_str(), &db)) {
+    if (sqlite3_open_v2(database.c_str(), &db, SQLITE_OPEN_READONLY, NULL)) {
         LOG("Unable to get datapoints, cannot open database '%s'", database.c_str());
         return;
     }
@@ -88,4 +90,6 @@ void MetricPollster::get_datapoints(string& name, int start, vector<Measure> &_r
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
+
+    LOG("%d datapoints returned for domain %s", _return.size(), name.c_str());
 } 
