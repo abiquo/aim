@@ -367,7 +367,7 @@ void MetricCollector::get_datapoints(string& name, int start, vector<Measure> &_
 {
     boost::mutex::scoped_lock lock(db_mutex);
 
-    LOG("Getting datapoints for domain %s...", name.c_str());
+    LOG("Getting datapoints for domain %s from start %d...", name.c_str(), start);
 
     sqlite3 *db;
     if (sqlite3_open_v2(database.c_str(), &db, SQLITE_OPEN_READONLY, NULL)) {
@@ -420,5 +420,5 @@ void MetricCollector::get_datapoints(string& name, int start, vector<Measure> &_
     sqlite3_finalize(stmt);
     sqlite3_close(db);
 
-    LOG("%d datapoints returned for domain %s", _return.size(), name.c_str());
+    LOG("%zu datapoints returned for domain %s", _return.size(), name.c_str());
 } 
