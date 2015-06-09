@@ -29,11 +29,14 @@
 #include <ctime>
 
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
 #include <libvirt/libvirt.h>
 #include <libvirt/virterror.h>
 #include <pugixml.hpp>
 #include <sqlite3.h>
+
+#include <aim_types.h>
 
 #define MIN_COLLECT_FREQ_SECS 60
 
@@ -53,9 +56,9 @@ const static char * SQL_CREATE_STATS =  "CREATE TABLE stats(" \
                                         "dimension_name     TEXT," \
                                         "dimension_value    TEXT);";
 
-class MetricCollector
+class MetricCollector : private boost::noncopyable
 {
-    private:
+    protected:
         int collect_frequency;
         int refresh_frequency;
         string database;
@@ -102,12 +105,18 @@ class MetricCollector
                 unsigned short value);
         Stat stat(const string &uuid, const string &name, const string &metric, const string &dname, const string &dvalue,
                 long long value);
+        Measure create_measure(string name);
+        Datapoint create_datapoint(int timestamp, long value);
+
+        boost::mutex db_mutex;
+        
     public:
         MetricCollector();
         ~MetricCollector();
         
         int initialize(int collectFrequencySecs, int refreshFrequencySecs, const char *databaseFile);
-        void operator()();
+        void run();
+        void get_datapoints(string &name, int start, vector<Measure> &_return);
 };
 
 #endif

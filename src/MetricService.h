@@ -23,7 +23,6 @@
 #define METRIC_SERVICE_H
 
 #include <MetricCollector.h>
-#include <MetricPollster.h>
 
 #include <Debug.h>
 #include <Macros.h>
@@ -41,7 +40,6 @@ class MetricService : public Service
     private:
         boost::thread collectorThread;
         MetricCollector collector;
-        MetricPollster pollster;
 
     public:
         MetricService();

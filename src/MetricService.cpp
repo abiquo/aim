@@ -14,16 +14,12 @@ bool MetricService::initialize(INIReader configuration)
         return false;
     }
 
-    if (pollster.initialize(database.c_str()) != POLLSTER_OK) {
-        return false;
-    }
-
     return true;
 }
 
 bool MetricService::start()
 {
-    collectorThread = boost::thread(collector);
+    collectorThread = boost::thread(&MetricCollector::run, &collector);
     return true;
 }
 
@@ -41,5 +37,5 @@ bool MetricService::cleanup()
 
 void MetricService::getDatapoints(vector<Measure> &_result, string domainName, int from)
 {
-    pollster.get_datapoints(domainName, from, _result);
+    collector.get_datapoints(domainName, from, _result);
 }
