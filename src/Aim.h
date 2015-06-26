@@ -37,6 +37,7 @@ class AimIf {
   virtual void getDomains(std::vector<DomainInfo> & _return) = 0;
   virtual void powerOn(const std::string& domainName) = 0;
   virtual void powerOff(const std::string& domainName) = 0;
+  virtual void shutdown(const std::string& domainName) = 0;
   virtual void reset(const std::string& domainName) = 0;
   virtual void pause(const std::string& domainName) = 0;
   virtual void resume(const std::string& domainName) = 0;
@@ -145,6 +146,9 @@ class AimNull : virtual public AimIf {
     return;
   }
   void powerOff(const std::string& /* domainName */) {
+    return;
+  }
+  void shutdown(const std::string& /* domainName */) {
     return;
   }
   void reset(const std::string& /* domainName */) {
@@ -2642,6 +2646,114 @@ class Aim_powerOff_presult {
 
 };
 
+typedef struct _Aim_shutdown_args__isset {
+  _Aim_shutdown_args__isset() : domainName(false) {}
+  bool domainName;
+} _Aim_shutdown_args__isset;
+
+class Aim_shutdown_args {
+ public:
+
+  Aim_shutdown_args() : domainName() {
+  }
+
+  virtual ~Aim_shutdown_args() throw() {}
+
+  std::string domainName;
+
+  _Aim_shutdown_args__isset __isset;
+
+  void __set_domainName(const std::string& val) {
+    domainName = val;
+  }
+
+  bool operator == (const Aim_shutdown_args & rhs) const
+  {
+    if (!(domainName == rhs.domainName))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_shutdown_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_shutdown_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Aim_shutdown_pargs {
+ public:
+
+
+  virtual ~Aim_shutdown_pargs() throw() {}
+
+  const std::string* domainName;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_shutdown_result__isset {
+  _Aim_shutdown_result__isset() : libvirtException(false) {}
+  bool libvirtException;
+} _Aim_shutdown_result__isset;
+
+class Aim_shutdown_result {
+ public:
+
+  Aim_shutdown_result() {
+  }
+
+  virtual ~Aim_shutdown_result() throw() {}
+
+  LibvirtException libvirtException;
+
+  _Aim_shutdown_result__isset __isset;
+
+  void __set_libvirtException(const LibvirtException& val) {
+    libvirtException = val;
+  }
+
+  bool operator == (const Aim_shutdown_result & rhs) const
+  {
+    if (!(libvirtException == rhs.libvirtException))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_shutdown_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_shutdown_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_shutdown_presult__isset {
+  _Aim_shutdown_presult__isset() : libvirtException(false) {}
+  bool libvirtException;
+} _Aim_shutdown_presult__isset;
+
+class Aim_shutdown_presult {
+ public:
+
+
+  virtual ~Aim_shutdown_presult() throw() {}
+
+  LibvirtException libvirtException;
+
+  _Aim_shutdown_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
 typedef struct _Aim_reset_args__isset {
   _Aim_reset_args__isset() : domainName(false) {}
   bool domainName;
@@ -4196,6 +4308,9 @@ class AimClient : virtual public AimIf {
   void powerOff(const std::string& domainName);
   void send_powerOff(const std::string& domainName);
   void recv_powerOff();
+  void shutdown(const std::string& domainName);
+  void send_shutdown(const std::string& domainName);
+  void recv_shutdown();
   void reset(const std::string& domainName);
   void send_reset(const std::string& domainName);
   void recv_reset();
@@ -4269,6 +4384,7 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_getDomains(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_powerOn(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_powerOff(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_shutdown(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_reset(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_pause(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_resume(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
@@ -4306,6 +4422,7 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["getDomains"] = &AimProcessor::process_getDomains;
     processMap_["powerOn"] = &AimProcessor::process_powerOn;
     processMap_["powerOff"] = &AimProcessor::process_powerOff;
+    processMap_["shutdown"] = &AimProcessor::process_shutdown;
     processMap_["reset"] = &AimProcessor::process_reset;
     processMap_["pause"] = &AimProcessor::process_pause;
     processMap_["resume"] = &AimProcessor::process_resume;
@@ -4548,6 +4665,15 @@ class AimMultiface : virtual public AimIf {
       ifaces_[i]->powerOff(domainName);
     }
     ifaces_[i]->powerOff(domainName);
+  }
+
+  void shutdown(const std::string& domainName) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->shutdown(domainName);
+    }
+    ifaces_[i]->shutdown(domainName);
   }
 
   void reset(const std::string& domainName) {

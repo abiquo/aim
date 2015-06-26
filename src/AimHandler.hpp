@@ -284,6 +284,23 @@ class AimHandler: virtual public AimIf
             }
         }
 
+        void shutdown(const std::string& domainName)
+        {
+            LibvirtService libvirt;
+            virConnectPtr conn = libvirt.connect();
+
+            try
+            {
+                libvirt.shutdown(conn, domainName);
+                libvirt.disconnect(conn);
+            }
+            catch (...)
+            {
+                libvirt.disconnect(conn);
+                throw;
+            }
+        }
+
         void reset(const std::string& domainName)
         {
             LibvirtService libvirt;

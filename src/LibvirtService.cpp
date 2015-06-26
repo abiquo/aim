@@ -536,6 +536,20 @@ void LibvirtService::powerOff(const virConnectPtr conn, const std::string& domai
     }
 }
 
+void LibvirtService::shutdown(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+{
+    LOG("Shutdown domain '%s'", domainName.c_str());
+    virDomainPtr domain = getDomainByName(conn, domainName);
+
+    int ret = virDomainShutdownFlags(domain, VIR_DOMAIN_SHUTDOWN_ACPI_POWER_BTN);
+    virDomainFree(domain);
+    
+    if (ret < 0)
+    {
+        throwLastKnownError();
+    }
+}
+
 void LibvirtService::reset(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
 {
     LOG("Reset domain '%s'", domainName.c_str());

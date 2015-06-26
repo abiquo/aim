@@ -75,6 +75,7 @@ class LibvirtService : public Service
         void getDomainInfo(DomainInfo& _return, virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
         void powerOn(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
         void powerOff(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void shutdown(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
         void reset(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
         void pause(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
         void resume(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
