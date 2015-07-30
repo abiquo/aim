@@ -175,7 +175,7 @@ void MetricCollector::read_disk_stats(const string uuid, const string name,
         if (virDomainBlockStats(domain, devices[i].c_str(), &domainBlockStats, sizeof domainBlockStats) >= 0)
         {
             if (domainBlockStats.rd_req != -1)   { stats.push_back(stat(uuid, name, "disk_rd_requests", "device", devices[i], domainBlockStats.rd_req)); }
-            if (domainBlockStats.wr_req != -1)   { stats.push_back(stat(uuid, name, "disk_rw_requests", "device", devices[i], domainBlockStats.wr_req)); }
+            if (domainBlockStats.wr_req != -1)   { stats.push_back(stat(uuid, name, "disk_wr_requests", "device", devices[i], domainBlockStats.wr_req)); }
             if (domainBlockStats.rd_bytes != -1) { stats.push_back(stat(uuid, name, "disk_rd_bytes", "device", devices[i], domainBlockStats.rd_bytes));  }
             if (domainBlockStats.wr_bytes != -1) { stats.push_back(stat(uuid, name, "disk_wr_bytes", "device", devices[i], domainBlockStats.wr_bytes));  }
         }
