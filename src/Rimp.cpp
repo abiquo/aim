@@ -523,3 +523,69 @@ void Rimp::copy(const std::string& source, const std::string& destination)
 
      LOG("[RIMP] File '%s' copied", fullDestination.c_str());
 }
+
+void Rimp::rename(const std::string& oldPath, const std::string& newPath)
+{
+    LOG("[RIMP] Moving '%s' to '%s'", oldPath.c_str(), newPath.c_str());
+
+    // Check source file exist and can be read
+    if (access(oldPath.c_str(), F_OK | R_OK) == -1)
+    {
+        string error("Source file does not exist or can not be read: ");
+        error = error.append(oldPath);
+        LOG("[ERROR] [RIMP] %s", error.c_str());
+
+        RimpException rexception;
+        rexception.description = error;
+        throw rexception;
+    }
+
+    size_t lastSlash = newPath.find_last_of("/\\");
+    string destinationFolder = newPath.substr(0, lastSlash == 0 ? 1 : lastSlash);
+
+    // Check destination folder exist and can be written
+    if (access(destinationFolder.c_str(), F_OK | W_OK) == -1)
+    {
+        int err = mkdir(destinationFolder.c_str(), S_IRWXU | S_IRWXG);
+
+        if (err == -1)
+        {
+            string error("Unable to create destination folder ");
+            error = error.append(destinationFolder).append(": ").append(strerror(errno));
+            LOG("[ERROR] [RIMP] %s", error.c_str());
+
+            RimpException rexception;
+            rexception.description = error;
+            throw rexception;
+        }
+    }
+
+    // Check that new path does not exist    
+    if (access(newPath.c_str(), F_OK) == 0)
+    {
+        string error("Destination already exists: ");
+        error = error.append(newPath);
+        LOG("[ERROR] [RIMP] %s", error.c_str());
+
+        RimpException rexception;
+        rexception.description = error;
+        throw rexception;
+    }
+
+    // Rename file
+    string error = fileRename(oldPath, newPath);
+    if (!error.empty())
+    {
+        string error("Unable to move to: ");
+        error = error.append(newPath).append(error);
+        LOG("[ERROR] [RIMP] %s", error.c_str());
+
+        RimpException rexception;
+        rexception.description = error;
+        throw rexception;
+    }
+
+    LOG("[RIMP] File '%s' moved to '%s'", oldPath.c_str(), newPath.c_str());
+
+}
+

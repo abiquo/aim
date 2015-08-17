@@ -481,6 +481,11 @@ class AimHandler: virtual public AimIf
             rimp->copy(source, destination);
         }
 
+        void renameDisk(const std::string& oldPath, const std::string& newPath)
+        {
+            rimp->rename(oldPath, newPath);
+        }
+
         void getDomainBlockInfo(DomainBlockInfo& _return, const std::string& domainName, const std::string& diskPath)
         {
             LibvirtService libvirt;
