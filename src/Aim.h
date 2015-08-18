@@ -23,6 +23,7 @@ class AimIf {
   virtual void deleteVirtualImageFromDatastore(const std::string& datastorePath, const std::string& virtualMachineUUID) = 0;
   virtual void copyFromDatastoreToRepository(const std::string& virtualMachineUUID, const std::string& snapshot, const std::string& destinationRepositoryPath, const std::string& sourceDatastorePath) = 0;
   virtual void instanceDisk(const std::string& source, const std::string& destination) = 0;
+  virtual void renameDisk(const std::string& oldPath, const std::string& newPath) = 0;
   virtual void createVLAN(const int32_t vlanTag, const std::string& vlanInterface, const std::string& bridgeInterface) = 0;
   virtual void deleteVLAN(const int32_t vlanTag, const std::string& vlanInterface, const std::string& bridgeInterface) = 0;
   virtual void checkVLANConfiguration() = 0;
@@ -101,6 +102,9 @@ class AimNull : virtual public AimIf {
     return;
   }
   void instanceDisk(const std::string& /* source */, const std::string& /* destination */) {
+    return;
+  }
+  void renameDisk(const std::string& /* oldPath */, const std::string& /* newPath */) {
     return;
   }
   void createVLAN(const int32_t /* vlanTag */, const std::string& /* vlanInterface */, const std::string& /* bridgeInterface */) {
@@ -1095,6 +1099,123 @@ class Aim_instanceDisk_presult {
   RimpException re;
 
   _Aim_instanceDisk_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
+typedef struct _Aim_renameDisk_args__isset {
+  _Aim_renameDisk_args__isset() : oldPath(false), newPath(false) {}
+  bool oldPath;
+  bool newPath;
+} _Aim_renameDisk_args__isset;
+
+class Aim_renameDisk_args {
+ public:
+
+  Aim_renameDisk_args() : oldPath(), newPath() {
+  }
+
+  virtual ~Aim_renameDisk_args() throw() {}
+
+  std::string oldPath;
+  std::string newPath;
+
+  _Aim_renameDisk_args__isset __isset;
+
+  void __set_oldPath(const std::string& val) {
+    oldPath = val;
+  }
+
+  void __set_newPath(const std::string& val) {
+    newPath = val;
+  }
+
+  bool operator == (const Aim_renameDisk_args & rhs) const
+  {
+    if (!(oldPath == rhs.oldPath))
+      return false;
+    if (!(newPath == rhs.newPath))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_renameDisk_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_renameDisk_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Aim_renameDisk_pargs {
+ public:
+
+
+  virtual ~Aim_renameDisk_pargs() throw() {}
+
+  const std::string* oldPath;
+  const std::string* newPath;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_renameDisk_result__isset {
+  _Aim_renameDisk_result__isset() : re(false) {}
+  bool re;
+} _Aim_renameDisk_result__isset;
+
+class Aim_renameDisk_result {
+ public:
+
+  Aim_renameDisk_result() {
+  }
+
+  virtual ~Aim_renameDisk_result() throw() {}
+
+  RimpException re;
+
+  _Aim_renameDisk_result__isset __isset;
+
+  void __set_re(const RimpException& val) {
+    re = val;
+  }
+
+  bool operator == (const Aim_renameDisk_result & rhs) const
+  {
+    if (!(re == rhs.re))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_renameDisk_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_renameDisk_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Aim_renameDisk_presult__isset {
+  _Aim_renameDisk_presult__isset() : re(false) {}
+  bool re;
+} _Aim_renameDisk_presult__isset;
+
+class Aim_renameDisk_presult {
+ public:
+
+
+  virtual ~Aim_renameDisk_presult() throw() {}
+
+  RimpException re;
+
+  _Aim_renameDisk_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -4154,6 +4275,9 @@ class AimClient : virtual public AimIf {
   void instanceDisk(const std::string& source, const std::string& destination);
   void send_instanceDisk(const std::string& source, const std::string& destination);
   void recv_instanceDisk();
+  void renameDisk(const std::string& oldPath, const std::string& newPath);
+  void send_renameDisk(const std::string& oldPath, const std::string& newPath);
+  void recv_renameDisk();
   void createVLAN(const int32_t vlanTag, const std::string& vlanInterface, const std::string& bridgeInterface);
   void send_createVLAN(const int32_t vlanTag, const std::string& vlanInterface, const std::string& bridgeInterface);
   void recv_createVLAN();
@@ -4255,6 +4379,7 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_deleteVirtualImageFromDatastore(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_copyFromDatastoreToRepository(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_instanceDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_renameDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_createVLAN(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_deleteVLAN(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_checkVLANConfiguration(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
@@ -4292,6 +4417,7 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["deleteVirtualImageFromDatastore"] = &AimProcessor::process_deleteVirtualImageFromDatastore;
     processMap_["copyFromDatastoreToRepository"] = &AimProcessor::process_copyFromDatastoreToRepository;
     processMap_["instanceDisk"] = &AimProcessor::process_instanceDisk;
+    processMap_["renameDisk"] = &AimProcessor::process_renameDisk;
     processMap_["createVLAN"] = &AimProcessor::process_createVLAN;
     processMap_["deleteVLAN"] = &AimProcessor::process_deleteVLAN;
     processMap_["checkVLANConfiguration"] = &AimProcessor::process_checkVLANConfiguration;
@@ -4418,6 +4544,15 @@ class AimMultiface : virtual public AimIf {
       ifaces_[i]->instanceDisk(source, destination);
     }
     ifaces_[i]->instanceDisk(source, destination);
+  }
+
+  void renameDisk(const std::string& oldPath, const std::string& newPath) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->renameDisk(oldPath, newPath);
+    }
+    ifaces_[i]->renameDisk(oldPath, newPath);
   }
 
   void createVLAN(const int32_t vlanTag, const std::string& vlanInterface, const std::string& bridgeInterface) {

@@ -124,6 +124,8 @@ public:
             const std::string& destinationRepositoryPath, const std::string& sourceDatastorePath);
 
     virtual void copy(const std::string& source, const std::string& destination);
+
+    virtual void rename(const std::string& oldPath, const std::string& newPath);
 };
 
 #endif
