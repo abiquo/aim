@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <boost/thread/mutex.hpp>
 
-#define NETWORK_SCRIPTS_FOLDER "/etc/sysconfig/network-scripts\0"
+#define NETWORK_SCRIPTS_FOLDER "/etc/network/interfaces.d\0"
 
 using namespace std;
 
@@ -50,16 +50,16 @@ class VLan: public Service
         bool existsBridge(const string& interface);
 
         /** VLAN related methods */
-        bool createVLANInterface(int vlan, const string& vlanIf, const string& bridgeIf);
+        bool createVLANInterface(const string& vlanIf, int vlan);
         bool deleteVLANInterface(int vlan, const string& vlanIf);
-        bool writeVLANConfiguration(const string& device, int vlan, const string& bridgeName, const string& folder, const string& filename);
+        bool writeVLANConfiguration(const string& device, int vlan, const string& folder, const string& filename);
         string buildVLANFilename(int vlan, const string& vlanIf);
 
         /** Bridge related methods */
-        bool createBridgeInterface(const string& bridgeIf);
+        bool createBridgeInterface(const string& vlanIf, int vlan, const string& bridgeIf);
         bool deleteBridgeInterface(const string& bridgeIf);
         bool removeBridge(const string& bridgeIf);
-        bool writeBridgeConfiguration(const string& device, const string& folder, const string& filename);
+        bool writeBridgeConfiguration(const string& vlanIf, int vlan, const string& bridgeName, const string& folder, const string& filename);
         string buildBridgeFilename(const string& bridgeIf);
 
         /** Filesystem helper methods */
