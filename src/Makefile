@@ -42,7 +42,7 @@ THRIFT_FLAGS = -DHAVE_NETINET_IN_H -DHAVE_INTTYPES_H
 CC = g++
 CFLAGS = -Wall
 CXXFLAGS = -Wall $(THRIFT_FLAGS) $(INC_PATH)
-LDFLAGS = $(LD_PATH) -lpthread -lvirt -lthrift -lthriftnb -levent -lcurl -luuid -lboost_filesystem -lboost_thread-mt -lsqlite3
+LDFLAGS = $(LD_PATH) -lpthread -lvirt -lthrift -lthriftnb -levent -lcurl -luuid -lboost_filesystem -lboost_thread -lsqlite3 -lboost_system
 
 
 all: aim
