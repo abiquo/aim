@@ -502,6 +502,11 @@ class AimHandler: virtual public AimIf
                 throw;
             }
         }
+
+        void upload(const BinaryFile& file, const std::string& path)
+        {
+            rimp->dumpToFile(file.data, path);
+        }
 };
 
 #endif

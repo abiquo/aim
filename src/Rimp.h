@@ -126,6 +126,8 @@ public:
     virtual void copy(const std::string& source, const std::string& destination);
 
     virtual void rename(const std::string& oldPath, const std::string& newPath);
+
+    virtual void dumpToFile(const std::string& data, const std::string& destination);
 };
 
 #endif

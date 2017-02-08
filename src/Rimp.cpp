@@ -5,7 +5,7 @@
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <string>
-
+#include <fstream>
 #include <aim_types.h>
 
 
@@ -586,6 +586,13 @@ void Rimp::rename(const std::string& oldPath, const std::string& newPath)
     }
 
     LOG("[RIMP] File '%s' moved to '%s'", oldPath.c_str(), newPath.c_str());
-
 }
 
+void Rimp::dumpToFile(const std::string& data, const std::string& destination)
+{
+    LOG("[RIMP] Dump binary data to '%s'...", destination.c_str());
+    std::ofstream out(destination.c_str());
+    out << data;
+    out.close();
+    LOG("[RIMP] Dump done");
+}

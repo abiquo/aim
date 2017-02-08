@@ -71,6 +71,7 @@ class AimIf {
   virtual void resizeDisk(const std::string& domainName, const std::string& diskPath, const double diskSizeInKb) = 0;
   virtual void getDomainBlockInfo(DomainBlockInfo& _return, const std::string& domainName, const std::string& diskPath) = 0;
   virtual void getDatapoints(std::vector<Measure> & _return, const std::string& domainName, const int32_t timestamp) = 0;
+  virtual void upload(const BinaryFile& file, const std::string& path) = 0;
 };
 
 class AimIfFactory {
@@ -209,6 +210,9 @@ class AimNull : virtual public AimIf {
     return;
   }
   void getDatapoints(std::vector<Measure> & /* _return */, const std::string& /* domainName */, const int32_t /* timestamp */) {
+    return;
+  }
+  void upload(const BinaryFile& /* file */, const std::string& /* path */) {
     return;
   }
 };
@@ -4731,6 +4735,115 @@ class Aim_getDatapoints_presult {
   friend std::ostream& operator<<(std::ostream& out, const Aim_getDatapoints_presult& obj);
 };
 
+typedef struct _Aim_upload_args__isset {
+  _Aim_upload_args__isset() : file(false), path(false) {}
+  bool file :1;
+  bool path :1;
+} _Aim_upload_args__isset;
+
+class Aim_upload_args {
+ public:
+
+  static const char* ascii_fingerprint; // = "BDAF55DAA660FA1ADBE30760752211A8";
+  static const uint8_t binary_fingerprint[16]; // = {0xBD,0xAF,0x55,0xDA,0xA6,0x60,0xFA,0x1A,0xDB,0xE3,0x07,0x60,0x75,0x22,0x11,0xA8};
+
+  Aim_upload_args(const Aim_upload_args&);
+  Aim_upload_args& operator=(const Aim_upload_args&);
+  Aim_upload_args() : path() {
+  }
+
+  virtual ~Aim_upload_args() throw();
+  BinaryFile file;
+  std::string path;
+
+  _Aim_upload_args__isset __isset;
+
+  void __set_file(const BinaryFile& val);
+
+  void __set_path(const std::string& val);
+
+  bool operator == (const Aim_upload_args & rhs) const
+  {
+    if (!(file == rhs.file))
+      return false;
+    if (!(path == rhs.path))
+      return false;
+    return true;
+  }
+  bool operator != (const Aim_upload_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_upload_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+  friend std::ostream& operator<<(std::ostream& out, const Aim_upload_args& obj);
+};
+
+
+class Aim_upload_pargs {
+ public:
+
+  static const char* ascii_fingerprint; // = "BDAF55DAA660FA1ADBE30760752211A8";
+  static const uint8_t binary_fingerprint[16]; // = {0xBD,0xAF,0x55,0xDA,0xA6,0x60,0xFA,0x1A,0xDB,0xE3,0x07,0x60,0x75,0x22,0x11,0xA8};
+
+
+  virtual ~Aim_upload_pargs() throw();
+  const BinaryFile* file;
+  const std::string* path;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+  friend std::ostream& operator<<(std::ostream& out, const Aim_upload_pargs& obj);
+};
+
+
+class Aim_upload_result {
+ public:
+
+  static const char* ascii_fingerprint; // = "99914B932BD37A50B983C5E7C90AE93B";
+  static const uint8_t binary_fingerprint[16]; // = {0x99,0x91,0x4B,0x93,0x2B,0xD3,0x7A,0x50,0xB9,0x83,0xC5,0xE7,0xC9,0x0A,0xE9,0x3B};
+
+  Aim_upload_result(const Aim_upload_result&);
+  Aim_upload_result& operator=(const Aim_upload_result&);
+  Aim_upload_result() {
+  }
+
+  virtual ~Aim_upload_result() throw();
+
+  bool operator == (const Aim_upload_result & /* rhs */) const
+  {
+    return true;
+  }
+  bool operator != (const Aim_upload_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Aim_upload_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+  friend std::ostream& operator<<(std::ostream& out, const Aim_upload_result& obj);
+};
+
+
+class Aim_upload_presult {
+ public:
+
+  static const char* ascii_fingerprint; // = "99914B932BD37A50B983C5E7C90AE93B";
+  static const uint8_t binary_fingerprint[16]; // = {0x99,0x91,0x4B,0x93,0x2B,0xD3,0x7A,0x50,0xB9,0x83,0xC5,0xE7,0xC9,0x0A,0xE9,0x3B};
+
+
+  virtual ~Aim_upload_presult() throw();
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+  friend std::ostream& operator<<(std::ostream& out, const Aim_upload_presult& obj);
+};
+
 class AimClient : virtual public AimIf {
  public:
   AimClient(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> prot) {
@@ -4864,6 +4977,9 @@ class AimClient : virtual public AimIf {
   void getDatapoints(std::vector<Measure> & _return, const std::string& domainName, const int32_t timestamp);
   void send_getDatapoints(const std::string& domainName, const int32_t timestamp);
   void recv_getDatapoints(std::vector<Measure> & _return);
+  void upload(const BinaryFile& file, const std::string& path);
+  void send_upload(const BinaryFile& file, const std::string& path);
+  void recv_upload();
  protected:
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
@@ -4915,6 +5031,7 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_resizeDisk(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_getDomainBlockInfo(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_getDatapoints(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_upload(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   AimProcessor(boost::shared_ptr<AimIf> iface) :
     iface_(iface) {
@@ -4954,6 +5071,7 @@ class AimProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["resizeDisk"] = &AimProcessor::process_resizeDisk;
     processMap_["getDomainBlockInfo"] = &AimProcessor::process_getDomainBlockInfo;
     processMap_["getDatapoints"] = &AimProcessor::process_getDatapoints;
+    processMap_["upload"] = &AimProcessor::process_upload;
   }
 
   virtual ~AimProcessor() {}
@@ -5312,6 +5430,15 @@ class AimMultiface : virtual public AimIf {
     }
     ifaces_[i]->getDatapoints(_return, domainName, timestamp);
     return;
+  }
+
+  void upload(const BinaryFile& file, const std::string& path) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->upload(file, path);
+    }
+    ifaces_[i]->upload(file, path);
   }
 
 };

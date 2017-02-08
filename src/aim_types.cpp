@@ -1124,6 +1124,96 @@ std::ostream& operator<<(std::ostream& out, const DomainBlockInfo& obj) {
 }
 
 
+BinaryFile::~BinaryFile() throw() {
+}
+
+
+void BinaryFile::__set_data(const std::string& val) {
+  this->data = val;
+}
+
+const char* BinaryFile::ascii_fingerprint = "EFB929595D312AC8F305D5A794CFEDA1";
+const uint8_t BinaryFile::binary_fingerprint[16] = {0xEF,0xB9,0x29,0x59,0x5D,0x31,0x2A,0xC8,0xF3,0x05,0xD5,0xA7,0x94,0xCF,0xED,0xA1};
+
+uint32_t BinaryFile::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readBinary(this->data);
+          this->__isset.data = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t BinaryFile::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  oprot->incrementRecursionDepth();
+  xfer += oprot->writeStructBegin("BinaryFile");
+
+  xfer += oprot->writeFieldBegin("data", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeBinary(this->data);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  oprot->decrementRecursionDepth();
+  return xfer;
+}
+
+void swap(BinaryFile &a, BinaryFile &b) {
+  using ::std::swap;
+  swap(a.data, b.data);
+  swap(a.__isset, b.__isset);
+}
+
+BinaryFile::BinaryFile(const BinaryFile& other29) {
+  data = other29.data;
+  __isset = other29.__isset;
+}
+BinaryFile& BinaryFile::operator=(const BinaryFile& other30) {
+  data = other30.data;
+  __isset = other30.__isset;
+  return *this;
+}
+std::ostream& operator<<(std::ostream& out, const BinaryFile& obj) {
+  using apache::thrift::to_string;
+  out << "BinaryFile(";
+  out << "data=" << to_string(obj.data);
+  out << ")";
+  return out;
+}
+
+
 RimpException::~RimpException() throw() {
 }
 
@@ -1196,13 +1286,13 @@ void swap(RimpException &a, RimpException &b) {
   swap(a.__isset, b.__isset);
 }
 
-RimpException::RimpException(const RimpException& other29) : TException() {
-  description = other29.description;
-  __isset = other29.__isset;
+RimpException::RimpException(const RimpException& other31) : TException() {
+  description = other31.description;
+  __isset = other31.__isset;
 }
-RimpException& RimpException::operator=(const RimpException& other30) {
-  description = other30.description;
-  __isset = other30.__isset;
+RimpException& RimpException::operator=(const RimpException& other32) {
+  description = other32.description;
+  __isset = other32.__isset;
   return *this;
 }
 std::ostream& operator<<(std::ostream& out, const RimpException& obj) {
@@ -1286,13 +1376,13 @@ void swap(VLanException &a, VLanException &b) {
   swap(a.__isset, b.__isset);
 }
 
-VLanException::VLanException(const VLanException& other31) : TException() {
-  description = other31.description;
-  __isset = other31.__isset;
+VLanException::VLanException(const VLanException& other33) : TException() {
+  description = other33.description;
+  __isset = other33.__isset;
 }
-VLanException& VLanException::operator=(const VLanException& other32) {
-  description = other32.description;
-  __isset = other32.__isset;
+VLanException& VLanException::operator=(const VLanException& other34) {
+  description = other34.description;
+  __isset = other34.__isset;
   return *this;
 }
 std::ostream& operator<<(std::ostream& out, const VLanException& obj) {
@@ -1376,13 +1466,13 @@ void swap(StorageException &a, StorageException &b) {
   swap(a.__isset, b.__isset);
 }
 
-StorageException::StorageException(const StorageException& other33) : TException() {
-  description = other33.description;
-  __isset = other33.__isset;
+StorageException::StorageException(const StorageException& other35) : TException() {
+  description = other35.description;
+  __isset = other35.__isset;
 }
-StorageException& StorageException::operator=(const StorageException& other34) {
-  description = other34.description;
-  __isset = other34.__isset;
+StorageException& StorageException::operator=(const StorageException& other36) {
+  description = other36.description;
+  __isset = other36.__isset;
   return *this;
 }
 std::ostream& operator<<(std::ostream& out, const StorageException& obj) {
@@ -1602,29 +1692,29 @@ void swap(LibvirtException &a, LibvirtException &b) {
   swap(a.__isset, b.__isset);
 }
 
-LibvirtException::LibvirtException(const LibvirtException& other35) : TException() {
-  code = other35.code;
-  domain = other35.domain;
-  msg = other35.msg;
-  level = other35.level;
-  str1 = other35.str1;
-  str2 = other35.str2;
-  str3 = other35.str3;
-  int1 = other35.int1;
-  int2 = other35.int2;
-  __isset = other35.__isset;
+LibvirtException::LibvirtException(const LibvirtException& other37) : TException() {
+  code = other37.code;
+  domain = other37.domain;
+  msg = other37.msg;
+  level = other37.level;
+  str1 = other37.str1;
+  str2 = other37.str2;
+  str3 = other37.str3;
+  int1 = other37.int1;
+  int2 = other37.int2;
+  __isset = other37.__isset;
 }
-LibvirtException& LibvirtException::operator=(const LibvirtException& other36) {
-  code = other36.code;
-  domain = other36.domain;
-  msg = other36.msg;
-  level = other36.level;
-  str1 = other36.str1;
-  str2 = other36.str2;
-  str3 = other36.str3;
-  int1 = other36.int1;
-  int2 = other36.int2;
-  __isset = other36.__isset;
+LibvirtException& LibvirtException::operator=(const LibvirtException& other38) {
+  code = other38.code;
+  domain = other38.domain;
+  msg = other38.msg;
+  level = other38.level;
+  str1 = other38.str1;
+  str2 = other38.str2;
+  str3 = other38.str3;
+  int1 = other38.int1;
+  int2 = other38.int2;
+  __isset = other38.__isset;
   return *this;
 }
 std::ostream& operator<<(std::ostream& out, const LibvirtException& obj) {
