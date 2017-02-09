@@ -396,11 +396,7 @@ void LibvirtService::getDomains(std::vector<DomainInfo> & _return, const virConn
         {
             
             DomainInfo domainInfo = getDomainInfo(conn, domains[i]);
-            
-            if (existPrimaryDisk(domainInfo))
-            {
-                _return.push_back(domainInfo);
-            }
+            _return.push_back(domainInfo);
             virDomainFree(domains[i]);
         }
         catch(...)
