@@ -1,6 +1,6 @@
 #!/bin/sh
 
-AIM_VERSION=2.8.0
+AIM_VERSION=2.8.1
 
 BUILD_PLATFORM=`uname -srm`
 BUILD_DATE=`date +"%Y-%m-%d %H:%M"`
