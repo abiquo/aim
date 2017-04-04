@@ -135,9 +135,10 @@ void MetricCollector::refresh(vector<Domain> &domains)
             parse_xml_dump(xml, domain);
             domains.push_back(domain);
 
+            free((char*) xml); 
             virDomainFree(domainsPtr[i]);
         }
-        
+       
         free(domainsPtr);
         virConnectClose(conn);
     }
