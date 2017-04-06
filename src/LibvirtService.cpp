@@ -836,8 +836,8 @@ void LibvirtService::createDisk(const virConnectPtr conn, const string& poolName
     ostringstream xml;
     xml << "<volume>";
     xml << "<name>" << name << "</name>";
-    xml << "<capacity unit='KB'>" << to_string(capacityInKb) << "</capacity>";
-    xml << "<allocation unit='KB'>" << to_string(allocationInKb) << "</allocation>";
+    xml << "<capacity unit='K'>" << to_string(capacityInKb) << "</capacity>";
+    xml << "<allocation unit='K'>" << to_string(allocationInKb) << "</allocation>";
     xml << "<target>";
     xml << "<format type='" << format << "' />";
     xml << "<permissions>";
