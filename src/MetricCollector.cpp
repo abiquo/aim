@@ -175,10 +175,10 @@ void MetricCollector::read_disk_stats(const string uuid, const string name,
         _virDomainBlockStats domainBlockStats;
         if (virDomainBlockStats(domain, devices[i].c_str(), &domainBlockStats, sizeof domainBlockStats) >= 0)
         {
-            if (domainBlockStats.rd_req != -1)   { stats.push_back(stat(uuid, name, "disk_rd_requests", "device", devices[i], domainBlockStats.rd_req)); }
-            if (domainBlockStats.wr_req != -1)   { stats.push_back(stat(uuid, name, "disk_wr_requests", "device", devices[i], domainBlockStats.wr_req)); }
-            if (domainBlockStats.rd_bytes != -1) { stats.push_back(stat(uuid, name, "disk_rd_bytes", "device", devices[i], domainBlockStats.rd_bytes));  }
-            if (domainBlockStats.wr_bytes != -1) { stats.push_back(stat(uuid, name, "disk_wr_bytes", "device", devices[i], domainBlockStats.wr_bytes));  }
+            if (domainBlockStats.rd_req != -1)   { stats.push_back(stat(uuid, name, "disk_rd_requests_total", "device", devices[i], domainBlockStats.rd_req)); }
+            if (domainBlockStats.wr_req != -1)   { stats.push_back(stat(uuid, name, "disk_wr_requests_total", "device", devices[i], domainBlockStats.wr_req)); }
+            if (domainBlockStats.rd_bytes != -1) { stats.push_back(stat(uuid, name, "disk_rd_bytes_total", "device", devices[i], domainBlockStats.rd_bytes));  }
+            if (domainBlockStats.wr_bytes != -1) { stats.push_back(stat(uuid, name, "disk_wr_bytes_total", "device", devices[i], domainBlockStats.wr_bytes));  }
         }
     }
 }
@@ -191,14 +191,14 @@ void MetricCollector::read_interface_stats(const string uuid, const string name,
         _virDomainInterfaceStats domainInterfaceStats;
         if (virDomainInterfaceStats(domain, interfaces[i].c_str(), &domainInterfaceStats, sizeof domainInterfaceStats) >= 0)
         {
-            if (domainInterfaceStats.rx_bytes != -1)    { stats.push_back(stat(uuid, name, "if_rx_bytes", "interface", interfaces[i], domainInterfaceStats.rx_bytes));     }
-            if (domainInterfaceStats.rx_packets != -1)  { stats.push_back(stat(uuid, name, "if_rx_packets", "interface", interfaces[i], domainInterfaceStats.rx_packets)); }
-            if (domainInterfaceStats.rx_errs != -1)     { stats.push_back(stat(uuid, name, "if_rx_errors", "interface", interfaces[i], domainInterfaceStats.rx_errs));     }
-            if (domainInterfaceStats.rx_drop != -1)     { stats.push_back(stat(uuid, name, "if_rx_drops", "interface", interfaces[i], domainInterfaceStats.rx_drop));      }
-            if (domainInterfaceStats.tx_bytes != -1)    { stats.push_back(stat(uuid, name, "if_tx_bytes", "interface", interfaces[i], domainInterfaceStats.tx_bytes));     }
-            if (domainInterfaceStats.tx_packets != -1)  { stats.push_back(stat(uuid, name, "if_tx_packets", "interface", interfaces[i], domainInterfaceStats.tx_packets)); }
-            if (domainInterfaceStats.tx_errs != -1)     { stats.push_back(stat(uuid, name, "if_tx_errors", "interface", interfaces[i], domainInterfaceStats.tx_errs));     }
-            if (domainInterfaceStats.tx_drop != -1)     { stats.push_back(stat(uuid, name, "if_tx_drops", "interface", interfaces[i], domainInterfaceStats.tx_drop));      }          
+            if (domainInterfaceStats.rx_bytes != -1)    { stats.push_back(stat(uuid, name, "if_rx_bytes_total", "interface", interfaces[i], domainInterfaceStats.rx_bytes));     }
+            if (domainInterfaceStats.rx_packets != -1)  { stats.push_back(stat(uuid, name, "if_rx_packets_total", "interface", interfaces[i], domainInterfaceStats.rx_packets)); }
+            if (domainInterfaceStats.rx_errs != -1)     { stats.push_back(stat(uuid, name, "if_rx_errors_total", "interface", interfaces[i], domainInterfaceStats.rx_errs));     }
+            if (domainInterfaceStats.rx_drop != -1)     { stats.push_back(stat(uuid, name, "if_rx_drops_total", "interface", interfaces[i], domainInterfaceStats.rx_drop));      }
+            if (domainInterfaceStats.tx_bytes != -1)    { stats.push_back(stat(uuid, name, "if_tx_bytes_total", "interface", interfaces[i], domainInterfaceStats.tx_bytes));     }
+            if (domainInterfaceStats.tx_packets != -1)  { stats.push_back(stat(uuid, name, "if_tx_packets_total", "interface", interfaces[i], domainInterfaceStats.tx_packets)); }
+            if (domainInterfaceStats.tx_errs != -1)     { stats.push_back(stat(uuid, name, "if_tx_errors_total", "interface", interfaces[i], domainInterfaceStats.tx_errs));     }
+            if (domainInterfaceStats.tx_drop != -1)     { stats.push_back(stat(uuid, name, "if_tx_drops_total", "interface", interfaces[i], domainInterfaceStats.tx_drop));      }          
         }
     }
 }
