@@ -33,9 +33,9 @@ LibvirtService::~LibvirtService()
 
 // Private methods
 
-virDomainPtr LibvirtService::getDomainByName(const virConnectPtr conn, const std::string& name) throw (LibvirtException)
+virDomainPtr LibvirtService::getDomainByUUID(const virConnectPtr conn, const std::string& uuid) throw (LibvirtException)
 {
-    virDomainPtr domain = virDomainLookupByName(conn, name.c_str());
+    virDomainPtr domain = virDomainLookupByUUIDString(conn, uuid.c_str());
     if (domain == NULL)
     {
         throwLastKnownError();
@@ -422,10 +422,10 @@ void LibvirtService::defineDomain(const virConnectPtr conn, const std::string& x
     virDomainFree(domain);
 }
 
-void LibvirtService::undefineDomain(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::undefineDomain(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException)
 {
-    LOG("Undefine domain '%s'", domainName.c_str());
-    virDomainPtr domain = getDomainByName(conn, domainName);
+    LOG("Undefine domain '%s'", domainUUID.c_str());
+    virDomainPtr domain = getDomainByUUID(conn, domainUUID);
 
     // ABICLOUDPREMIUM-5990: Check if the domain has a managed save image or snapshots, to properly undefine everything,
     // otherwise the undefine operation will fail. See: http://libvirt.org/html/libvirt-libvirt.html#virDomainUndefine
@@ -462,12 +462,12 @@ void LibvirtService::undefineDomain(const virConnectPtr conn, const std::string&
     }
 }
 
-bool LibvirtService::existDomain(const virConnectPtr conn, const std::string& domainName)
+bool LibvirtService::existDomain(const virConnectPtr conn, const std::string& domainUUID)
 {
     try
     {
-        LOG("Check if domain '%s' exists", domainName.c_str());
-        virDomainPtr domain = getDomainByName(conn, domainName);
+        LOG("Check if domain '%s' exists", domainUUID.c_str());
+        virDomainPtr domain = getDomainByUUID(conn, domainUUID);
         virDomainFree(domain);
         return true;
     }
@@ -477,10 +477,10 @@ bool LibvirtService::existDomain(const virConnectPtr conn, const std::string& do
     }
 }
 
-DomainState::type LibvirtService::getDomainState(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+DomainState::type LibvirtService::getDomainState(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException)
 {
-    LOG("Get domain '%s' state", domainName.c_str());
-    virDomainPtr domain = getDomainByName(conn, domainName);
+    LOG("Get domain '%s' state", domainUUID.c_str());
+    virDomainPtr domain = getDomainByUUID(conn, domainUUID);
     virDomainInfo info;
 
     if (virDomainGetInfo(domain, &info) < 0)
@@ -496,18 +496,18 @@ DomainState::type LibvirtService::getDomainState(const virConnectPtr conn, const
     return result;
 }
 
-void LibvirtService::getDomainInfo(DomainInfo& _return, const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::getDomainInfo(DomainInfo& _return, const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException)
 {
-    LOG("Get domain '%s' info", domainName.c_str());
-    virDomainPtr domain = getDomainByName(conn, domainName);
+    LOG("Get domain '%s' info", domainUUID.c_str());
+    virDomainPtr domain = getDomainByUUID(conn, domainUUID);
     _return = getDomainInfo(conn, domain);
     virDomainFree(domain);
 }
 
-void LibvirtService::powerOn(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::powerOn(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException)
 {
-    LOG("Power on domain '%s'", domainName.c_str());
-    virDomainPtr domain = getDomainByName(conn, domainName);
+    LOG("Power on domain '%s'", domainUUID.c_str());
+    virDomainPtr domain = getDomainByUUID(conn, domainUUID);
 
     int ret = virDomainCreate(domain);
     virDomainFree(domain);
@@ -518,10 +518,10 @@ void LibvirtService::powerOn(const virConnectPtr conn, const std::string& domain
     }   
 }
 
-void LibvirtService::powerOff(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::powerOff(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException)
 {
-    LOG("Power off domain '%s'", domainName.c_str());
-    virDomainPtr domain = getDomainByName(conn, domainName);
+    LOG("Power off domain '%s'", domainUUID.c_str());
+    virDomainPtr domain = getDomainByUUID(conn, domainUUID);
 
     int ret = virDomainDestroy(domain);
     virDomainFree(domain);
@@ -532,10 +532,10 @@ void LibvirtService::powerOff(const virConnectPtr conn, const std::string& domai
     }
 }
 
-void LibvirtService::shutdown(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::shutdown(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException)
 {
-    LOG("Shutdown domain '%s'", domainName.c_str());
-    virDomainPtr domain = getDomainByName(conn, domainName);
+    LOG("Shutdown domain '%s'", domainUUID.c_str());
+    virDomainPtr domain = getDomainByUUID(conn, domainUUID);
 
     int ret = virDomainShutdownFlags(domain, VIR_DOMAIN_SHUTDOWN_ACPI_POWER_BTN);
     virDomainFree(domain);
@@ -546,10 +546,10 @@ void LibvirtService::shutdown(const virConnectPtr conn, const std::string& domai
     }
 }
 
-void LibvirtService::reset(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::reset(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException)
 {
-    LOG("Reset domain '%s'", domainName.c_str());
-    virDomainPtr domain = getDomainByName(conn, domainName);
+    LOG("Reset domain '%s'", domainUUID.c_str());
+    virDomainPtr domain = getDomainByUUID(conn, domainUUID);
 
     int ret = virDomainReboot(domain, 0);
     virDomainFree(domain);
@@ -560,10 +560,10 @@ void LibvirtService::reset(const virConnectPtr conn, const std::string& domainNa
     }
 }
 
-void LibvirtService::pause(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::pause(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException)
 {
-    LOG("Pause domain '%s'", domainName.c_str());
-    virDomainPtr domain = getDomainByName(conn, domainName);
+    LOG("Pause domain '%s'", domainUUID.c_str());
+    virDomainPtr domain = getDomainByUUID(conn, domainUUID);
 
     int ret = virDomainSuspend(domain);
     virDomainFree(domain);
@@ -574,10 +574,10 @@ void LibvirtService::pause(const virConnectPtr conn, const std::string& domainNa
     }
 }
 
-void LibvirtService::resume(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException)
+void LibvirtService::resume(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException)
 {
-    LOG("Resume domain '%s'", domainName.c_str());
-    virDomainPtr domain = getDomainByName(conn, domainName);
+    LOG("Resume domain '%s'", domainUUID.c_str());
+    virDomainPtr domain = getDomainByUUID(conn, domainUUID);
 
     int ret = virDomainResume(domain);
     virDomainFree(domain);
@@ -920,13 +920,13 @@ void LibvirtService::resizeVol(const virConnectPtr conn, const string& poolName,
     LOG("Disk '%s' resized", name.c_str());
 }
 
-void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& domainName, 
+void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& domainUUID, 
         const std::string& diskPath, const double diskSizeInKb) throw (LibvirtException)
 {
-    LOG("Resize disk '%s' of domain '%s' to %f Kb", diskPath.c_str(), domainName.c_str(), diskSizeInKb);
+    LOG("Resize disk '%s' of domain '%s' to %f Kb", diskPath.c_str(), domainUUID.c_str(), diskSizeInKb);
 
     virDomainInfo info;
-    virDomainPtr domain = getDomainByName(conn, domainName);
+    virDomainPtr domain = getDomainByUUID(conn, domainUUID);
 
     // [ABICLOUDPREMIUM-5486] In the CentOS 6 libvirt version (0.10.2-18)
     // it seems that disks can not be resized if the domain is not running.
@@ -942,7 +942,7 @@ void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& dom
 
     if (!running)
     {
-        LOG("Domain '%s' is not running. Powering on to resize the disk...", domainName.c_str());
+        LOG("Domain '%s' is not running. Powering on to resize the disk...", domainUUID.c_str());
         if (virDomainCreate(domain) < 0)
         {
             virDomainFree(domain);
@@ -955,7 +955,7 @@ void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& dom
     // Even if the resize fails, we need to restore the domain to its original state
     if (!running)
     {
-        LOG("Restoring domain '%s' to its original state...", domainName.c_str());
+        LOG("Restoring domain '%s' to its original state...", domainUUID.c_str());
         if (virDomainDestroy(domain) < 0)
         {
             virDomainFree(domain);
@@ -971,11 +971,11 @@ void LibvirtService::resizeDisk(const virConnectPtr conn, const std::string& dom
     }
 }
 
-void LibvirtService::getDomainBlockInfo(const virConnectPtr conn, const string& domainName, 
+void LibvirtService::getDomainBlockInfo(const virConnectPtr conn, const string& domainUUID, 
     const string& diskPath, DomainBlockInfo& _return) throw (LibvirtException)
 {
     virDomainBlockInfo info;
-    virDomainPtr domain = getDomainByName(conn, domainName);
+    virDomainPtr domain = getDomainByUUID(conn, domainUUID);
 
     if (virDomainGetBlockInfo(domain, diskPath.c_str(), &info, 0) < 0)
     {

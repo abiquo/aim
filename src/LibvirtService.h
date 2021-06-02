@@ -33,7 +33,7 @@ using namespace std;
 class LibvirtService : public Service
 {
     private:
-        virDomainPtr getDomainByName(virConnectPtr conn, const string& name) throw (LibvirtException);
+        virDomainPtr getDomainByUUID(virConnectPtr conn, const string& uuid) throw (LibvirtException);
         DomainInfo getDomainInfo(const virConnectPtr conn, const virDomainPtr domain) throw (LibvirtException);
         DomainState::type toDomainState(unsigned char state);
         void defineStoragePool(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
@@ -69,24 +69,24 @@ class LibvirtService : public Service
         void getNodeInfo(NodeInfo& _return, const virConnectPtr conn) throw (LibvirtException);
         void getDomains(std::vector<DomainInfo> & _return, const virConnectPtr conn) throw (LibvirtException);
         void defineDomain(const virConnectPtr conn, const std::string& xmlDesc) throw (LibvirtException);
-        void undefineDomain(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        bool existDomain(const virConnectPtr conn, const std::string& domainName);
-        DomainState::type getDomainState(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void getDomainInfo(DomainInfo& _return, virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void powerOn(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void powerOff(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void shutdown(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void reset(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void pause(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
-        void resume(const virConnectPtr conn, const std::string& domainName) throw (LibvirtException);
+        void undefineDomain(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException);
+        bool existDomain(const virConnectPtr conn, const std::string& domainUUID);
+        DomainState::type getDomainState(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException);
+        void getDomainInfo(DomainInfo& _return, virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException);
+        void powerOn(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException);
+        void powerOff(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException);
+        void shutdown(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException);
+        void reset(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException);
+        void pause(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException);
+        void resume(const virConnectPtr conn, const std::string& domainUUID) throw (LibvirtException);
         void createISCSIStoragePool(const virConnectPtr conn, const std::string& name, const std::string& host, const std::string& iqn, const std::string& targetPath) throw (LibvirtException);
         void createNFSStoragePool(const virConnectPtr conn, const std::string& name, const std::string& host, const std::string& dir, const std::string& targetPath) throw (LibvirtException);
         void createDirStoragePool(const virConnectPtr conn, const std::string& name, const std::string& targetPath) throw (LibvirtException);
         void createDisk(const virConnectPtr conn, const string& poolName, const string& name, const double capacityInKb, const double allocationInKb, const string& format) throw (LibvirtException);
         void deleteDisk(const virConnectPtr conn, const string& poolName, const string& name) throw (LibvirtException);
         void resizeVol(const virConnectPtr conn, const string& poolName, const string& name, const double capacityInKb) throw (LibvirtException);
-        void resizeDisk(const virConnectPtr conn, const string& domainName, const string& diskPath, const double diskSizeInKb) throw (LibvirtException);
-        void getDomainBlockInfo(const virConnectPtr conn, const string& domainName, const string& diskPath, DomainBlockInfo& _return) throw (LibvirtException);
+        void resizeDisk(const virConnectPtr conn, const string& domainUUID, const string& diskPath, const double diskSizeInKb) throw (LibvirtException);
+        void getDomainBlockInfo(const virConnectPtr conn, const string& domainUUID, const string& diskPath, DomainBlockInfo& _return) throw (LibvirtException);
 };
 
 #endif
