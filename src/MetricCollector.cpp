@@ -285,7 +285,7 @@ void MetricCollector::truncate_stats()
 
     sqlite3 *db;
     if (sqlite3_open(database.c_str(), &db)) {
-        LOG("Trancate stats error, cannot open database '%s'", database.c_str());
+        LOG("Truncate stats error, cannot open database '%s'", database.c_str());
         return;
     }
 
@@ -380,7 +380,7 @@ void MetricCollector::get_datapoints(string& name, int start, vector<Measure> &_
     const char *zTail;
 
     int rc = sqlite3_prepare(db,
-            "select * from stats where name=? and timestamp >= ?;", 
+            "select * from stats where uuid=? and timestamp >= ?;", 
             -1, &stmt, &zTail);
     
     if (rc != SQLITE_OK) {
@@ -391,7 +391,7 @@ void MetricCollector::get_datapoints(string& name, int start, vector<Measure> &_
 
     rc = sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
     if (rc != SQLITE_OK) {
-        LOG("Unable to bind domain name, SQL error code: %d", rc);
+        LOG("Unable to bind domain uuid, SQL error code: %d", rc);
         sqlite3_finalize(stmt);
         sqlite3_close(db);   
         return;
